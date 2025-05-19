@@ -1,0 +1,32 @@
+{
+  "name": "@omnidev/template-elysia",
+  "private": true,
+  "main": "build/server.js",
+  "module": "src/server.js",
+  "scripts": {
+    "dev": "bun run --watch src/server.ts",
+    "build": "bun build --target node --outdir build src/server.ts",
+    "start": "GRAPHILE_ENV=production NODE_ENV=production bun db:migrate && GRAPHILE_ENV=production NODE_ENV=production bun run build/server.js",
+    "lint": "biome lint src",
+    "format": "biome format --write src",
+    "db:check": "bun --env-file .env.local drizzle-kit check",
+    "db:generate": "bun --env-file .env.local drizzle-kit generate",
+    "db:migrate": "bun --env-file .env.local drizzle-kit migrate && bun graphile:generate",
+    "db:migrate:drop": "bun --env-file .env.local drizzle-kit drop",
+    "db:pull": "bun --env-file .env.local drizzle-kit introspect",
+    "db:push": "bun --env-file .env.local drizzle-kit push",
+    "db:seed": "NODE_ENV=development bun run --env-file .env.local src/scripts/seedDatabase.ts",
+    "db:studio": "bun --env-file .env.local drizzle-kit studio",
+    "db:up": "bun --env-file .env.local drizzle-kit up",
+    "graphile:generate": "NODE_ENV=development bun run --env-file .env.local src/scripts/generateGraphqlSchema.ts",
+    "prepare": "husky"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "^1.9.4",
+    "bun-types": "latest",
+    "husky": "^9.1.7"
+  },
+  "dependencies": {
+    "elysia": "latest"
+  }
+}

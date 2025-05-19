@@ -1,0 +1,9 @@
+build/
+node_modules/
+
+# environment
+.env
+.env.*
+!.env.*template
+!.env.development
+!.env.production
