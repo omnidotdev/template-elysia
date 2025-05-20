@@ -11,7 +11,7 @@
     "resolveJsonModule": true,
     "skipLibCheck": true,
     "strict": true,
-    "types": ["bun-types"]
+    "types": ["@types/bun"]
   },
   "exclude": ["generated"],
   "include": ["src/**/*"]
