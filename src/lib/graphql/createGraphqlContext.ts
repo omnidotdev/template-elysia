@@ -5,6 +5,7 @@ import {
 
 import { dbPool, pgPool } from "lib/db/db";
 
+import type { SelectUser } from "lib/db/schema";
 import type { YogaInitialContext } from "graphql-yoga";
 import type { WithPgClient } from "postgraphile/@dataplan/pg";
 import type { PgSubscriber } from "postgraphile/adaptors/pg";
@@ -12,8 +13,11 @@ import type { PgSubscriber } from "postgraphile/adaptors/pg";
 const withPgClient = createWithPgClient({ pool: pgPool });
 
 export interface GraphQLContext {
+  /** API observer, injected by the authentication plugin and controlled via `contextFieldName`. Related to the viewer pattern: https://wundergraph.com/blog/graphql_federation_viewer_pattern */
+  observer: SelectUser | null;
   /** Network request. */
   request: Request;
+  /** Database. */
   db: typeof dbPool;
   /** Postgres client, injected by Postgraphile. */
   withPgClient: WithPgClient<NodePostgresPgClient>;
@@ -30,7 +34,7 @@ export interface GraphQLContext {
 const createGraphqlContext = async ({
   request,
 }: YogaInitialContext): Promise<
-  Omit<GraphQLContext, "pgSettings" | "pgSubscriber">
+  Omit<GraphQLContext, "observer" | "pgSettings" | "pgSubscriber">
 > => ({
   request,
   db: dbPool,

@@ -71,6 +71,7 @@ const resolveUser: ResolveUserFn<SelectUser, GraphQLContext> = async (ctx) => {
  */
 const useAuth = () =>
   useGenericAuth({
+    contextFieldName: "observer",
     resolveUserFn: resolveUser,
     mode: "protect-all",
   });
