@@ -21,14 +21,14 @@ const app = new Elysia()
           hi: () => "Hello from Elysia",
         },
       },
-    })
+    }),
   )
   .listen(PORT);
 
 console.log(
-  `🦊 ${appConfig.name} server running at ${app.server?.hostname}:${app.server?.port}`
+  `🦊 ${appConfig.name} server running at ${app.server?.hostname}:${app.server?.port}`,
 );
 
 console.log(
-  `🚀 ${appConfig.name} GraphQL API running at http://${app.server?.hostname}:${app.server?.port}/graphql`
+  `🚀 ${appConfig.name} GraphQL API running at http://${app.server?.hostname}:${app.server?.port}/graphql`,
 );
