@@ -3,31 +3,31 @@
   "vcs": {
     "enabled": false,
     "clientKind": "git",
-    "useIgnoreFile": false
+    "useIgnoreFile": false,
   },
   "files": {
     "ignoreUnknown": false,
-    "ignore": ["src/generated/**", "src/lib/drizzle/migrations/**"]
+    "ignore": ["src/generated/**", "src/lib/db/drizzle/**"],
   },
   "formatter": {
     "enabled": true,
     "indentStyle": "space",
     "lineWidth": 80,
-    "indentWidth": 2
+    "indentWidth": 2,
   },
   "organizeImports": {
-    "enabled": true
+    "enabled": true,
   },
   "linter": {
     "enabled": true,
     "rules": {
       "recommended": true,
       "correctness": {
-        "noUnusedImports": "error"
+        "noUnusedImports": "error",
       },
       "style": {
-        "noNonNullAssertion": "off"
-      }
-    }
-  }
+        "noNonNullAssertion": "off",
+      },
+    },
+  },
 }
