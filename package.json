@@ -3,7 +3,7 @@
   "private": true,
   "license": "MIT",
   "main": "build/server.js",
-  "module": "src/server.js",
+  "module": "build/server.js",
   "type": "module",
   "scripts": {
     "dev": "GRAPHILE_ENV=development bun run --watch src/server.ts",
