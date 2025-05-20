@@ -5,8 +5,8 @@ import {
 
 import { dbPool, pgPool } from "lib/db/db";
 
-import type { SelectUser } from "lib/db/schema";
 import type { YogaInitialContext } from "graphql-yoga";
+import type { SelectUser } from "lib/db/schema";
 import type { WithPgClient } from "postgraphile/@dataplan/pg";
 import type { PgSubscriber } from "postgraphile/adaptors/pg";
 
