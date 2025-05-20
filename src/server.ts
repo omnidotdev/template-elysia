@@ -3,12 +3,13 @@ import { yoga } from "@elysiajs/graphql-yoga";
 import { useOpenTelemetry } from "@envelop/opentelemetry";
 import { useParserCache } from "@envelop/parser-cache";
 import { useValidationCache } from "@envelop/validation-cache";
+import { useDisableIntrospection } from "@graphql-yoga/plugin-disable-introspection";
 import { Elysia } from "elysia";
 import { useGrafast } from "grafast/envelop";
 
 import { schema } from "generated/graphql/schema.executable";
 import appConfig from "lib/config/app.config";
-import { CORS_ALLOWED_ORIGINS, PORT } from "lib/config/env.config";
+import { CORS_ALLOWED_ORIGINS, isProdEnv, PORT } from "lib/config/env.config";
 import createGraphqlContext from "lib/graphql/createGraphqlContext";
 import { armorPlugins, useAuth } from "lib/graphql/plugins";
 
@@ -40,6 +41,8 @@ const app = new Elysia({
       plugins: [
         ...armorPlugins,
         useAuth(),
+        // disable GraphQL schema introspection in production to mitigate reverse engineering
+        isProdEnv && useDisableIntrospection(),
         useOpenTelemetry({
           variables: true,
           result: true,
