@@ -1,6 +1,9 @@
 build/
 node_modules/
 
+# TLS
+*.pem
+
 # environment
 .env
 .env.*

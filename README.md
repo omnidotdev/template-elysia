@@ -4,7 +4,7 @@ This is a template repository for a GraphQL-API-enhanced server powered by [Elys
 
 ## Local Development
 
-First, `cp .env.local.template .env.local` and fill in the values.
+First, `cp .env.local.template .env.local` and fill in the values. Then, generate TLS certificates by running `bun src/scripts/generateTlsCert.ts`.
 
 ### Building and Running
 

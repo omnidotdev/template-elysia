@@ -14,7 +14,16 @@ import { armorPlugins, useAuth } from "lib/graphql/plugins";
 /**
  * Elysia server.
  */
-const app = new Elysia()
+const app = new Elysia({
+  serve: {
+    // https://elysiajs.com/patterns/configuration#serve-tls
+    // https://bun.sh/guides/http/tls
+    tls: {
+      certFile: "cert.pem",
+      keyFile: "key.pem",
+    },
+  },
+})
   .use(
     cors({
       origin: CORS_ALLOWED_ORIGINS!.split(","),
@@ -39,9 +48,9 @@ const app = new Elysia()
   .listen(PORT);
 
 console.log(
-  `🦊 ${appConfig.name} server running at ${app.server?.hostname}:${app.server?.port}`,
+  `🦊 ${appConfig.name} server running at ${app.server?.url.toString().slice(0, -1)}`,
 );
 
 console.log(
-  `🧘 ${appConfig.name} GraphQL Yoga API running at http://${app.server?.hostname}:${app.server?.port}/graphql`,
+  `🧘 ${appConfig.name} GraphQL Yoga API running at ${app.server?.url}graphql`,
 );
