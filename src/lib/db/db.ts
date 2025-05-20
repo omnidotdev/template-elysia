@@ -23,7 +23,7 @@ export const pgPool = new Pool({
 });
 
 /**
- * Factory to build a database connection client.
+ * Create a database connection client.
  */
 const createDbClient = (client: PostgresClient | PostgresPool) =>
   drizzle({
