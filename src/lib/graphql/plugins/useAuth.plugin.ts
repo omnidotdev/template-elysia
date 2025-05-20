@@ -3,7 +3,7 @@ import type * as jose from "jose";
 
 import { AUTH_BASE_URL } from "lib/config/env.config";
 import { userTable } from "lib/db/schema";
-import { GraphQLContext } from "lib/graphql/createGraphqlContext";
+import type { GraphQLContext } from "lib/graphql/createGraphqlContext";
 
 import type { ResolveUserFn } from "@envelop/generic-auth";
 import type { InsertUser, SelectUser } from "lib/db/schema";
