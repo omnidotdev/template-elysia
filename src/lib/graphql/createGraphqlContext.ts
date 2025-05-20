@@ -12,6 +12,8 @@ import type { PgSubscriber } from "postgraphile/adaptors/pg";
 const withPgClient = createWithPgClient({ pool: pgPool });
 
 export interface GraphQLContext {
+  /** Network request. */
+  request: Request;
   db: typeof dbPool;
   /** Postgres client, injected by Postgraphile. */
   withPgClient: WithPgClient<NodePostgresPgClient>;
@@ -30,6 +32,7 @@ const createGraphqlContext = async ({
 }: YogaInitialContext): Promise<
   Omit<GraphQLContext, "pgSettings" | "pgSubscriber">
 > => ({
+  request,
   db: dbPool,
   withPgClient,
 });

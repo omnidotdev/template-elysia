@@ -8,6 +8,7 @@ export const {
   HOST = "0.0.0.0",
   DATABASE_NAME,
   DATABASE_URL,
+  AUTH_BASE_URL,
 } = process.env;
 
 export const isDevEnv = NODE_ENV === "development",
