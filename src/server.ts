@@ -18,6 +18,7 @@ const app = new Elysia({
   serve: {
     // https://elysiajs.com/patterns/configuration#serve-tls
     // https://bun.sh/guides/http/tls
+    // NB: Elysia (and Bun) trust the well-known CA list curated by Mozilla (https://wiki.mozilla.org/CA/Included_Certificates), but they can be customized here if needed (`tls.ca` option)
     tls: {
       certFile: "cert.pem",
       keyFile: "key.pem",
