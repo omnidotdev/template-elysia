@@ -9,6 +9,7 @@ import type { YogaInitialContext } from "graphql-yoga";
 import type { SelectUser } from "lib/db/schema";
 import type { WithPgClient } from "postgraphile/@dataplan/pg";
 import type { PgSubscriber } from "postgraphile/adaptors/pg";
+import yoga from "@elysiajs/graphql-yoga";
 
 const withPgClient = createWithPgClient({ pool: pgPool });
 
@@ -33,7 +34,7 @@ export interface GraphQLContext {
  */
 const createGraphqlContext = async ({
   request,
-}: YogaInitialContext): Promise<
+}: Omit<YogaInitialContext, "waitUntil">): Promise<
   Omit<GraphQLContext, "observer" | "pgSettings" | "pgSubscriber">
 > => ({
   request,

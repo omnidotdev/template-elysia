@@ -36,7 +36,6 @@ const app = new Elysia({
   .use(
     yoga({
       schema,
-      // @ts-ignore TODO
       context: createGraphqlContext,
       plugins: [
         ...armorPlugins,
