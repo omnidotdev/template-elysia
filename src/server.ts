@@ -8,7 +8,7 @@ import { schema } from "generated/graphql/schema.executable";
 import appConfig from "lib/config/app.config";
 import { PORT } from "lib/config/env.config";
 import createGraphqlContext from "lib/graphql/createGraphqlContext";
-import { useAuth } from "lib/graphql/plugins";
+import { armorPlugins, useAuth } from "lib/graphql/plugins";
 
 /**
  * Elysia server.
@@ -21,6 +21,7 @@ const app = new Elysia()
       // @ts-ignore TODO
       context: createGraphqlContext,
       plugins: [
+        ...armorPlugins,
         useAuth(),
         // parser and validation caches recommended for Grafast (https://grafast.org/grafast/servers#envelop)
         useParserCache(),
