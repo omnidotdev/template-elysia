@@ -10,6 +10,7 @@ export const {
   DATABASE_URL,
   AUTH_BASE_URL,
   GRAPHQL_COMPLEXITY_MAX_COST,
+  CORS_ALLOWED_ORIGINS,
 } = process.env;
 
 export const isDevEnv = NODE_ENV === "development",
