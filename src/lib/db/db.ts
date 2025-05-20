@@ -29,7 +29,7 @@ const createDbClient = (client: PostgresClient | PostgresPool) =>
   drizzle({
     client,
     schema,
-    // ! NB: scripts will fail if the casing is mismatched from this config
+    // ! NB: must match Drizzle config casing, otherwise database scripts may fail
     casing: "snake_case",
   });
 
