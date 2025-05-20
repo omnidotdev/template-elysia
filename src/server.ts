@@ -1,5 +1,6 @@
 import { cors } from "@elysiajs/cors";
 import { yoga } from "@elysiajs/graphql-yoga";
+import { useOpenTelemetry } from "@envelop/opentelemetry";
 import { useParserCache } from "@envelop/parser-cache";
 import { useValidationCache } from "@envelop/validation-cache";
 import { Elysia } from "elysia";
@@ -39,6 +40,10 @@ const app = new Elysia({
       plugins: [
         ...armorPlugins,
         useAuth(),
+        useOpenTelemetry({
+          variables: true,
+          result: true,
+        }),
         // parser and validation caches recommended for Grafast (https://grafast.org/grafast/servers#envelop)
         useParserCache(),
         useValidationCache(),
