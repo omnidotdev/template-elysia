@@ -66,6 +66,9 @@ const resolveUser: ResolveUserFn<SelectUser, GraphQLContext> = async (ctx) => {
   }
 };
 
+/**
+ * Authentication plugin.
+ */
 const useAuth = () =>
   useGenericAuth({
     resolveUserFn: resolveUser,
