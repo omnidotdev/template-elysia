@@ -1,6 +1,6 @@
 import { pgTable, uniqueIndex, uuid } from "drizzle-orm/pg-core";
 
-import { generateDefaultId, generateDefaultDate } from "lib/db/util";
+import { generateDefaultDate, generateDefaultId } from "lib/db/util";
 
 import type { InferInsertModel, InferSelectModel } from "drizzle-orm";
 

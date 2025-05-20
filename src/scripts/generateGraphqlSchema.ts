@@ -6,8 +6,8 @@ import { makeSchema } from "postgraphile";
 import { context, sideEffect } from "postgraphile/grafast";
 import { replaceInFile } from "replace-in-file";
 
-import * as dbSchema from "lib/db/schema";
 import graphilePreset from "lib/config/graphile.config";
+import * as dbSchema from "lib/db/schema";
 
 /**
  * Generate a GraphQL schema from a Postgres database.

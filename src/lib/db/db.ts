@@ -4,7 +4,7 @@ import { Client, Pool } from "pg";
 import { DATABASE_URL } from "lib/config/env.config";
 import * as schema from "lib/db/schema";
 
-import { type Client as PostgresClient, type Pool as PostgresPool } from "pg";
+import type { Client as PostgresClient, Pool as PostgresPool } from "pg";
 
 /**
  * Postgres database client.

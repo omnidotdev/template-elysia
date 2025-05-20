@@ -85,12 +85,8 @@
           "name": "post_author_id_user_id_fk",
           "tableFrom": "post",
           "tableTo": "user",
-          "columnsFrom": [
-            "author_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["author_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -171,9 +167,7 @@
         "user_identityProviderId_unique": {
           "name": "user_identityProviderId_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "identity_provider_id"
-          ]
+          "columns": ["identity_provider_id"]
         }
       },
       "policies": {},

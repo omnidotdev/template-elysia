@@ -1,13 +1,13 @@
 import {
+  type NodePostgresPgClient,
   createWithPgClient,
-  NodePostgresPgClient,
 } from "postgraphile/adaptors/pg";
 
 import { dbPool, pgPool } from "lib/db/db";
 
 import type { YogaInitialContext } from "graphql-yoga";
 import type { WithPgClient } from "postgraphile/@dataplan/pg";
-import { type PgSubscriber } from "postgraphile/adaptors/pg";
+import type { PgSubscriber } from "postgraphile/adaptors/pg";
 
 const withPgClient = createWithPgClient({ pool: pgPool });
 
