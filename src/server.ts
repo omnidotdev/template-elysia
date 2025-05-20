@@ -9,7 +9,7 @@ import { useGrafast } from "grafast/envelop";
 
 import { schema } from "generated/graphql/schema.executable";
 import appConfig from "lib/config/app.config";
-import { CORS_ALLOWED_ORIGINS, isProdEnv, PORT } from "lib/config/env.config";
+import { CORS_ALLOWED_ORIGINS, PORT, isProdEnv } from "lib/config/env.config";
 import createGraphqlContext from "lib/graphql/createGraphqlContext";
 import { armorPlugins, useAuth } from "lib/graphql/plugins";
 
