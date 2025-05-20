@@ -1,6 +1,7 @@
 {
   "name": "@omnidev/template-elysia",
   "private": true,
+  "license": "MIT",
   "main": "build/server.js",
   "module": "src/server.js",
   "type": "module",
@@ -23,7 +24,9 @@
     "graphile:generate": "NODE_ENV=development GRAPHILE_ENV=development bun run --env-file .env.local src/scripts/generateGraphqlSchema.ts",
     "prepare": "husky"
   },
-  "trustedDependencies": ["@biomejs/biome"],
+  "trustedDependencies": [
+    "@biomejs/biome"
+  ],
   "devDependencies": {
     "@biomejs/biome": "^1.9.4",
     "drizzle-kit": "^0.31.1",
