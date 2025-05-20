@@ -56,7 +56,7 @@ const app = new Elysia({
   .listen(PORT);
 
 console.log(
-  `🦊 ${appConfig.name} server running at ${app.server?.url.toString().slice(0, -1)}`,
+  `🦊 ${appConfig.name} Elysia server running at ${app.server?.url.toString().slice(0, -1)}`,
 );
 
 console.log(

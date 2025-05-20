@@ -2,7 +2,7 @@
  * Application configuration.
  */
 const app = {
-  name: "Elysia Template",
+  name: "Template",
 };
 
 export default app;
