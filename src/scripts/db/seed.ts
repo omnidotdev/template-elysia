@@ -18,7 +18,7 @@ const seedDatabase = async () => {
 
   console.log("Seeding database...");
 
-  await seed(db, schema).refine((_f) => ({ userTable: { count: 10 } }));
+  await seed(db, schema);
 
   console.log("Database seeded successfully!");
 };
