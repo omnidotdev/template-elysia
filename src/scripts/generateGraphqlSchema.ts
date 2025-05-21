@@ -27,12 +27,6 @@ const generateGraphqlSchema = async () => {
 
   await exportSchema(schema, schemaFilePath, {
     mode: "typeDefs",
-    modules: {
-      "drizzle-orm": { and, count, eq },
-      "graphile-export/helpers": { EXPORTABLE },
-      "postgraphile/grafast": { context, sideEffect },
-      "lib/db/schema": dbSchema,
-    },
   });
 
   await replaceInFile({
