@@ -6,6 +6,8 @@ import { $ } from "bun";
 
 import { DATABASE_NAME } from "lib/config/env.config";
 
+// biome-ignore lint/suspicious/noConsoleLog: script logging
 console.log(`Creating ${DATABASE_NAME} database...`);
 await $`createdb -U postgres template-elysia`;
+// biome-ignore lint/suspicious/noConsoleLog: script logging
 console.log("Database created");
