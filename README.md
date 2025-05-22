@@ -48,7 +48,7 @@ Install dependencies:
 bun install
 ```
 
-Setup the database (only required once, to create the database):
+Set up the database (only required once, to create the database):
 
 ```sh
 bun db:setup
