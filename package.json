@@ -51,6 +51,6 @@
     "jose": "^6.0.11",
     "pg": "^8.16.0",
     "postgraphile": "5.0.0-beta.40",
-    "postgraphile-plugin-connection-filter": "^2.3.0"
+    "postgraphile-plugin-connection-filter": "3.0.0-beta.8"
   }
 }
