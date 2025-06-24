@@ -1,5 +1,5 @@
 {
-  "name": "@omnidev/template-elysia",
+  "name": "@omnidotdev/template-elysia",
   "private": true,
   "license": "MIT",
   "main": "build/server.js",
