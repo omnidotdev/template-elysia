@@ -28,7 +28,7 @@
     "@biomejs/biome"
   ],
   "devDependencies": {
-    "@biomejs/biome": "^1.9.4",
+    "@biomejs/biome": "^2.0.0",
     "@types/bun": "^1.2.13",
     "drizzle-kit": "^0.31.1",
     "drizzle-seed": "^0.3.1",
