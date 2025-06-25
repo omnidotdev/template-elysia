@@ -5,7 +5,10 @@ import { dbPool, pgPool } from "lib/db/db";
 import type { YogaInitialContext } from "graphql-yoga";
 import type { SelectUser } from "lib/db/schema";
 import type { WithPgClient } from "postgraphile/@dataplan/pg";
-import type { NodePostgresPgClient, PgSubscriber } from "postgraphile/adaptors/pg";
+import type {
+  NodePostgresPgClient,
+  PgSubscriber,
+} from "postgraphile/adaptors/pg";
 
 const withPgClient = createWithPgClient({ pool: pgPool });
 
