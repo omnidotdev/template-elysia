@@ -9,7 +9,12 @@ import { useGrafast } from "grafast/envelop";
 
 import { schema } from "generated/graphql/schema.executable";
 import appConfig from "lib/config/app.config";
-import { CORS_ALLOWED_ORIGINS, PORT, isProdEnv } from "lib/config/env.config";
+import {
+  CORS_ALLOWED_ORIGINS,
+  PORT,
+  isDevEnv,
+  isProdEnv,
+} from "lib/config/env.config";
 import createGraphqlContext from "lib/graphql/createGraphqlContext";
 import { armorPlugins, useAuth } from "lib/graphql/plugins";
 
@@ -17,15 +22,17 @@ import { armorPlugins, useAuth } from "lib/graphql/plugins";
  * Elysia server.
  */
 const app = new Elysia({
-  serve: {
-    // https://elysiajs.com/patterns/configuration#serve-tls
-    // https://bun.sh/guides/http/tls
-    // NB: Elysia (and Bun) trust the well-known CA list curated by Mozilla (https://wiki.mozilla.org/CA/Included_Certificates), but they can be customized here if needed (`tls.ca` option)
-    tls: {
-      certFile: "cert.pem",
-      keyFile: "key.pem",
+  ...(isDevEnv && {
+    serve: {
+      // https://elysiajs.com/patterns/configuration#serve-tls
+      // https://bun.sh/guides/http/tls
+      // NB: Elysia (and Bun) trust the well-known CA list curated by Mozilla (https://wiki.mozilla.org/CA/Included_Certificates), but they can be customized here if needed (`tls.ca` option)
+      tls: {
+        certFile: "cert.pem",
+        keyFile: "key.pem",
+      },
     },
-  },
+  }),
 })
   .use(
     cors({
