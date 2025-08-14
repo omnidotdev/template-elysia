@@ -1,7 +1,7 @@
 import { useGenericAuth } from "@envelop/generic-auth";
 import type * as jose from "jose";
 
-import { AUTH_BASE_URL } from "lib/config/env.config";
+import { AUTH_BASE_URL, protectRoutes } from "lib/config/env.config";
 import { userTable } from "lib/db/schema";
 import type { GraphQLContext } from "lib/graphql/createGraphqlContext";
 
@@ -20,7 +20,11 @@ const resolveUser: ResolveUserFn<SelectUser, GraphQLContext> = async (ctx) => {
       .get("authorization")
       ?.split("Bearer ")[1];
 
-    if (!accessToken) throw new Error("Invalid or missing access token");
+    if (!accessToken) {
+      if (!protectRoutes) return null;
+
+      throw new Error("Invalid or missing access token");
+    }
 
     // TODO validate access token (introspection endpoint?) here?
 
@@ -31,7 +35,11 @@ const resolveUser: ResolveUserFn<SelectUser, GraphQLContext> = async (ctx) => {
       },
     });
 
-    if (!userInfo.ok) throw new Error("Invalid access token or request failed");
+    if (!userInfo.ok) {
+      if (!protectRoutes) return null;
+
+      throw new Error("Invalid access token or request failed");
+    }
 
     const idToken: jose.JWTPayload = await userInfo.json();
 
@@ -73,7 +81,7 @@ const useAuth = () =>
   useGenericAuth({
     contextFieldName: "observer",
     resolveUserFn: resolveUser,
-    mode: "protect-all",
+    mode: protectRoutes ? "protect-all" : "resolve-only",
   });
 
 export default useAuth;
