@@ -24,9 +24,7 @@
     "graphile:generate": "NODE_ENV=development GRAPHILE_ENV=development bun run --env-file .env.local src/scripts/generateGraphqlSchema.ts",
     "prepare": "husky"
   },
-  "trustedDependencies": [
-    "@biomejs/biome"
-  ],
+  "trustedDependencies": ["@biomejs/biome"],
   "devDependencies": {
     "@biomejs/biome": "^1.9.4",
     "@types/bun": "^1.2.13",
@@ -51,6 +49,7 @@
     "graphql": "^16.11.0",
     "graphql-yoga": "^5.13.4",
     "jose": "^6.0.11",
+    "permitio": "^2.7.5",
     "pg": "^8.16.0",
     "postgraphile": "5.0.0-beta.40",
     "postgraphile-plugin-connection-filter": "3.0.0-beta.8"
