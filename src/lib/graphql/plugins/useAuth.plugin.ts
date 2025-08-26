@@ -1,5 +1,5 @@
 import { useGenericAuth } from "@envelop/generic-auth";
-import { PROTECT_ALL_GRAPHQL_RESOLVERS } from "lib/config/env.config";
+import { enabledAuthPlugin } from "lib/config/env.config";
 import { userTable } from "lib/db/schema";
 import { permit } from "server";
 
@@ -20,7 +20,7 @@ const resolveUser: ResolveUserFn<SelectUser, GraphQLContext> = async (ctx) => {
     //   ?.split("Bearer ")[1];
 
     // if (!accessToken) {
-    //   if (!PROTECT_ALL_GRAPHQL_RESOLVERS) return null;
+    //   if (!enabledAuthPlugin) return null;
 
     //   throw new Error("Invalid or missing access token");
     // }
@@ -35,7 +35,7 @@ const resolveUser: ResolveUserFn<SelectUser, GraphQLContext> = async (ctx) => {
     // });
 
     // if (!userInfo.ok) {
-    //   if (!PROTECT_ALL_GRAPHQL_RESOLVERS) return null;
+    //   if (!enabledAuthPlugin) return null;
 
     //   throw new Error("Invalid access token or request failed");
     // }
@@ -103,7 +103,7 @@ const useAuth = () =>
   useGenericAuth({
     contextFieldName: "observer",
     resolveUserFn: resolveUser,
-    mode: PROTECT_ALL_GRAPHQL_RESOLVERS ? "protect-all" : "resolve-only",
+    mode: enabledAuthPlugin ? "protect-all" : "resolve-only",
   });
 
 export default useAuth;
