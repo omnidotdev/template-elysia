@@ -3,7 +3,9 @@ import { exportSchema } from "graphile-export";
 import { makeSchema } from "postgraphile";
 import { replaceInFile } from "replace-in-file";
 
+import { EXPORTABLE } from "graphile-export/helpers";
 import graphilePreset from "lib/config/graphile.config";
+import { context, sideEffect } from "postgraphile/grafast";
 
 /**
  * Generate a GraphQL schema from a Postgres database.
@@ -23,6 +25,10 @@ const generateGraphqlSchema = async () => {
 
   await exportSchema(schema, schemaFilePath, {
     mode: "typeDefs",
+    modules: {
+      "graphile-export/helpers": { EXPORTABLE },
+      "postgraphile/grafast": { context, sideEffect },
+    },
   });
 
   await replaceInFile({
