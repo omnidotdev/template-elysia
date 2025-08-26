@@ -1,11 +1,11 @@
 import { useGenericAuth } from "@envelop/generic-auth";
 import { userTable } from "lib/db/schema";
-import type { GraphQLContext } from "lib/graphql/createGraphqlContext";
+import { PROTECT_ALL_GRAPHQL_RESOLVERS } from "lib/config/env.config";
+import { permit } from "server";
 
+import type { GraphQLContext } from "lib/graphql/createGraphqlContext";
 import type { ResolveUserFn } from "@envelop/generic-auth";
 import type { InsertUser, SelectUser } from "lib/db/schema";
-import { permit } from "server";
-import { PROTECT_ALL_GRAPHQL_RESOLVERS } from "lib/config/env.config";
 
 // TODO research best practices for all of this file (token validation, caching, etc.). Validate access token (introspection endpoint)? Cache userinfo output? etc. (https://linear.app/omnidev/issue/OMNI-302/increase-security-of-useauth-plugin)
 
