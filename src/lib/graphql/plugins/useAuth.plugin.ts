@@ -5,6 +5,7 @@ import type { GraphQLContext } from "lib/graphql/createGraphqlContext";
 import type { ResolveUserFn } from "@envelop/generic-auth";
 import type { InsertUser, SelectUser } from "lib/db/schema";
 import { permit } from "server";
+import { PROTECT_ALL_GRAPHQL_RESOLVERS } from "lib/config/env.config";
 
 // TODO research best practices for all of this file (token validation, caching, etc.). Validate access token (introspection endpoint)? Cache userinfo output? etc. (https://linear.app/omnidev/issue/OMNI-302/increase-security-of-useauth-plugin)
 
@@ -19,7 +20,7 @@ const resolveUser: ResolveUserFn<SelectUser, GraphQLContext> = async (ctx) => {
     //   ?.split("Bearer ")[1];
 
     // if (!accessToken) {
-    //   if (!PROTECT_ROUTES) return null;
+    //   if (!PROTECT_ALL_GRAPHQL_RESOLVERS) return null;
 
     //   throw new Error("Invalid or missing access token");
     // }
@@ -34,7 +35,7 @@ const resolveUser: ResolveUserFn<SelectUser, GraphQLContext> = async (ctx) => {
     // });
 
     // if (!userInfo.ok) {
-    //   if (!PROTECT_ROUTES) return null;
+    //   if (!PROTECT_ALL_GRAPHQL_RESOLVERS) return null;
 
     //   throw new Error("Invalid access token or request failed");
     // }
@@ -102,8 +103,7 @@ const useAuth = () =>
   useGenericAuth({
     contextFieldName: "observer",
     resolveUserFn: resolveUser,
-    // mode: PROTECT_ROUTES ? "protect-all" : "resolve-only",
-    mode: "resolve-only",
+    mode: PROTECT_ALL_GRAPHQL_RESOLVERS ? "protect-all" : "resolve-only",
   });
 
 export default useAuth;

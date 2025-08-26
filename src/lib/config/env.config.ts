@@ -11,9 +11,9 @@ export const {
   AUTH_BASE_URL,
   GRAPHQL_COMPLEXITY_MAX_COST,
   CORS_ALLOWED_ORIGINS,
-  PROTECT_ROUTES,
+  PROTECT_ALL_GRAPHQL_RESOLVERS,
 } = process.env;
 
 export const isDevEnv = NODE_ENV === "development",
   isProdEnv = NODE_ENV === "production",
-  enabledAuthPlugin = isProdEnv || PROTECT_ROUTES === "true";
+  enabledAuthPlugin = isProdEnv || PROTECT_ALL_GRAPHQL_RESOLVERS === "true";
