@@ -1,11 +1,12 @@
 import { existsSync, mkdirSync } from "node:fs";
 import { exportSchema } from "graphile-export";
+import { EXPORTABLE } from "graphile-export/helpers";
 import { makeSchema } from "postgraphile";
+import { context, sideEffect } from "postgraphile/grafast";
 import { replaceInFile } from "replace-in-file";
 
-import { EXPORTABLE } from "graphile-export/helpers";
 import graphilePreset from "lib/config/graphile.config";
-import { context, sideEffect } from "postgraphile/grafast";
+import { permit } from "lib/permit/permit";
 
 /**
  * Generate a GraphQL schema from a Postgres database.
@@ -28,6 +29,7 @@ const generateGraphqlSchema = async () => {
     modules: {
       "graphile-export/helpers": { EXPORTABLE },
       "postgraphile/grafast": { context, sideEffect },
+      "lib/permit/permit": { permit },
     },
   });
 

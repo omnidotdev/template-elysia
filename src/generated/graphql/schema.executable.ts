@@ -2,6 +2,7 @@
 import { PgCondition, PgDeleteSingleStep, PgExecutor, TYPES, assertPgClassSingleStep, listOfCodec, makeRegistry, pgDeleteSingle, pgInsertSingle, pgSelectFromRecord, pgUpdateSingle, recordCodec, sqlValueWithCodec } from "@dataplan/pg";
 import { ConnectionStep, EdgeStep, ExecutableStep, ObjectStep, __ValueStep, access, assertEdgeCapableStep, assertExecutableStep, assertPageInfoCapableStep, bakedInputRuntime, connection, constant, context, createObjectAndApplyChildren, first, inhibitOnNull, isExecutableStep, lambda, list, makeGrafastSchema, node, object, rootValue, sideEffect, specFromNodeId } from "grafast";
 import { GraphQLError, Kind } from "graphql";
+import { permit } from "lib/permit/permit";
 import { sql } from "pg-sql2";
 import { inspect } from "util";
 const handler = {
@@ -661,11 +662,44 @@ const specFromArgs_Post = args => {
   const $nodeId = args.getRaw(["input", "id"]);
   return specFromNodeId(nodeIdHandlerByTypeName.Post, $nodeId);
 };
+const oldPlan2 = (_$root, args) => {
+  const $update = pgUpdateSingle(pgResource_postPgResource, {
+    id: args.getRaw(['input', "rowId"])
+  });
+  args.apply($update);
+  return object({
+    result: $update
+  });
+};
+const planWrapper2 = (plan, _, fieldArgs) => {
+  const $postId = fieldArgs.getRaw(["input", "rowId"]),
+    $observer = context().get("observer");
+  sideEffect([$postId, $observer], async ([postId, observer]) => {
+    if (!postId || !observer) throw new Error("Ooops");
+    const mockIdToken = {
+      iss: "https://auth.example.com/",
+      sub: "550e8400-e29b-41d4-a716-446655440000",
+      aud: "template-elysia",
+      exp: 1732591385,
+      iat: 1732587785,
+      auth_time: 1732587700,
+      nonce: "n-0S6_WzA2Mj",
+      email: "user@example.com",
+      email_verified: !0,
+      name: "Jane Doe",
+      given_name: "Jane",
+      family_name: "Doe",
+      preferred_username: "jdoe"
+    };
+    if (!(await permit.check(mockIdToken.sub, "read", "post"))) throw new Error("Permission denied");
+  });
+  return plan();
+};
 const specFromArgs_User2 = args => {
   const $nodeId = args.getRaw(["input", "id"]);
   return specFromNodeId(nodeIdHandlerByTypeName.User, $nodeId);
 };
-const oldPlan2 = (_$root, args) => {
+const oldPlan3 = (_$root, args) => {
   const $delete = pgDeleteSingle(pgResource_userPgResource, {
     id: args.getRaw(['input', "rowId"])
   });
@@ -674,7 +708,7 @@ const oldPlan2 = (_$root, args) => {
     result: $delete
   });
 };
-const planWrapper2 = (plan, _, fieldArgs) => {
+const planWrapper3 = (plan, _, fieldArgs) => {
   const $observerId = fieldArgs.getRaw(["input", "rowId"]),
     $observer = context().get("observer");
   sideEffect([$observerId, $observer], async ([observerId, currentObserver]) => {
@@ -686,6 +720,39 @@ const planWrapper2 = (plan, _, fieldArgs) => {
 const specFromArgs_Post2 = args => {
   const $nodeId = args.getRaw(["input", "id"]);
   return specFromNodeId(nodeIdHandlerByTypeName.Post, $nodeId);
+};
+const oldPlan4 = (_$root, args) => {
+  const $delete = pgDeleteSingle(pgResource_postPgResource, {
+    id: args.getRaw(['input', "rowId"])
+  });
+  args.apply($delete);
+  return object({
+    result: $delete
+  });
+};
+const planWrapper4 = (plan, _, fieldArgs) => {
+  const $postId = fieldArgs.getRaw(["input", "rowId"]),
+    $observer = context().get("observer");
+  sideEffect([$postId, $observer], async ([postId, observer]) => {
+    if (!postId || !observer) throw new Error("Ooops");
+    const mockIdToken = {
+      iss: "https://auth.example.com/",
+      sub: "550e8400-e29b-41d4-a716-446655440000",
+      aud: "template-elysia",
+      exp: 1732591385,
+      iat: 1732587785,
+      auth_time: 1732587700,
+      nonce: "n-0S6_WzA2Mj",
+      email: "user@example.com",
+      email_verified: !0,
+      name: "Jane Doe",
+      given_name: "Jane",
+      family_name: "Doe",
+      preferred_username: "jdoe"
+    };
+    if (!(await permit.check(mockIdToken.sub, "read", "post"))) throw new Error("Permission denied");
+  });
+  return plan();
 };
 export const typeDefs = /* GraphQL */`"""The root query type which gives access points into the data universe."""
 type Query implements Node {
@@ -2432,14 +2499,21 @@ ${String(oldPlan)}`);
       }
     },
     updatePost: {
-      plan(_$root, args) {
-        const $update = pgUpdateSingle(pgResource_postPgResource, {
-          id: args.getRaw(['input', "rowId"])
-        });
-        args.apply($update);
-        return object({
-          result: $update
-        });
+      plan(...planParams) {
+        const smartPlan = (...overrideParams) => {
+            const $prev = oldPlan2(...overrideParams.concat(planParams.slice(overrideParams.length)));
+            if (!($prev instanceof ExecutableStep)) {
+              console.error(`Wrapped a plan function at ${"Mutation"}.${"updatePost"}, but that function did not return a step!
+${String(oldPlan2)}`);
+              throw new Error("Wrapped a plan function, but that function did not return a step!");
+            }
+            return $prev;
+          },
+          [$source, fieldArgs, info] = planParams,
+          $newPlan = planWrapper2(smartPlan, $source, fieldArgs, info);
+        if ($newPlan === void 0) throw new Error("Your plan wrapper didn't return anything; it must return a step or null!");
+        if ($newPlan !== null && !isExecutableStep($newPlan)) throw new Error(`Your plan wrapper returned something other than a step... It must return a step (or null). (Returned: ${inspect($newPlan)})`);
+        return $newPlan;
       },
       args: {
         input(_, $object) {
@@ -2464,16 +2538,16 @@ ${String(oldPlan)}`);
     deleteUser: {
       plan(...planParams) {
         const smartPlan = (...overrideParams) => {
-            const $prev = oldPlan2(...overrideParams.concat(planParams.slice(overrideParams.length)));
+            const $prev = oldPlan3(...overrideParams.concat(planParams.slice(overrideParams.length)));
             if (!($prev instanceof ExecutableStep)) {
               console.error(`Wrapped a plan function at ${"Mutation"}.${"deleteUser"}, but that function did not return a step!
-${String(oldPlan2)}`);
+${String(oldPlan3)}`);
               throw new Error("Wrapped a plan function, but that function did not return a step!");
             }
             return $prev;
           },
           [$source, fieldArgs, info] = planParams,
-          $newPlan = planWrapper2(smartPlan, $source, fieldArgs, info);
+          $newPlan = planWrapper3(smartPlan, $source, fieldArgs, info);
         if ($newPlan === void 0) throw new Error("Your plan wrapper didn't return anything; it must return a step or null!");
         if ($newPlan !== null && !isExecutableStep($newPlan)) throw new Error(`Your plan wrapper returned something other than a step... It must return a step (or null). (Returned: ${inspect($newPlan)})`);
         return $newPlan;
@@ -2499,14 +2573,21 @@ ${String(oldPlan2)}`);
       }
     },
     deletePost: {
-      plan(_$root, args) {
-        const $delete = pgDeleteSingle(pgResource_postPgResource, {
-          id: args.getRaw(['input', "rowId"])
-        });
-        args.apply($delete);
-        return object({
-          result: $delete
-        });
+      plan(...planParams) {
+        const smartPlan = (...overrideParams) => {
+            const $prev = oldPlan4(...overrideParams.concat(planParams.slice(overrideParams.length)));
+            if (!($prev instanceof ExecutableStep)) {
+              console.error(`Wrapped a plan function at ${"Mutation"}.${"deletePost"}, but that function did not return a step!
+${String(oldPlan4)}`);
+              throw new Error("Wrapped a plan function, but that function did not return a step!");
+            }
+            return $prev;
+          },
+          [$source, fieldArgs, info] = planParams,
+          $newPlan = planWrapper4(smartPlan, $source, fieldArgs, info);
+        if ($newPlan === void 0) throw new Error("Your plan wrapper didn't return anything; it must return a step or null!");
+        if ($newPlan !== null && !isExecutableStep($newPlan)) throw new Error(`Your plan wrapper returned something other than a step... It must return a step (or null). (Returned: ${inspect($newPlan)})`);
+        return $newPlan;
       },
       args: {
         input(_, $object) {

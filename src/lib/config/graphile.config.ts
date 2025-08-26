@@ -3,6 +3,7 @@ import { PostGraphileConnectionFilterPreset } from "postgraphile-plugin-connecti
 import { makePgService } from "postgraphile/adaptors/pg";
 import { PostGraphileAmberPreset } from "postgraphile/presets/amber";
 
+import { PostPlugin } from "lib/graphql/plugins/postgraphile/post.plugin";
 import { PrimaryKeyMutationsOnlyPlugin } from "lib/graphql/plugins/postgraphile/primaryKeyMutations.plugin";
 import { UserPlugin } from "lib/graphql/plugins/postgraphile/user.plugin";
 import { DATABASE_URL, isDevEnv } from "./env.config";
@@ -16,7 +17,7 @@ const graphilePreset: GraphileConfig.Preset = {
     PgSimplifyInflectionPreset,
     PostGraphileConnectionFilterPreset,
   ],
-  plugins: [UserPlugin, PrimaryKeyMutationsOnlyPlugin],
+  plugins: [UserPlugin, PrimaryKeyMutationsOnlyPlugin, PostPlugin],
   pgServices: [makePgService({ connectionString: DATABASE_URL })],
   grafast: { explain: isDevEnv },
 };

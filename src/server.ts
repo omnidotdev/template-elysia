@@ -16,14 +16,6 @@ import {
 } from "lib/config/env.config";
 import createGraphqlContext from "lib/graphql/createGraphqlContext";
 import { armorPlugins, useAuth } from "lib/graphql/plugins";
-import { Permit } from "permitio";
-
-// TODO extract to context file
-export const permit = new Permit({
-  pdp: "https://cloudpdp.api.permit.io",
-  token:
-    "permit_key_BVteG96bKI9Ru4CPmgKZgdIAHBo909agAoPBer1eRQjwC83em8L9LlM3GvNjD40Oi1OLJu5e6GzUJa3exQX9Gu",
-});
 
 /**
  * Elysia server.
