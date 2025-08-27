@@ -28,12 +28,13 @@ const validatePermissions = (propName: string, scope: MutationScope) =>
                 throw new Error("Insufficient permissions");
               }
             } else {
-              // TODO: uncomment below when full info can be derived from `observer` including access roles, etc
-              // const user = await permit.api.createUser({
-              //   key: observer.identityProviderId,
+              // TODO: uncomment below when full info can be derived from `observer` including role assignments, etc
+              // const user = await permit.api.syncUser({
+              //   key: "bc8d19ed-b69a-43c3-1e9d-2301b2541f92",
               //   first_name: "John",
               //   last_name: "Doe",
               //   email: "john@example.com",
+              //   role_assignments: [{ role: "viewer", tenant: "default" }],
               // });
               // if (!user) throw new Error("Could not create user");
             }
