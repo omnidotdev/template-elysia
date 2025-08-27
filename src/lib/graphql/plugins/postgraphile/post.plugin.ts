@@ -36,12 +36,14 @@ const validateBulkQueryPermissions = () =>
         const $observer = context<GraphQLContext>().get("observer");
 
         sideEffect([$input, $observer], async ([input, observer]) => {
+          // NB: this condition requires that all `posts` queries are filtered by an `authorId` condition. Should adjust accordingly when schema is expanded upon. Simply used to showcase permissions.
           if (!input.condition.authorId || !observer) {
             throw new Error("Ooops");
           }
 
           const permitted = await permit.check(mockIdToken.sub, "read", {
             type: "post",
+            // Check that the user has permissions to read posts from the provided author through `authorId` condition
             attributes: { authorId: input.condition.authorId },
           });
 
