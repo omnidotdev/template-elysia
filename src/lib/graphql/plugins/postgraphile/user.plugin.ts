@@ -5,30 +5,33 @@ import { makeWrapPlansPlugin } from "postgraphile/utils";
 import type { GraphQLContext } from "lib/graphql/createGraphqlContext";
 import type { ExecutableStep, FieldArgs } from "postgraphile/grafast";
 
-const validatePermissions = (propName: string) =>
+type MutationScope = "create" | "update" | "delete";
+
+const validatePermissions = (propName: string, scope: MutationScope) =>
   EXPORTABLE(
-    (context, sideEffect, propName) =>
+    (context, sideEffect, propName, scope) =>
       // biome-ignore lint/suspicious/noExplicitAny: SmartFieldPlanResolver is not an exported type
       (plan: any, _: ExecutableStep, fieldArgs: FieldArgs) => {
         const $observerId = fieldArgs.getRaw(["input", propName]);
         const $observer = context<GraphQLContext>().get("observer");
 
-        sideEffect(
-          [$observerId, $observer],
-          async ([observerId, currentObserver]) => {
-            if (!currentObserver) {
-              throw new Error("Unauthorized");
-            }
+        sideEffect([$observerId, $observer], async ([observerId, observer]) => {
+          if (!observer) {
+            throw new Error("Unauthorized");
+          }
 
-            if (observerId !== currentObserver.id) {
+          // TODO: permissions for creating users
+
+          if (scope !== "create") {
+            if (observerId !== observer.id) {
               throw new Error("Insufficient permissions");
             }
-          },
-        );
+          }
+        });
 
         return plan();
       },
-    [context, sideEffect, propName],
+    [context, sideEffect, propName, scope],
   );
 
 /**
@@ -36,7 +39,8 @@ const validatePermissions = (propName: string) =>
  */
 export const UserPlugin = makeWrapPlansPlugin({
   Mutation: {
-    updateUser: validatePermissions("rowId"),
-    deleteUser: validatePermissions("rowId"),
+    createUser: validatePermissions("user", "create"),
+    updateUser: validatePermissions("rowId", "update"),
+    deleteUser: validatePermissions("rowId", "delete"),
   },
 });
