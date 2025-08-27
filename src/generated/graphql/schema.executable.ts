@@ -450,14 +450,14 @@ function oldPlan2() {
   return connection(resource_postPgResource.find());
 }
 const planWrapper2 = (plan, _, fieldArgs) => {
-  const $condition = fieldArgs.getRaw(["input", "condition"]),
+  const $input = fieldArgs.getRaw(),
     $observer = context().get("observer");
-  sideEffect([$condition, $observer], async ([condition, observer]) => {
-    if (!condition.authorId || !observer) throw new Error("Ooops");
+  sideEffect([$input, $observer], async ([input, observer]) => {
+    if (!input.condition.authorId || !observer) throw new Error("Ooops");
     if (!(await permit.check(mockIdToken_Jane_Doe.sub, "read", {
       type: "post",
       attributes: {
-        authorId: condition.authorId
+        authorId: input.condition.authorId
       }
     }))) throw new Error("Permission denied");
   });

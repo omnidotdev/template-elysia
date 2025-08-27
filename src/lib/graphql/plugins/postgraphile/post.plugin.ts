@@ -32,17 +32,17 @@ const validateBulkQueryPermissions = () =>
     (permit, context, sideEffect, mockIdToken) =>
       // biome-ignore lint/suspicious/noExplicitAny: SmartFieldPlanResolver is not an exported type
       (plan: any, _: ExecutableStep, fieldArgs: FieldArgs) => {
-        const $condition = fieldArgs.getRaw(["input", "condition"]);
+        const $input = fieldArgs.getRaw();
         const $observer = context<GraphQLContext>().get("observer");
 
-        sideEffect([$condition, $observer], async ([condition, observer]) => {
-          if (!condition.authorId || !observer) {
+        sideEffect([$input, $observer], async ([input, observer]) => {
+          if (!input.condition.authorId || !observer) {
             throw new Error("Ooops");
           }
 
           const permitted = await permit.check(mockIdToken.sub, "read", {
             type: "post",
-            attributes: { authorId: condition.authorId },
+            attributes: { authorId: input.condition.authorId },
           });
 
           if (!permitted) throw new Error("Permission denied");
