@@ -114,6 +114,11 @@ const validateMutatationPermissions = (
             const permitted = await getPermission();
 
             if (!permitted) throw new Error("Permission denied");
+
+            // TODO: determine need to update permissions for post mutations.
+            // Delete: remove permission records based on key?
+            // Update: anything that would alter permissions for certain users?
+            // Create: any permission records that need to be synced?
           },
         );
 
