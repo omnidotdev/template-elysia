@@ -1,6 +1,7 @@
 import { EXPORTABLE } from "graphile-export/helpers";
 import { context, sideEffect } from "postgraphile/grafast";
 import { makeWrapPlansPlugin } from "postgraphile/utils";
+import { match } from "ts-pattern";
 
 import type { GraphQLContext } from "lib/graphql/createGraphqlContext";
 import type { ExecutableStep, FieldArgs } from "postgraphile/grafast";
@@ -9,7 +10,7 @@ type MutationScope = "create" | "update" | "delete";
 
 const validatePermissions = (propName: string, scope: MutationScope) =>
   EXPORTABLE(
-    (context, sideEffect, propName, scope) =>
+    (match, context, sideEffect, propName, scope) =>
       // biome-ignore lint/suspicious/noExplicitAny: SmartFieldPlanResolver is not an exported type
       (plan: any, _: ExecutableStep, fieldArgs: FieldArgs) => {
         const $observerId = fieldArgs.getRaw(["input", propName]);
@@ -24,9 +25,20 @@ const validatePermissions = (propName: string, scope: MutationScope) =>
             }
 
             if (scope !== "create") {
-              if (observerId !== observer.id) {
-                throw new Error("Insufficient permissions");
-              }
+              // TODO: update check constraints and make dependent on `observerId`
+              const getPermission = async () =>
+                match(scope)
+                  .with("update", () =>
+                    permit.check(observer.identityProviderId, "update", "user"),
+                  )
+                  .with("delete", () =>
+                    permit.check(observer.identityProviderId, "delete", "user"),
+                  )
+                  .exhaustive();
+
+              const permitted = await getPermission();
+
+              if (!permitted) throw new Error("Permission denied");
             } else {
               // TODO: uncomment below when full info can be derived from `observer` including role assignments, etc
               // const user = await permit.api.syncUser({
@@ -43,7 +55,7 @@ const validatePermissions = (propName: string, scope: MutationScope) =>
 
         return plan();
       },
-    [context, sideEffect, propName, scope],
+    [match, context, sideEffect, propName, scope],
   );
 
 /**

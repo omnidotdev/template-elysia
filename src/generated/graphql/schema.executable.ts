@@ -612,7 +612,7 @@ const planWrapper3 = (plan, _, fieldArgs) => {
   sideEffect([$observerId, $observer, $permit], async ([observerId, observer, permit]) => {
     if (!observer) throw new Error("Unauthorized");
     if ("create" !== "create") {
-      if (observerId !== observer.id) throw new Error("Insufficient permissions");
+      if (!(await match("create").with("update", () => permit.check(observer.identityProviderId, "update", "user")).with("delete", () => permit.check(observer.identityProviderId, "delete", "user")).exhaustive())) throw new Error("Permission denied");
     }
   });
   return plan();
@@ -650,7 +650,7 @@ const planWrapper5 = (plan, _, fieldArgs) => {
   sideEffect([$observerId, $observer, $permit], async ([observerId, observer, permit]) => {
     if (!observer) throw new Error("Unauthorized");
     if ("update" !== "create") {
-      if (observerId !== observer.id) throw new Error("Insufficient permissions");
+      if (!(await match("update").with("update", () => permit.check(observer.identityProviderId, "update", "user")).with("delete", () => permit.check(observer.identityProviderId, "delete", "user")).exhaustive())) throw new Error("Permission denied");
     }
   });
   return plan();
@@ -690,7 +690,7 @@ const planWrapper7 = (plan, _, fieldArgs) => {
   sideEffect([$observerId, $observer, $permit], async ([observerId, observer, permit]) => {
     if (!observer) throw new Error("Unauthorized");
     if ("delete" !== "create") {
-      if (observerId !== observer.id) throw new Error("Insufficient permissions");
+      if (!(await match("delete").with("update", () => permit.check(observer.identityProviderId, "update", "user")).with("delete", () => permit.check(observer.identityProviderId, "delete", "user")).exhaustive())) throw new Error("Permission denied");
     }
   });
   return plan();
