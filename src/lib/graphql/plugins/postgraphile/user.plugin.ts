@@ -14,20 +14,31 @@ const validatePermissions = (propName: string, scope: MutationScope) =>
       (plan: any, _: ExecutableStep, fieldArgs: FieldArgs) => {
         const $observerId = fieldArgs.getRaw(["input", propName]);
         const $observer = context<GraphQLContext>().get("observer");
+        const $permit = context<GraphQLContext>().get("permit");
 
-        sideEffect([$observerId, $observer], async ([observerId, observer]) => {
-          if (!observer) {
-            throw new Error("Unauthorized");
-          }
-
-          // TODO: permissions for creating users
-
-          if (scope !== "create") {
-            if (observerId !== observer.id) {
-              throw new Error("Insufficient permissions");
+        sideEffect(
+          [$observerId, $observer, $permit],
+          async ([observerId, observer, permit]) => {
+            if (!observer) {
+              throw new Error("Unauthorized");
             }
-          }
-        });
+
+            if (scope !== "create") {
+              if (observerId !== observer.id) {
+                throw new Error("Insufficient permissions");
+              }
+            } else {
+              // TODO: uncomment below when full info can be derived from `observer` including access roles, etc
+              // const user = await permit.api.createUser({
+              //   key: observer.identityProviderId,
+              //   first_name: "John",
+              //   last_name: "Doe",
+              //   email: "john@example.com",
+              // });
+              // if (!user) throw new Error("Could not create user");
+            }
+          },
+        );
 
         return plan();
       },

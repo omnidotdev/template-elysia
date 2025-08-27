@@ -607,8 +607,9 @@ function oldPlan3(_, args) {
 }
 const planWrapper3 = (plan, _, fieldArgs) => {
   const $observerId = fieldArgs.getRaw(["input", "user"]),
-    $observer = context().get("observer");
-  sideEffect([$observerId, $observer], async ([observerId, observer]) => {
+    $observer = context().get("observer"),
+    $permit = context().get("permit");
+  sideEffect([$observerId, $observer, $permit], async ([observerId, observer, permit]) => {
     if (!observer) throw new Error("Unauthorized");
     if ("create" !== "create") {
       if (observerId !== observer.id) throw new Error("Insufficient permissions");
@@ -644,8 +645,9 @@ const oldPlan5 = (_$root, args) => {
 };
 const planWrapper5 = (plan, _, fieldArgs) => {
   const $observerId = fieldArgs.getRaw(["input", "rowId"]),
-    $observer = context().get("observer");
-  sideEffect([$observerId, $observer], async ([observerId, observer]) => {
+    $observer = context().get("observer"),
+    $permit = context().get("permit");
+  sideEffect([$observerId, $observer, $permit], async ([observerId, observer, permit]) => {
     if (!observer) throw new Error("Unauthorized");
     if ("update" !== "create") {
       if (observerId !== observer.id) throw new Error("Insufficient permissions");
@@ -683,8 +685,9 @@ const oldPlan7 = (_$root, args) => {
 };
 const planWrapper7 = (plan, _, fieldArgs) => {
   const $observerId = fieldArgs.getRaw(["input", "rowId"]),
-    $observer = context().get("observer");
-  sideEffect([$observerId, $observer], async ([observerId, observer]) => {
+    $observer = context().get("observer"),
+    $permit = context().get("permit");
+  sideEffect([$observerId, $observer, $permit], async ([observerId, observer, permit]) => {
     if (!observer) throw new Error("Unauthorized");
     if ("delete" !== "create") {
       if (observerId !== observer.id) throw new Error("Insufficient permissions");
