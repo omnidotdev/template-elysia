@@ -1,4 +1,4 @@
-import { pgTable, uniqueIndex, uuid } from "drizzle-orm/pg-core";
+import { pgTable, text, uniqueIndex, uuid } from "drizzle-orm/pg-core";
 
 import { generateDefaultDate, generateDefaultId } from "lib/db/util";
 
@@ -13,6 +13,10 @@ export const userTable = pgTable(
     id: generateDefaultId(),
     // external ID used by identity provider
     identityProviderId: uuid().notNull().unique(),
+    username: text(),
+    firstName: text(),
+    lastName: text(),
+    email: text().notNull().unique(),
     createdAt: generateDefaultDate(),
     updatedAt: generateDefaultDate(),
   },

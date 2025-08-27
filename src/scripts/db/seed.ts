@@ -20,7 +20,16 @@ const seedDatabase = async () => {
   // biome-ignore lint/suspicious/noConsoleLog: script logging
   console.log("Seeding database...");
 
-  await seed(db, schema);
+  await seed(db, schema).refine((f) => ({
+    userTable: {
+      columns: {
+        username: f.firstName(),
+        firstName: f.firstName(),
+        lastName: f.lastName(),
+        email: f.email(),
+      },
+    },
+  }));
 
   // biome-ignore lint/suspicious/noConsoleLog: script logging
   console.log("Database seeded successfully!");

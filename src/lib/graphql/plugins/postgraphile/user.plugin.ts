@@ -100,7 +100,7 @@ const validateMutationPermissions = (propName: string, scope: MutationScope) =>
               if (!permitted) throw new Error("Permission denied");
             } else {
               const permitted = await permit.check(
-                observer.identityProviderId,
+                "550e8400-e29b-41d4-a716-446655440000",
                 "create",
                 "user",
               );
@@ -109,10 +109,10 @@ const validateMutationPermissions = (propName: string, scope: MutationScope) =>
 
               // TODO: uncomment below when full info can be derived from `observer` including role assignments, etc
               // const user = await permit.api.syncUser({
-              //   key: "bc8d19ed-b69a-43c3-1e9d-2301b2541f92",
-              //   first_name: "John",
-              //   last_name: "Doe",
-              //   email: "john@example.com",
+              //   key: observer.identityProviderId,
+              //   first_name: observer.firstName ?? undefined,
+              //   last_name: observer.lastName ?? undefined,
+              //   email: observer.email,
               //   role_assignments: [{ role: "viewer", tenant: "default" }],
               // });
               // if (!user) throw new Error("Could not create user");

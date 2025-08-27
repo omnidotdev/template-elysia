@@ -14,6 +14,10 @@ const mockUser: SelectUser = {
   id: "c6fdab7e-4f0f-4956-5ed4-cb33ef4bf9c2",
   identityProviderId: "550e8400-e29b-41d4-a716-446655440000", // use this to provide a `passing` permissions check
   // identityProviderId: "bc8d19ed-b69a-43c3-1e9d-2301b2541f92", // use this to provide a `failing` permissions check
+  username: "Ramona",
+  firstName: "Neola",
+  lastName: "Trippe",
+  email: "chauvinistic_millette@hotmail.co.uk",
   createdAt: "2023-11-08 03:56:37-06",
   updatedAt: "2023-09-21 18:46:30-05",
 };
@@ -58,6 +62,10 @@ const resolveUser: ResolveUserFn<SelectUser, GraphQLContext> = async (ctx) => {
 
     const insertedUser: InsertUser = {
       identityProviderId: idToken.sub!,
+      username: idToken.preferred_username as string,
+      firstName: idToken.given_name as string,
+      lastName: idToken.family_name as string,
+      email: idToken.email as string,
     };
 
     const { identityProviderId, ...rest } = insertedUser;
