@@ -2,7 +2,6 @@
 import { PgCondition, PgDeleteSingleStep, PgExecutor, TYPES, assertPgClassSingleStep, listOfCodec, makeRegistry, pgDeleteSingle, pgInsertSingle, pgSelectFromRecord, pgUpdateSingle, recordCodec, sqlValueWithCodec } from "@dataplan/pg";
 import { ConnectionStep, EdgeStep, ExecutableStep, ObjectStep, __ValueStep, assertEdgeCapableStep, assertExecutableStep, assertPageInfoCapableStep, bakedInputRuntime, connection, constant, context, createObjectAndApplyChildren, first, isExecutableStep, lambda, makeGrafastSchema, node, object, rootValue, sideEffect } from "grafast";
 import { GraphQLError, Kind } from "graphql";
-import { permit } from "lib/permit/permit";
 import { sql } from "pg-sql2";
 import { match } from "ts-pattern";
 import { inspect } from "util";
@@ -407,8 +406,9 @@ const oldPlan = (_$root, {
 });
 const planWrapper = (plan, _, fieldArgs) => {
   const $postId = fieldArgs.getRaw(["input", "rowId"]),
-    $observer = context().get("observer");
-  sideEffect([$postId, $observer], async ([postId, observer]) => {
+    $observer = context().get("observer"),
+    $permit = context().get("permit");
+  sideEffect([$postId, $observer, $permit], async ([postId, observer, permit]) => {
     if (!postId || !observer) throw new Error("Ooops");
     if (!(await permit.check(observer.identityProviderId, "read", "post"))) throw new Error("Permission denied");
   });
@@ -436,15 +436,11 @@ function oldPlan2() {
 }
 const planWrapper2 = (plan, _, fieldArgs) => {
   const $input = fieldArgs.getRaw(),
-    $observer = context().get("observer");
-  sideEffect([$input, $observer], async ([input, observer]) => {
+    $observer = context().get("observer"),
+    $permit = context().get("permit");
+  sideEffect([$input, $observer, $permit], async ([input, observer, permit]) => {
     if (!input.condition.authorId || !observer) throw new Error("Ooops");
-    if (!(await permit.check(observer.identityProviderId, "read", {
-      type: "post",
-      attributes: {
-        authorId: input.condition.authorId
-      }
-    }))) throw new Error("Permission denied");
+    if (!(await permit.check(observer.identityProviderId, "read", "post"))) throw new Error("Permission denied");
   });
   return plan();
 };
@@ -611,8 +607,9 @@ function oldPlan3(_, args) {
 }
 const planWrapper3 = (plan, _, fieldArgs) => {
   const $postInput = fieldArgs.getRaw(["input", "post"]),
-    $observer = context().get("observer");
-  sideEffect([$postInput, $observer], async ([postInput, observer]) => {
+    $observer = context().get("observer"),
+    $permit = context().get("permit");
+  sideEffect([$postInput, $observer, $permit], async ([postInput, observer, permit]) => {
     if (!postInput || !observer) throw new Error("Ooops");
     if (!(await match("create").with("update", () => permit.check(observer.identityProviderId, "update", "post")).with("create", () => permit.check(observer.identityProviderId, "create", "post")).with("delete", () => permit.check(observer.identityProviderId, "delete", "post")).exhaustive())) throw new Error("Permission denied");
   });
@@ -647,8 +644,9 @@ const oldPlan5 = (_$root, args) => {
 };
 const planWrapper5 = (plan, _, fieldArgs) => {
   const $postInput = fieldArgs.getRaw(["input", "rowId"]),
-    $observer = context().get("observer");
-  sideEffect([$postInput, $observer], async ([postInput, observer]) => {
+    $observer = context().get("observer"),
+    $permit = context().get("permit");
+  sideEffect([$postInput, $observer, $permit], async ([postInput, observer, permit]) => {
     if (!postInput || !observer) throw new Error("Ooops");
     if (!(await match("update").with("update", () => permit.check(observer.identityProviderId, "update", "post")).with("create", () => permit.check(observer.identityProviderId, "create", "post")).with("delete", () => permit.check(observer.identityProviderId, "delete", "post")).exhaustive())) throw new Error("Permission denied");
   });
@@ -683,8 +681,9 @@ const oldPlan7 = (_$root, args) => {
 };
 const planWrapper7 = (plan, _, fieldArgs) => {
   const $postInput = fieldArgs.getRaw(["input", "rowId"]),
-    $observer = context().get("observer");
-  sideEffect([$postInput, $observer], async ([postInput, observer]) => {
+    $observer = context().get("observer"),
+    $permit = context().get("permit");
+  sideEffect([$postInput, $observer, $permit], async ([postInput, observer, permit]) => {
     if (!postInput || !observer) throw new Error("Ooops");
     if (!(await match("delete").with("update", () => permit.check(observer.identityProviderId, "update", "post")).with("create", () => permit.check(observer.identityProviderId, "create", "post")).with("delete", () => permit.check(observer.identityProviderId, "delete", "post")).exhaustive())) throw new Error("Permission denied");
   });

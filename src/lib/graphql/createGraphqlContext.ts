@@ -1,9 +1,11 @@
 import { createWithPgClient } from "postgraphile/adaptors/pg";
 
 import { dbPool, pgPool } from "lib/db/db";
+import { permit } from "lib/permit/permit";
 
 import type { YogaInitialContext } from "graphql-yoga";
 import type { SelectUser } from "lib/db/schema";
+import type { Permit } from "permitio";
 import type { WithPgClient } from "postgraphile/@dataplan/pg";
 import type {
   NodePostgresPgClient,
@@ -19,6 +21,8 @@ export interface GraphQLContext {
   request: Request;
   /** Database. */
   db: typeof dbPool;
+  /** Permit instance to check permissions. */
+  permit: Permit;
   /** Postgres client, injected by Postgraphile. */
   withPgClient: WithPgClient<NodePostgresPgClient>;
   /** Postgres settings for the current request, injected by Postgraphile. */
@@ -38,6 +42,7 @@ const createGraphqlContext = async ({
 > => ({
   request,
   db: dbPool,
+  permit,
   withPgClient,
 });
 

@@ -7,7 +7,6 @@ import { replaceInFile } from "replace-in-file";
 import { match } from "ts-pattern";
 
 import graphilePreset from "lib/config/graphile.config";
-import { permit } from "lib/permit/permit";
 
 /**
  * Generate a GraphQL schema from a Postgres database.
@@ -30,7 +29,6 @@ const generateGraphqlSchema = async () => {
     modules: {
       "graphile-export/helpers": { EXPORTABLE },
       "postgraphile/grafast": { context, sideEffect },
-      "lib/permit/permit": { permit },
       "ts-pattern": { match },
     },
   });

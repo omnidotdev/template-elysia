@@ -10,6 +10,12 @@ import type { GraphQLContext } from "lib/graphql/createGraphqlContext";
 
 // TODO research best practices for all of this file (token validation, caching, etc.). Validate access token (introspection endpoint)? Cache userinfo output? etc. (https://linear.app/omnidev/issue/OMNI-302/increase-security-of-useauth-plugin)
 
+const mockUser: SelectUser = {
+  id: "c6fdab7e-4f0f-4956-5ed4-cb33ef4bf9c2",
+  identityProviderId: "bc8d19ed-b69a-43c3-1e9d-2301b2541f92",
+  createdAt: "2023-11-08 03:56:37-06",
+  updatedAt: "2023-09-21 18:46:30-05",
+};
 /**
  * Validate user session and resolve user if successful.
  * @see https://the-guild.dev/graphql/envelop/plugins/use-generic-auth#getting-started
@@ -21,7 +27,7 @@ const resolveUser: ResolveUserFn<SelectUser, GraphQLContext> = async (ctx) => {
       ?.split("Bearer ")[1];
 
     if (!accessToken) {
-      if (!enabledAuthPlugin) return null;
+      if (!enabledAuthPlugin) return mockUser;
 
       throw new Error("Invalid or missing access token");
     }
@@ -36,7 +42,7 @@ const resolveUser: ResolveUserFn<SelectUser, GraphQLContext> = async (ctx) => {
     });
 
     if (!userInfo.ok) {
-      if (!enabledAuthPlugin) return null;
+      if (!enabledAuthPlugin) return mockUser;
 
       throw new Error("Invalid access token or request failed");
     }
