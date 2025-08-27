@@ -27,6 +27,32 @@ const mockIdToken = {
 
 type MutationScope = "create" | "update" | "delete";
 
+const validateBulkQueryPermissions = () =>
+  EXPORTABLE(
+    (permit, context, sideEffect, mockIdToken) =>
+      // biome-ignore lint/suspicious/noExplicitAny: SmartFieldPlanResolver is not an exported type
+      (plan: any, _: ExecutableStep, fieldArgs: FieldArgs) => {
+        const $condition = fieldArgs.getRaw(["input", "condition"]);
+        const $observer = context<GraphQLContext>().get("observer");
+
+        sideEffect([$condition, $observer], async ([condition, observer]) => {
+          if (!condition.authorId || !observer) {
+            throw new Error("Ooops");
+          }
+
+          const permitted = await permit.check(mockIdToken.sub, "read", {
+            type: "post",
+            attributes: { authorId: condition.authorId },
+          });
+
+          if (!permitted) throw new Error("Permission denied");
+        });
+
+        return plan();
+      },
+    [permit, context, sideEffect, mockIdToken],
+  );
+
 const validateQueryPermissions = (propName: string) =>
   EXPORTABLE(
     (permit, context, sideEffect, propName, mockIdToken) =>
@@ -98,7 +124,6 @@ export const PostPlugin = makeWrapPlansPlugin({
   Query: {
     post: validateQueryPermissions("rowId"),
     postById: validateQueryPermissions("id"),
-    // TODO: determine best way to structure it for posts
-    // posts: validateQueryPermissions("")
+    posts: validateBulkQueryPermissions(),
   },
 });
