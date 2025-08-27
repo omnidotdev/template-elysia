@@ -108,7 +108,6 @@ const validateMutationPermissions = (propName: string, scope: MutationScope) =>
 
               if (!permitted) throw new Error("Permission denied");
 
-              // TODO: verify that the `input` on each of these variables works appropriately. Thought is that if `createUser` is called, we need to create a record for the `input` details, not the observer as they should already have a record
               // TODO: uncomment below when full info can be derived from `observer` including role assignments, etc
               // const user = await permit.api.syncUser({
               //   key: input.identityProviderId,
