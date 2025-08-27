@@ -123,7 +123,6 @@ export const PostPlugin = makeWrapPlansPlugin({
   },
   Query: {
     post: validateQueryPermissions("rowId"),
-    postById: validateQueryPermissions("id"),
     posts: validateBulkQueryPermissions(),
   },
 });

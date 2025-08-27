@@ -1,6 +1,6 @@
 // @ts-nocheck
 import { PgCondition, PgDeleteSingleStep, PgExecutor, TYPES, assertPgClassSingleStep, listOfCodec, makeRegistry, pgDeleteSingle, pgInsertSingle, pgSelectFromRecord, pgUpdateSingle, recordCodec, sqlValueWithCodec } from "@dataplan/pg";
-import { ConnectionStep, EdgeStep, ExecutableStep, ObjectStep, __ValueStep, access, assertEdgeCapableStep, assertExecutableStep, assertPageInfoCapableStep, bakedInputRuntime, connection, constant, context, createObjectAndApplyChildren, first, inhibitOnNull, isExecutableStep, lambda, list, makeGrafastSchema, node, object, rootValue, sideEffect, specFromNodeId } from "grafast";
+import { ConnectionStep, EdgeStep, ExecutableStep, ObjectStep, __ValueStep, assertEdgeCapableStep, assertExecutableStep, assertPageInfoCapableStep, bakedInputRuntime, connection, constant, context, createObjectAndApplyChildren, first, isExecutableStep, lambda, makeGrafastSchema, node, object, rootValue, sideEffect } from "grafast";
 import { GraphQLError, Kind } from "graphql";
 import { permit } from "lib/permit/permit";
 import { sql } from "pg-sql2";
@@ -37,27 +37,26 @@ const handler = {
     return constant`query`;
   }
 };
-const nodeIdCodecs_base64JSON_base64JSON = {
-  name: "base64JSON",
-  encode: (() => {
-    function base64JSONEncode(value) {
-      return Buffer.from(JSON.stringify(value), "utf8").toString("base64");
-    }
-    base64JSONEncode.isSyncAndSafe = !0;
-    return base64JSONEncode;
-  })(),
-  decode: (() => {
-    function base64JSONDecode(value) {
-      return JSON.parse(Buffer.from(value, "base64").toString("utf8"));
-    }
-    base64JSONDecode.isSyncAndSafe = !0;
-    return base64JSONDecode;
-  })()
-};
 const nodeIdCodecs = {
   __proto__: null,
   raw: handler.codec,
-  base64JSON: nodeIdCodecs_base64JSON_base64JSON,
+  base64JSON: {
+    name: "base64JSON",
+    encode: (() => {
+      function base64JSONEncode(value) {
+        return Buffer.from(JSON.stringify(value), "utf8").toString("base64");
+      }
+      base64JSONEncode.isSyncAndSafe = !0;
+      return base64JSONEncode;
+    })(),
+    decode: (() => {
+      function base64JSONDecode(value) {
+        return JSON.parse(Buffer.from(value, "base64").toString("utf8"));
+      }
+      base64JSONDecode.isSyncAndSafe = !0;
+      return base64JSONDecode;
+    })()
+  },
   pipeString: {
     name: "pipeString",
     encode: Object.assign(function pipeStringEncode(value) {
@@ -71,6 +70,10 @@ const nodeIdCodecs = {
       isSyncAndSafe: true
     })
   }
+};
+const nodeIdHandlerByTypeName = {
+  __proto__: null,
+  Query: handler
 };
 const executor = new PgExecutor({
   name: "main",
@@ -395,59 +398,11 @@ const registryConfig = {
   }
 };
 const registry = makeRegistry(registryConfig);
-const pgResource_userPgResource = registry.pgResources["user"];
-const pgResource_postPgResource = registry.pgResources["post"];
-const nodeIdHandlerByTypeName = {
-  __proto__: null,
-  Query: handler,
-  User: {
-    typeName: "User",
-    codec: nodeIdCodecs_base64JSON_base64JSON,
-    deprecationReason: undefined,
-    plan($record) {
-      return list([constant("User", false), $record.get("id")]);
-    },
-    getSpec($list) {
-      return {
-        id: inhibitOnNull(access($list, [1]))
-      };
-    },
-    getIdentifiers(value) {
-      return value.slice(1);
-    },
-    get(spec) {
-      return pgResource_userPgResource.get(spec);
-    },
-    match(obj) {
-      return obj[0] === "User";
-    }
-  },
-  Post: {
-    typeName: "Post",
-    codec: nodeIdCodecs_base64JSON_base64JSON,
-    deprecationReason: undefined,
-    plan($record) {
-      return list([constant("Post", false), $record.get("id")]);
-    },
-    getSpec($list) {
-      return {
-        id: inhibitOnNull(access($list, [1]))
-      };
-    },
-    getIdentifiers(value) {
-      return value.slice(1);
-    },
-    get(spec) {
-      return pgResource_postPgResource.get(spec);
-    },
-    match(obj) {
-      return obj[0] === "Post";
-    }
-  }
-};
+const resource_userPgResource = registry.pgResources["user"];
+const resource_postPgResource = registry.pgResources["post"];
 const oldPlan = (_$root, {
   $rowId
-}) => pgResource_postPgResource.get({
+}) => resource_postPgResource.get({
   id: $rowId
 });
 const mockIdToken_Jane_Doe = {
@@ -474,40 +429,6 @@ const planWrapper = (plan, _, fieldArgs) => {
   });
   return plan();
 };
-function specForHandler(handler) {
-  function spec(nodeId) {
-    if (nodeId == null) return null;
-    try {
-      const specifier = handler.codec.decode(nodeId);
-      if (handler.match(specifier)) return specifier;
-    } catch {}
-    return null;
-  }
-  spec.displayName = `specifier_${handler.typeName}_${handler.codec.name}`;
-  spec.isSyncAndSafe = !0;
-  return spec;
-}
-const nodeFetcher_User = $nodeId => {
-  const $decoded = lambda($nodeId, specForHandler(nodeIdHandlerByTypeName.User));
-  return nodeIdHandlerByTypeName.User.get(nodeIdHandlerByTypeName.User.getSpec($decoded));
-};
-const nodeFetcher_Post = $nodeId => {
-  const $decoded = lambda($nodeId, specForHandler(nodeIdHandlerByTypeName.Post));
-  return nodeIdHandlerByTypeName.Post.get(nodeIdHandlerByTypeName.Post.getSpec($decoded));
-};
-function oldPlan2(_$parent, args) {
-  const $nodeId = args.getRaw("id");
-  return nodeFetcher_Post($nodeId);
-}
-const planWrapper2 = (plan, _, fieldArgs) => {
-  const $postId = fieldArgs.getRaw(["input", "id"]),
-    $observer = context().get("observer");
-  sideEffect([$postId, $observer], async ([postId, observer]) => {
-    if (!postId || !observer) throw new Error("Ooops");
-    if (!(await permit.check(mockIdToken_Jane_Doe.sub, "read", "post"))) throw new Error("Permission denied");
-  });
-  return plan();
-};
 function qbWhereBuilder(qb) {
   return qb.whereBuilder();
 }
@@ -515,20 +436,20 @@ function isEmpty(o) {
   return typeof o === "object" && o !== null && Object.keys(o).length === 0;
 }
 function assertAllowed(value, mode) {
-  if (mode === "object" && !false && isEmpty(value)) throw Object.assign(new Error("Empty objects are forbidden in filter argument input."), {});
-  if (mode === "list" && !false) {
+  if (mode === "object" && !true && isEmpty(value)) throw Object.assign(new Error("Empty objects are forbidden in filter argument input."), {});
+  if (mode === "list" && !true) {
     const arr = value;
     if (arr) {
       const l = arr.length;
       for (let i = 0; i < l; i++) if (isEmpty(arr[i])) throw Object.assign(new Error("Empty objects are forbidden in filter argument input."), {});
     }
   }
-  if (!false && value === null) throw Object.assign(new Error("Null literals are forbidden in filter argument input."), {});
+  if (!true && value === null) throw Object.assign(new Error("Null literals are forbidden in filter argument input."), {});
 }
-function oldPlan3() {
-  return connection(pgResource_postPgResource.find());
+function oldPlan2() {
+  return connection(resource_postPgResource.find());
 }
-const planWrapper3 = (plan, _, fieldArgs) => {
+const planWrapper2 = (plan, _, fieldArgs) => {
   const $condition = fieldArgs.getRaw(["input", "condition"]),
     $observer = context().get("observer");
   sideEffect([$condition, $observer], async ([condition, observer]) => {
@@ -543,26 +464,26 @@ const planWrapper3 = (plan, _, fieldArgs) => {
   return plan();
 };
 function assertAllowed2(value, mode) {
-  if (mode === "object" && !false && isEmpty(value)) throw Object.assign(new Error("Empty objects are forbidden in filter argument input."), {});
-  if (mode === "list" && !false) {
+  if (mode === "object" && !true && isEmpty(value)) throw Object.assign(new Error("Empty objects are forbidden in filter argument input."), {});
+  if (mode === "list" && !true) {
     const arr = value;
     if (arr) {
       const l = arr.length;
       for (let i = 0; i < l; i++) if (isEmpty(arr[i])) throw Object.assign(new Error("Empty objects are forbidden in filter argument input."), {});
     }
   }
-  if (!false && value === null) throw Object.assign(new Error("Null literals are forbidden in filter argument input."), {});
+  if (!true && value === null) throw Object.assign(new Error("Null literals are forbidden in filter argument input."), {});
 }
 function assertAllowed3(value, mode) {
-  if (mode === "object" && !false && isEmpty(value)) throw Object.assign(new Error("Empty objects are forbidden in filter argument input."), {});
-  if (mode === "list" && !false) {
+  if (mode === "object" && !true && isEmpty(value)) throw Object.assign(new Error("Empty objects are forbidden in filter argument input."), {});
+  if (mode === "list" && !true) {
     const arr = value;
     if (arr) {
       const l = arr.length;
       for (let i = 0; i < l; i++) if (isEmpty(arr[i])) throw Object.assign(new Error("Empty objects are forbidden in filter argument input."), {});
     }
   }
-  if (!false && value === null) throw Object.assign(new Error("Null literals are forbidden in filter argument input."), {});
+  if (!true && value === null) throw Object.assign(new Error("Null literals are forbidden in filter argument input."), {});
 }
 function UUIDSerialize(value) {
   return "" + value;
@@ -582,26 +503,26 @@ const colSpec2 = {
   attribute: spec_post.attributes.author_id
 };
 function assertAllowed4(value, mode) {
-  if (mode === "object" && !false && isEmpty(value)) throw Object.assign(new Error("Empty objects are forbidden in filter argument input."), {});
-  if (mode === "list" && !false) {
+  if (mode === "object" && !true && isEmpty(value)) throw Object.assign(new Error("Empty objects are forbidden in filter argument input."), {});
+  if (mode === "list" && !true) {
     const arr = value;
     if (arr) {
       const l = arr.length;
       for (let i = 0; i < l; i++) if (isEmpty(arr[i])) throw Object.assign(new Error("Empty objects are forbidden in filter argument input."), {});
     }
   }
-  if (!false && value === null) throw Object.assign(new Error("Null literals are forbidden in filter argument input."), {});
+  if (!true && value === null) throw Object.assign(new Error("Null literals are forbidden in filter argument input."), {});
 }
 function assertAllowed5(value, mode) {
-  if (mode === "object" && !false && isEmpty(value)) throw Object.assign(new Error("Empty objects are forbidden in filter argument input."), {});
-  if (mode === "list" && !false) {
+  if (mode === "object" && !true && isEmpty(value)) throw Object.assign(new Error("Empty objects are forbidden in filter argument input."), {});
+  if (mode === "list" && !true) {
     const arr = value;
     if (arr) {
       const l = arr.length;
       for (let i = 0; i < l; i++) if (isEmpty(arr[i])) throw Object.assign(new Error("Empty objects are forbidden in filter argument input."), {});
     }
   }
-  if (!false && value === null) throw Object.assign(new Error("Null literals are forbidden in filter argument input."), {});
+  if (!true && value === null) throw Object.assign(new Error("Null literals are forbidden in filter argument input."), {});
 }
 const resolve = (i, _v, input) => sql`${i} ${input ? sql`IS NULL` : sql`IS NOT NULL`}`;
 const resolveInputCodec = () => TYPES.boolean;
@@ -664,46 +585,46 @@ const colSpec4 = {
   attribute: spec_user.attributes.identity_provider_id
 };
 function assertAllowed6(value, mode) {
-  if (mode === "object" && !false && isEmpty(value)) throw Object.assign(new Error("Empty objects are forbidden in filter argument input."), {});
-  if (mode === "list" && !false) {
+  if (mode === "object" && !true && isEmpty(value)) throw Object.assign(new Error("Empty objects are forbidden in filter argument input."), {});
+  if (mode === "list" && !true) {
     const arr = value;
     if (arr) {
       const l = arr.length;
       for (let i = 0; i < l; i++) if (isEmpty(arr[i])) throw Object.assign(new Error("Empty objects are forbidden in filter argument input."), {});
     }
   }
-  if (!false && value === null) throw Object.assign(new Error("Null literals are forbidden in filter argument input."), {});
+  if (!true && value === null) throw Object.assign(new Error("Null literals are forbidden in filter argument input."), {});
 }
 function assertAllowed7(value, mode) {
-  if (mode === "object" && !false && isEmpty(value)) throw Object.assign(new Error("Empty objects are forbidden in filter argument input."), {});
-  if (mode === "list" && !false) {
+  if (mode === "object" && !true && isEmpty(value)) throw Object.assign(new Error("Empty objects are forbidden in filter argument input."), {});
+  if (mode === "list" && !true) {
     const arr = value;
     if (arr) {
       const l = arr.length;
       for (let i = 0; i < l; i++) if (isEmpty(arr[i])) throw Object.assign(new Error("Empty objects are forbidden in filter argument input."), {});
     }
   }
-  if (!false && value === null) throw Object.assign(new Error("Null literals are forbidden in filter argument input."), {});
+  if (!true && value === null) throw Object.assign(new Error("Null literals are forbidden in filter argument input."), {});
 }
 function assertAllowed8(value, mode) {
-  if (mode === "object" && !false && isEmpty(value)) throw Object.assign(new Error("Empty objects are forbidden in filter argument input."), {});
-  if (mode === "list" && !false) {
+  if (mode === "object" && !true && isEmpty(value)) throw Object.assign(new Error("Empty objects are forbidden in filter argument input."), {});
+  if (mode === "list" && !true) {
     const arr = value;
     if (arr) {
       const l = arr.length;
       for (let i = 0; i < l; i++) if (isEmpty(arr[i])) throw Object.assign(new Error("Empty objects are forbidden in filter argument input."), {});
     }
   }
-  if (!false && value === null) throw Object.assign(new Error("Null literals are forbidden in filter argument input."), {});
+  if (!true && value === null) throw Object.assign(new Error("Null literals are forbidden in filter argument input."), {});
 }
-function oldPlan4(_, args) {
-  const $insert = pgInsertSingle(pgResource_postPgResource, Object.create(null));
+function oldPlan3(_, args) {
+  const $insert = pgInsertSingle(resource_postPgResource, Object.create(null));
   args.apply($insert);
   return object({
     result: $insert
   });
 }
-const planWrapper4 = (plan, _, fieldArgs) => {
+const planWrapper3 = (plan, _, fieldArgs) => {
   const $postInput = fieldArgs.getRaw(["input", "post"]),
     $observer = context().get("observer");
   sideEffect([$postInput, $observer], async ([postInput, observer]) => {
@@ -712,12 +633,26 @@ const planWrapper4 = (plan, _, fieldArgs) => {
   });
   return plan();
 };
-const specFromArgs_User = args => {
-  const $nodeId = args.getRaw(["input", "id"]);
-  return specFromNodeId(nodeIdHandlerByTypeName.User, $nodeId);
+const oldPlan4 = (_$root, args) => {
+  const $update = pgUpdateSingle(resource_userPgResource, {
+    id: args.getRaw(['input', "rowId"])
+  });
+  args.apply($update);
+  return object({
+    result: $update
+  });
+};
+const planWrapper4 = (plan, _, fieldArgs) => {
+  const $observerId = fieldArgs.getRaw(["input", "rowId"]),
+    $observer = context().get("observer");
+  sideEffect([$observerId, $observer], async ([observerId, currentObserver]) => {
+    if (!currentObserver) throw new Error("Unauthorized");
+    if (observerId !== currentObserver.id) throw new Error("Insufficient permissions");
+  });
+  return plan();
 };
 const oldPlan5 = (_$root, args) => {
-  const $update = pgUpdateSingle(pgResource_userPgResource, {
+  const $update = pgUpdateSingle(resource_postPgResource, {
     id: args.getRaw(['input', "rowId"])
   });
   args.apply($update);
@@ -726,28 +661,6 @@ const oldPlan5 = (_$root, args) => {
   });
 };
 const planWrapper5 = (plan, _, fieldArgs) => {
-  const $observerId = fieldArgs.getRaw(["input", "rowId"]),
-    $observer = context().get("observer");
-  sideEffect([$observerId, $observer], async ([observerId, currentObserver]) => {
-    if (!currentObserver) throw new Error("Unauthorized");
-    if (observerId !== currentObserver.id) throw new Error("Insufficient permissions");
-  });
-  return plan();
-};
-const specFromArgs_Post = args => {
-  const $nodeId = args.getRaw(["input", "id"]);
-  return specFromNodeId(nodeIdHandlerByTypeName.Post, $nodeId);
-};
-const oldPlan6 = (_$root, args) => {
-  const $update = pgUpdateSingle(pgResource_postPgResource, {
-    id: args.getRaw(['input', "rowId"])
-  });
-  args.apply($update);
-  return object({
-    result: $update
-  });
-};
-const planWrapper6 = (plan, _, fieldArgs) => {
   const $postInput = fieldArgs.getRaw(["input", "rowId"]),
     $observer = context().get("observer");
   sideEffect([$postInput, $observer], async ([postInput, observer]) => {
@@ -756,12 +669,8 @@ const planWrapper6 = (plan, _, fieldArgs) => {
   });
   return plan();
 };
-const specFromArgs_User2 = args => {
-  const $nodeId = args.getRaw(["input", "id"]);
-  return specFromNodeId(nodeIdHandlerByTypeName.User, $nodeId);
-};
-const oldPlan7 = (_$root, args) => {
-  const $delete = pgDeleteSingle(pgResource_userPgResource, {
+const oldPlan6 = (_$root, args) => {
+  const $delete = pgDeleteSingle(resource_userPgResource, {
     id: args.getRaw(['input', "rowId"])
   });
   args.apply($delete);
@@ -769,7 +678,7 @@ const oldPlan7 = (_$root, args) => {
     result: $delete
   });
 };
-const planWrapper7 = (plan, _, fieldArgs) => {
+const planWrapper6 = (plan, _, fieldArgs) => {
   const $observerId = fieldArgs.getRaw(["input", "rowId"]),
     $observer = context().get("observer");
   sideEffect([$observerId, $observer], async ([observerId, currentObserver]) => {
@@ -778,12 +687,8 @@ const planWrapper7 = (plan, _, fieldArgs) => {
   });
   return plan();
 };
-const specFromArgs_Post2 = args => {
-  const $nodeId = args.getRaw(["input", "id"]);
-  return specFromNodeId(nodeIdHandlerByTypeName.Post, $nodeId);
-};
-const oldPlan8 = (_$root, args) => {
-  const $delete = pgDeleteSingle(pgResource_postPgResource, {
+const oldPlan7 = (_$root, args) => {
+  const $delete = pgDeleteSingle(resource_postPgResource, {
     id: args.getRaw(['input', "rowId"])
   });
   args.apply($delete);
@@ -791,7 +696,7 @@ const oldPlan8 = (_$root, args) => {
     result: $delete
   });
 };
-const planWrapper8 = (plan, _, fieldArgs) => {
+const planWrapper7 = (plan, _, fieldArgs) => {
   const $postInput = fieldArgs.getRaw(["input", "rowId"]),
     $observer = context().get("observer");
   sideEffect([$postInput, $observer], async ([postInput, observer]) => {
@@ -827,18 +732,6 @@ type Query implements Node {
 
   """Get a single \`Post\`."""
   post(rowId: UUID!): Post
-
-  """Reads a single \`User\` using its globally unique \`ID\`."""
-  userById(
-    """The globally unique \`ID\` to be used in selecting a single \`User\`."""
-    id: ID!
-  ): User
-
-  """Reads a single \`Post\` using its globally unique \`ID\`."""
-  postById(
-    """The globally unique \`ID\` to be used in selecting a single \`Post\`."""
-    id: ID!
-  ): Post
 
   """Reads and enables pagination through a set of \`User\`."""
   users(
@@ -917,11 +810,7 @@ interface Node {
   id: ID!
 }
 
-type User implements Node {
-  """
-  A globally unique identifier. Can be used in various places throughout the system to identify this single value.
-  """
-  id: ID!
+type User {
   rowId: UUID!
   identityProviderId: UUID!
   createdAt: Datetime
@@ -993,11 +882,7 @@ type PostConnection {
   totalCount: Int!
 }
 
-type Post implements Node {
-  """
-  A globally unique identifier. Can be used in various places throughout the system to identify this single value.
-  """
-  id: ID!
+type Post {
   rowId: UUID!
   title: String
   description: String
@@ -1237,14 +1122,6 @@ type Mutation {
     input: CreatePostInput!
   ): CreatePostPayload
 
-  """Updates a single \`User\` using its globally unique id and a patch."""
-  updateUserById(
-    """
-    The exclusive input argument for this mutation. An object type, make sure to see documentation for this object’s fields.
-    """
-    input: UpdateUserByIdInput!
-  ): UpdateUserPayload
-
   """Updates a single \`User\` using a unique key and a patch."""
   updateUser(
     """
@@ -1252,14 +1129,6 @@ type Mutation {
     """
     input: UpdateUserInput!
   ): UpdateUserPayload
-
-  """Updates a single \`Post\` using its globally unique id and a patch."""
-  updatePostById(
-    """
-    The exclusive input argument for this mutation. An object type, make sure to see documentation for this object’s fields.
-    """
-    input: UpdatePostByIdInput!
-  ): UpdatePostPayload
 
   """Updates a single \`Post\` using a unique key and a patch."""
   updatePost(
@@ -1269,14 +1138,6 @@ type Mutation {
     input: UpdatePostInput!
   ): UpdatePostPayload
 
-  """Deletes a single \`User\` using its globally unique id."""
-  deleteUserById(
-    """
-    The exclusive input argument for this mutation. An object type, make sure to see documentation for this object’s fields.
-    """
-    input: DeleteUserByIdInput!
-  ): DeleteUserPayload
-
   """Deletes a single \`User\` using a unique key."""
   deleteUser(
     """
@@ -1284,14 +1145,6 @@ type Mutation {
     """
     input: DeleteUserInput!
   ): DeleteUserPayload
-
-  """Deletes a single \`Post\` using its globally unique id."""
-  deletePostById(
-    """
-    The exclusive input argument for this mutation. An object type, make sure to see documentation for this object’s fields.
-    """
-    input: DeletePostByIdInput!
-  ): DeletePostPayload
 
   """Deletes a single \`Post\` using a unique key."""
   deletePost(
@@ -1413,33 +1266,6 @@ type UpdateUserPayload {
   ): UserEdge
 }
 
-"""All input for the \`updateUserById\` mutation."""
-input UpdateUserByIdInput {
-  """
-  An arbitrary string value with no semantic meaning. Will be included in the
-  payload verbatim. May be used to track mutations by the client.
-  """
-  clientMutationId: String
-
-  """
-  The globally unique \`ID\` which will identify a single \`User\` to be updated.
-  """
-  id: ID!
-
-  """
-  An object where the defined keys will be set on the \`User\` being updated.
-  """
-  patch: UserPatch!
-}
-
-"""Represents an update to a \`User\`. Fields that are set will be updated."""
-input UserPatch {
-  rowId: UUID
-  identityProviderId: UUID
-  createdAt: Datetime
-  updatedAt: Datetime
-}
-
 """All input for the \`updateUser\` mutation."""
 input UpdateUserInput {
   """
@@ -1453,6 +1279,14 @@ input UpdateUserInput {
   An object where the defined keys will be set on the \`User\` being updated.
   """
   patch: UserPatch!
+}
+
+"""Represents an update to a \`User\`. Fields that are set will be updated."""
+input UserPatch {
+  rowId: UUID
+  identityProviderId: UUID
+  createdAt: Datetime
+  updatedAt: Datetime
 }
 
 """The output of our update \`Post\` mutation."""
@@ -1478,18 +1312,14 @@ type UpdatePostPayload {
   ): PostEdge
 }
 
-"""All input for the \`updatePostById\` mutation."""
-input UpdatePostByIdInput {
+"""All input for the \`updatePost\` mutation."""
+input UpdatePostInput {
   """
   An arbitrary string value with no semantic meaning. Will be included in the
   payload verbatim. May be used to track mutations by the client.
   """
   clientMutationId: String
-
-  """
-  The globally unique \`ID\` which will identify a single \`Post\` to be updated.
-  """
-  id: ID!
+  rowId: UUID!
 
   """
   An object where the defined keys will be set on the \`Post\` being updated.
@@ -1507,21 +1337,6 @@ input PostPatch {
   updatedAt: Datetime
 }
 
-"""All input for the \`updatePost\` mutation."""
-input UpdatePostInput {
-  """
-  An arbitrary string value with no semantic meaning. Will be included in the
-  payload verbatim. May be used to track mutations by the client.
-  """
-  clientMutationId: String
-  rowId: UUID!
-
-  """
-  An object where the defined keys will be set on the \`Post\` being updated.
-  """
-  patch: PostPatch!
-}
-
 """The output of our delete \`User\` mutation."""
 type DeleteUserPayload {
   """
@@ -1532,7 +1347,6 @@ type DeleteUserPayload {
 
   """The \`User\` that was deleted by this mutation."""
   user: User
-  deletedUserId: ID
 
   """
   Our root query field type. Allows us to run any query from our mutation payload.
@@ -1544,20 +1358,6 @@ type DeleteUserPayload {
     """The method to use when ordering \`User\`."""
     orderBy: [UserOrderBy!]! = [PRIMARY_KEY_ASC]
   ): UserEdge
-}
-
-"""All input for the \`deleteUserById\` mutation."""
-input DeleteUserByIdInput {
-  """
-  An arbitrary string value with no semantic meaning. Will be included in the
-  payload verbatim. May be used to track mutations by the client.
-  """
-  clientMutationId: String
-
-  """
-  The globally unique \`ID\` which will identify a single \`User\` to be deleted.
-  """
-  id: ID!
 }
 
 """All input for the \`deleteUser\` mutation."""
@@ -1580,7 +1380,6 @@ type DeletePostPayload {
 
   """The \`Post\` that was deleted by this mutation."""
   post: Post
-  deletedPostId: ID
 
   """
   Our root query field type. Allows us to run any query from our mutation payload.
@@ -1592,20 +1391,6 @@ type DeletePostPayload {
     """The method to use when ordering \`Post\`."""
     orderBy: [PostOrderBy!]! = [PRIMARY_KEY_ASC]
   ): PostEdge
-}
-
-"""All input for the \`deletePostById\` mutation."""
-input DeletePostByIdInput {
-  """
-  An arbitrary string value with no semantic meaning. Will be included in the
-  payload verbatim. May be used to track mutations by the client.
-  """
-  clientMutationId: String
-
-  """
-  The globally unique \`ID\` which will identify a single \`Post\` to be deleted.
-  """
-  id: ID!
 }
 
 """All input for the \`deletePost\` mutation."""
@@ -1635,14 +1420,14 @@ export const plans = {
     user(_$root, {
       $rowId
     }) {
-      return pgResource_userPgResource.get({
+      return resource_userPgResource.get({
         id: $rowId
       });
     },
     userByIdentityProviderId(_$root, {
       $identityProviderId
     }) {
-      return pgResource_userPgResource.get({
+      return resource_userPgResource.get({
         identity_provider_id: $identityProviderId
       });
     },
@@ -1662,29 +1447,9 @@ ${String(oldPlan)}`);
       if ($newPlan !== null && !isExecutableStep($newPlan)) throw new Error(`Your plan wrapper returned something other than a step... It must return a step (or null). (Returned: ${inspect($newPlan)})`);
       return $newPlan;
     },
-    userById(_$parent, args) {
-      const $nodeId = args.getRaw("id");
-      return nodeFetcher_User($nodeId);
-    },
-    postById(...planParams) {
-      const smartPlan = (...overrideParams) => {
-          const $prev = oldPlan2(...overrideParams.concat(planParams.slice(overrideParams.length)));
-          if (!($prev instanceof ExecutableStep)) {
-            console.error(`Wrapped a plan function at ${"Query"}.${"postById"}, but that function did not return a step!
-${String(oldPlan2)}`);
-            throw new Error("Wrapped a plan function, but that function did not return a step!");
-          }
-          return $prev;
-        },
-        [$source, fieldArgs, info] = planParams,
-        $newPlan = planWrapper2(smartPlan, $source, fieldArgs, info);
-      if ($newPlan === void 0) throw new Error("Your plan wrapper didn't return anything; it must return a step or null!");
-      if ($newPlan !== null && !isExecutableStep($newPlan)) throw new Error(`Your plan wrapper returned something other than a step... It must return a step (or null). (Returned: ${inspect($newPlan)})`);
-      return $newPlan;
-    },
     users: {
       plan() {
-        return connection(pgResource_userPgResource.find());
+        return connection(resource_userPgResource.find());
       },
       args: {
         first(_, $connection, arg) {
@@ -1724,16 +1489,16 @@ ${String(oldPlan2)}`);
     posts: {
       plan(...planParams) {
         const smartPlan = (...overrideParams) => {
-            const $prev = oldPlan3(...overrideParams.concat(planParams.slice(overrideParams.length)));
+            const $prev = oldPlan2(...overrideParams.concat(planParams.slice(overrideParams.length)));
             if (!($prev instanceof ExecutableStep)) {
               console.error(`Wrapped a plan function at ${"Query"}.${"posts"}, but that function did not return a step!
-${String(oldPlan3)}`);
+${String(oldPlan2)}`);
               throw new Error("Wrapped a plan function, but that function did not return a step!");
             }
             return $prev;
           },
           [$source, fieldArgs, info] = planParams,
-          $newPlan = planWrapper3(smartPlan, $source, fieldArgs, info);
+          $newPlan = planWrapper2(smartPlan, $source, fieldArgs, info);
         if ($newPlan === void 0) throw new Error("Your plan wrapper didn't return anything; it must return a step or null!");
         if ($newPlan !== null && !isExecutableStep($newPlan)) throw new Error(`Your plan wrapper returned something other than a step... It must return a step (or null). (Returned: ${inspect($newPlan)})`);
         return $newPlan;
@@ -1776,10 +1541,6 @@ ${String(oldPlan3)}`);
   },
   User: {
     __assertStep: assertPgClassSingleStep,
-    id($parent) {
-      const specifier = nodeIdHandlerByTypeName.User.plan($parent);
-      return lambda(specifier, nodeIdCodecs[nodeIdHandlerByTypeName.User.codec.name].encode);
-    },
     rowId($record) {
       return $record.get("id");
     },
@@ -1794,7 +1555,7 @@ ${String(oldPlan3)}`);
     },
     authoredPosts: {
       plan($record) {
-        const $records = pgResource_postPgResource.find({
+        const $records = resource_postPgResource.find({
           author_id: $record.get("id")
         });
         return connection($records);
@@ -1861,10 +1622,6 @@ ${String(oldPlan3)}`);
   },
   Post: {
     __assertStep: assertPgClassSingleStep,
-    id($parent) {
-      const specifier = nodeIdHandlerByTypeName.Post.plan($parent);
-      return lambda(specifier, nodeIdCodecs[nodeIdHandlerByTypeName.Post.codec.name].encode);
-    },
     rowId($record) {
       return $record.get("id");
     },
@@ -1878,7 +1635,7 @@ ${String(oldPlan3)}`);
       return $record.get("updated_at");
     },
     author($record) {
-      return pgResource_userPgResource.get({
+      return resource_userPgResource.get({
         id: $record.get("author_id")
       });
     }
@@ -1938,16 +1695,16 @@ ${String(oldPlan3)}`);
   PostFilter: {
     rowId(queryBuilder, value) {
       if (value === void 0) return;
-      if (!false && isEmpty(value)) throw Object.assign(new Error("Empty objects are forbidden in filter argument input."), {});
-      if (!false && value === null) throw Object.assign(new Error("Null literals are forbidden in filter argument input."), {});
+      if (!true && isEmpty(value)) throw Object.assign(new Error("Empty objects are forbidden in filter argument input."), {});
+      if (!true && value === null) throw Object.assign(new Error("Null literals are forbidden in filter argument input."), {});
       const condition = new PgCondition(queryBuilder);
       condition.extensions.pgFilterAttribute = colSpec;
       return condition;
     },
     authorId(queryBuilder, value) {
       if (value === void 0) return;
-      if (!false && isEmpty(value)) throw Object.assign(new Error("Empty objects are forbidden in filter argument input."), {});
-      if (!false && value === null) throw Object.assign(new Error("Null literals are forbidden in filter argument input."), {});
+      if (!true && isEmpty(value)) throw Object.assign(new Error("Empty objects are forbidden in filter argument input."), {});
+      if (!true && value === null) throw Object.assign(new Error("Null literals are forbidden in filter argument input."), {});
       const condition = new PgCondition(queryBuilder);
       condition.extensions.pgFilterAttribute = colSpec2;
       return condition;
@@ -1957,7 +1714,7 @@ ${String(oldPlan3)}`);
       if (value == null) return;
       const $subQuery = $where.existsPlan({
         tableExpression: userIdentifier,
-        alias: pgResource_userPgResource.name
+        alias: resource_userPgResource.name
       });
       registryConfig.pgRelations.post.userByMyAuthorId.localAttributes.forEach((localAttribute, i) => {
         const remoteAttribute = registryConfig.pgRelations.post.userByMyAuthorId.remoteAttributes[i];
@@ -1996,8 +1753,8 @@ ${String(oldPlan3)}`);
         sourceAlias = attribute ? attribute.expression ? attribute.expression($where.alias) : sql`${$where.alias}.${sql.identifier(attributeName)}` : expression ? expression : $where.alias,
         sourceCodec = codec ?? attribute.codec,
         [sqlIdentifier, identifierCodec] = [sourceAlias, sourceCodec];
-      if (false && value === null) return;
-      if (!false && value === null) throw Object.assign(new Error("Null literals are forbidden in filter argument input."), {});
+      if (true && value === null) return;
+      if (!true && value === null) throw Object.assign(new Error("Null literals are forbidden in filter argument input."), {});
       const resolvedInput = value,
         inputCodec = resolveInputCodec ? resolveInputCodec(codec ?? attribute.codec) : codec ?? attribute.codec,
         sqlValue = resolveSqlValue ? resolveSqlValue($where, value, inputCodec) : sqlValueWithCodec(resolvedInput, inputCodec),
@@ -2020,8 +1777,8 @@ ${String(oldPlan3)}`);
         sourceAlias = attribute ? attribute.expression ? attribute.expression($where.alias) : sql`${$where.alias}.${sql.identifier(attributeName)}` : expression ? expression : $where.alias,
         sourceCodec = codec ?? attribute.codec,
         [sqlIdentifier, identifierCodec] = resolveSqlIdentifier ? resolveSqlIdentifier(sourceAlias, sourceCodec) : [sourceAlias, sourceCodec];
-      if (false && value === null) return;
-      if (!false && value === null) throw Object.assign(new Error("Null literals are forbidden in filter argument input."), {});
+      if (true && value === null) return;
+      if (!true && value === null) throw Object.assign(new Error("Null literals are forbidden in filter argument input."), {});
       const resolvedInput = value,
         inputCodec = resolveInputCodec2 ? resolveInputCodec2(codec ?? attribute.codec) : codec ?? attribute.codec,
         sqlValue = sqlValueWithCodec(resolvedInput, inputCodec),
@@ -2044,8 +1801,8 @@ ${String(oldPlan3)}`);
         sourceAlias = attribute ? attribute.expression ? attribute.expression($where.alias) : sql`${$where.alias}.${sql.identifier(attributeName)}` : expression ? expression : $where.alias,
         sourceCodec = codec ?? attribute.codec,
         [sqlIdentifier, identifierCodec] = resolveSqlIdentifier ? resolveSqlIdentifier(sourceAlias, sourceCodec) : [sourceAlias, sourceCodec];
-      if (false && value === null) return;
-      if (!false && value === null) throw Object.assign(new Error("Null literals are forbidden in filter argument input."), {});
+      if (true && value === null) return;
+      if (!true && value === null) throw Object.assign(new Error("Null literals are forbidden in filter argument input."), {});
       const resolvedInput = value,
         inputCodec = resolveInputCodec2 ? resolveInputCodec2(codec ?? attribute.codec) : codec ?? attribute.codec,
         sqlValue = sqlValueWithCodec(resolvedInput, inputCodec),
@@ -2068,8 +1825,8 @@ ${String(oldPlan3)}`);
         sourceAlias = attribute ? attribute.expression ? attribute.expression($where.alias) : sql`${$where.alias}.${sql.identifier(attributeName)}` : expression ? expression : $where.alias,
         sourceCodec = codec ?? attribute.codec,
         [sqlIdentifier, identifierCodec] = resolveSqlIdentifier ? resolveSqlIdentifier(sourceAlias, sourceCodec) : [sourceAlias, sourceCodec];
-      if (false && value === null) return;
-      if (!false && value === null) throw Object.assign(new Error("Null literals are forbidden in filter argument input."), {});
+      if (true && value === null) return;
+      if (!true && value === null) throw Object.assign(new Error("Null literals are forbidden in filter argument input."), {});
       const resolvedInput = value,
         inputCodec = resolveInputCodec2 ? resolveInputCodec2(codec ?? attribute.codec) : codec ?? attribute.codec,
         sqlValue = sqlValueWithCodec(resolvedInput, inputCodec),
@@ -2092,8 +1849,8 @@ ${String(oldPlan3)}`);
         sourceAlias = attribute ? attribute.expression ? attribute.expression($where.alias) : sql`${$where.alias}.${sql.identifier(attributeName)}` : expression ? expression : $where.alias,
         sourceCodec = codec ?? attribute.codec,
         [sqlIdentifier, identifierCodec] = resolveSqlIdentifier ? resolveSqlIdentifier(sourceAlias, sourceCodec) : [sourceAlias, sourceCodec];
-      if (false && value === null) return;
-      if (!false && value === null) throw Object.assign(new Error("Null literals are forbidden in filter argument input."), {});
+      if (true && value === null) return;
+      if (!true && value === null) throw Object.assign(new Error("Null literals are forbidden in filter argument input."), {});
       const resolvedInput = value,
         inputCodec = resolveInputCodec2 ? resolveInputCodec2(codec ?? attribute.codec) : codec ?? attribute.codec,
         sqlValue = sqlValueWithCodec(resolvedInput, inputCodec),
@@ -2116,8 +1873,8 @@ ${String(oldPlan3)}`);
         sourceAlias = attribute ? attribute.expression ? attribute.expression($where.alias) : sql`${$where.alias}.${sql.identifier(attributeName)}` : expression ? expression : $where.alias,
         sourceCodec = codec ?? attribute.codec,
         [sqlIdentifier, identifierCodec] = resolveSqlIdentifier ? resolveSqlIdentifier(sourceAlias, sourceCodec) : [sourceAlias, sourceCodec];
-      if (false && value === null) return;
-      if (!false && value === null) throw Object.assign(new Error("Null literals are forbidden in filter argument input."), {});
+      if (true && value === null) return;
+      if (!true && value === null) throw Object.assign(new Error("Null literals are forbidden in filter argument input."), {});
       const resolvedInput = value,
         inputCodec = resolveInputCodec3 ? resolveInputCodec3(codec ?? attribute.codec) : codec ?? attribute.codec,
         sqlValue = sqlValueWithCodec(resolvedInput, inputCodec),
@@ -2140,8 +1897,8 @@ ${String(oldPlan3)}`);
         sourceAlias = attribute ? attribute.expression ? attribute.expression($where.alias) : sql`${$where.alias}.${sql.identifier(attributeName)}` : expression ? expression : $where.alias,
         sourceCodec = codec ?? attribute.codec,
         [sqlIdentifier, identifierCodec] = resolveSqlIdentifier ? resolveSqlIdentifier(sourceAlias, sourceCodec) : [sourceAlias, sourceCodec];
-      if (false && value === null) return;
-      if (!false && value === null) throw Object.assign(new Error("Null literals are forbidden in filter argument input."), {});
+      if (true && value === null) return;
+      if (!true && value === null) throw Object.assign(new Error("Null literals are forbidden in filter argument input."), {});
       const resolvedInput = value,
         inputCodec = resolveInputCodec3 ? resolveInputCodec3(codec ?? attribute.codec) : codec ?? attribute.codec,
         sqlValue = sqlValueWithCodec(resolvedInput, inputCodec),
@@ -2164,8 +1921,8 @@ ${String(oldPlan3)}`);
         sourceAlias = attribute ? attribute.expression ? attribute.expression($where.alias) : sql`${$where.alias}.${sql.identifier(attributeName)}` : expression ? expression : $where.alias,
         sourceCodec = codec ?? attribute.codec,
         [sqlIdentifier, identifierCodec] = resolveSqlIdentifier ? resolveSqlIdentifier(sourceAlias, sourceCodec) : [sourceAlias, sourceCodec];
-      if (false && value === null) return;
-      if (!false && value === null) throw Object.assign(new Error("Null literals are forbidden in filter argument input."), {});
+      if (true && value === null) return;
+      if (!true && value === null) throw Object.assign(new Error("Null literals are forbidden in filter argument input."), {});
       const resolvedInput = value,
         inputCodec = resolveInputCodec2 ? resolveInputCodec2(codec ?? attribute.codec) : codec ?? attribute.codec,
         sqlValue = sqlValueWithCodec(resolvedInput, inputCodec),
@@ -2188,8 +1945,8 @@ ${String(oldPlan3)}`);
         sourceAlias = attribute ? attribute.expression ? attribute.expression($where.alias) : sql`${$where.alias}.${sql.identifier(attributeName)}` : expression ? expression : $where.alias,
         sourceCodec = codec ?? attribute.codec,
         [sqlIdentifier, identifierCodec] = resolveSqlIdentifier ? resolveSqlIdentifier(sourceAlias, sourceCodec) : [sourceAlias, sourceCodec];
-      if (false && value === null) return;
-      if (!false && value === null) throw Object.assign(new Error("Null literals are forbidden in filter argument input."), {});
+      if (true && value === null) return;
+      if (!true && value === null) throw Object.assign(new Error("Null literals are forbidden in filter argument input."), {});
       const resolvedInput = value,
         inputCodec = resolveInputCodec2 ? resolveInputCodec2(codec ?? attribute.codec) : codec ?? attribute.codec,
         sqlValue = sqlValueWithCodec(resolvedInput, inputCodec),
@@ -2212,8 +1969,8 @@ ${String(oldPlan3)}`);
         sourceAlias = attribute ? attribute.expression ? attribute.expression($where.alias) : sql`${$where.alias}.${sql.identifier(attributeName)}` : expression ? expression : $where.alias,
         sourceCodec = codec ?? attribute.codec,
         [sqlIdentifier, identifierCodec] = resolveSqlIdentifier ? resolveSqlIdentifier(sourceAlias, sourceCodec) : [sourceAlias, sourceCodec];
-      if (false && value === null) return;
-      if (!false && value === null) throw Object.assign(new Error("Null literals are forbidden in filter argument input."), {});
+      if (true && value === null) return;
+      if (!true && value === null) throw Object.assign(new Error("Null literals are forbidden in filter argument input."), {});
       const resolvedInput = value,
         inputCodec = resolveInputCodec2 ? resolveInputCodec2(codec ?? attribute.codec) : codec ?? attribute.codec,
         sqlValue = sqlValueWithCodec(resolvedInput, inputCodec),
@@ -2236,8 +1993,8 @@ ${String(oldPlan3)}`);
         sourceAlias = attribute ? attribute.expression ? attribute.expression($where.alias) : sql`${$where.alias}.${sql.identifier(attributeName)}` : expression ? expression : $where.alias,
         sourceCodec = codec ?? attribute.codec,
         [sqlIdentifier, identifierCodec] = resolveSqlIdentifier ? resolveSqlIdentifier(sourceAlias, sourceCodec) : [sourceAlias, sourceCodec];
-      if (false && value === null) return;
-      if (!false && value === null) throw Object.assign(new Error("Null literals are forbidden in filter argument input."), {});
+      if (true && value === null) return;
+      if (!true && value === null) throw Object.assign(new Error("Null literals are forbidden in filter argument input."), {});
       const resolvedInput = value,
         inputCodec = resolveInputCodec2 ? resolveInputCodec2(codec ?? attribute.codec) : codec ?? attribute.codec,
         sqlValue = sqlValueWithCodec(resolvedInput, inputCodec),
@@ -2251,16 +2008,16 @@ ${String(oldPlan3)}`);
   UserFilter: {
     rowId(queryBuilder, value) {
       if (value === void 0) return;
-      if (!false && isEmpty(value)) throw Object.assign(new Error("Empty objects are forbidden in filter argument input."), {});
-      if (!false && value === null) throw Object.assign(new Error("Null literals are forbidden in filter argument input."), {});
+      if (!true && isEmpty(value)) throw Object.assign(new Error("Empty objects are forbidden in filter argument input."), {});
+      if (!true && value === null) throw Object.assign(new Error("Null literals are forbidden in filter argument input."), {});
       const condition = new PgCondition(queryBuilder);
       condition.extensions.pgFilterAttribute = colSpec3;
       return condition;
     },
     identityProviderId(queryBuilder, value) {
       if (value === void 0) return;
-      if (!false && isEmpty(value)) throw Object.assign(new Error("Empty objects are forbidden in filter argument input."), {});
-      if (!false && value === null) throw Object.assign(new Error("Null literals are forbidden in filter argument input."), {});
+      if (!true && isEmpty(value)) throw Object.assign(new Error("Empty objects are forbidden in filter argument input."), {});
+      if (!true && value === null) throw Object.assign(new Error("Null literals are forbidden in filter argument input."), {});
       const condition = new PgCondition(queryBuilder);
       condition.extensions.pgFilterAttribute = colSpec4;
       return condition;
@@ -2270,7 +2027,7 @@ ${String(oldPlan3)}`);
       const $rel = $where.andPlan();
       $rel.extensions.pgFilterRelation = {
         tableExpression: postIdentifier,
-        alias: pgResource_postPgResource.name,
+        alias: resource_postPgResource.name,
         localAttributes: registryConfig.pgRelations.user.postsByTheirAuthorId.localAttributes,
         remoteAttributes: registryConfig.pgRelations.user.postsByTheirAuthorId.remoteAttributes
       };
@@ -2281,7 +2038,7 @@ ${String(oldPlan3)}`);
       if (value == null) return;
       const $subQuery = $where.existsPlan({
         tableExpression: postIdentifier,
-        alias: pgResource_postPgResource.name,
+        alias: resource_postPgResource.name,
         equals: value
       });
       registryConfig.pgRelations.user.postsByTheirAuthorId.localAttributes.forEach((localAttribute, i) => {
@@ -2501,7 +2258,7 @@ ${String(oldPlan3)}`);
     __assertStep: __ValueStep,
     createUser: {
       plan(_, args) {
-        const $insert = pgInsertSingle(pgResource_userPgResource, Object.create(null));
+        const $insert = pgInsertSingle(resource_userPgResource, Object.create(null));
         args.apply($insert);
         return object({
           result: $insert
@@ -2516,9 +2273,32 @@ ${String(oldPlan3)}`);
     createPost: {
       plan(...planParams) {
         const smartPlan = (...overrideParams) => {
-            const $prev = oldPlan4(...overrideParams.concat(planParams.slice(overrideParams.length)));
+            const $prev = oldPlan3(...overrideParams.concat(planParams.slice(overrideParams.length)));
             if (!($prev instanceof ExecutableStep)) {
               console.error(`Wrapped a plan function at ${"Mutation"}.${"createPost"}, but that function did not return a step!
+${String(oldPlan3)}`);
+              throw new Error("Wrapped a plan function, but that function did not return a step!");
+            }
+            return $prev;
+          },
+          [$source, fieldArgs, info] = planParams,
+          $newPlan = planWrapper3(smartPlan, $source, fieldArgs, info);
+        if ($newPlan === void 0) throw new Error("Your plan wrapper didn't return anything; it must return a step or null!");
+        if ($newPlan !== null && !isExecutableStep($newPlan)) throw new Error(`Your plan wrapper returned something other than a step... It must return a step (or null). (Returned: ${inspect($newPlan)})`);
+        return $newPlan;
+      },
+      args: {
+        input(_, $object) {
+          return $object;
+        }
+      }
+    },
+    updateUser: {
+      plan(...planParams) {
+        const smartPlan = (...overrideParams) => {
+            const $prev = oldPlan4(...overrideParams.concat(planParams.slice(overrideParams.length)));
+            if (!($prev instanceof ExecutableStep)) {
+              console.error(`Wrapped a plan function at ${"Mutation"}.${"updateUser"}, but that function did not return a step!
 ${String(oldPlan4)}`);
               throw new Error("Wrapped a plan function, but that function did not return a step!");
             }
@@ -2536,26 +2316,12 @@ ${String(oldPlan4)}`);
         }
       }
     },
-    updateUserById: {
-      plan(_$root, args) {
-        const $update = pgUpdateSingle(pgResource_userPgResource, specFromArgs_User(args));
-        args.apply($update);
-        return object({
-          result: $update
-        });
-      },
-      args: {
-        input(_, $object) {
-          return $object;
-        }
-      }
-    },
-    updateUser: {
+    updatePost: {
       plan(...planParams) {
         const smartPlan = (...overrideParams) => {
             const $prev = oldPlan5(...overrideParams.concat(planParams.slice(overrideParams.length)));
             if (!($prev instanceof ExecutableStep)) {
-              console.error(`Wrapped a plan function at ${"Mutation"}.${"updateUser"}, but that function did not return a step!
+              console.error(`Wrapped a plan function at ${"Mutation"}.${"updatePost"}, but that function did not return a step!
 ${String(oldPlan5)}`);
               throw new Error("Wrapped a plan function, but that function did not return a step!");
             }
@@ -2573,26 +2339,12 @@ ${String(oldPlan5)}`);
         }
       }
     },
-    updatePostById: {
-      plan(_$root, args) {
-        const $update = pgUpdateSingle(pgResource_postPgResource, specFromArgs_Post(args));
-        args.apply($update);
-        return object({
-          result: $update
-        });
-      },
-      args: {
-        input(_, $object) {
-          return $object;
-        }
-      }
-    },
-    updatePost: {
+    deleteUser: {
       plan(...planParams) {
         const smartPlan = (...overrideParams) => {
             const $prev = oldPlan6(...overrideParams.concat(planParams.slice(overrideParams.length)));
             if (!($prev instanceof ExecutableStep)) {
-              console.error(`Wrapped a plan function at ${"Mutation"}.${"updatePost"}, but that function did not return a step!
+              console.error(`Wrapped a plan function at ${"Mutation"}.${"deleteUser"}, but that function did not return a step!
 ${String(oldPlan6)}`);
               throw new Error("Wrapped a plan function, but that function did not return a step!");
             }
@@ -2610,26 +2362,12 @@ ${String(oldPlan6)}`);
         }
       }
     },
-    deleteUserById: {
-      plan(_$root, args) {
-        const $delete = pgDeleteSingle(pgResource_userPgResource, specFromArgs_User2(args));
-        args.apply($delete);
-        return object({
-          result: $delete
-        });
-      },
-      args: {
-        input(_, $object) {
-          return $object;
-        }
-      }
-    },
-    deleteUser: {
+    deletePost: {
       plan(...planParams) {
         const smartPlan = (...overrideParams) => {
             const $prev = oldPlan7(...overrideParams.concat(planParams.slice(overrideParams.length)));
             if (!($prev instanceof ExecutableStep)) {
-              console.error(`Wrapped a plan function at ${"Mutation"}.${"deleteUser"}, but that function did not return a step!
+              console.error(`Wrapped a plan function at ${"Mutation"}.${"deletePost"}, but that function did not return a step!
 ${String(oldPlan7)}`);
               throw new Error("Wrapped a plan function, but that function did not return a step!");
             }
@@ -2637,43 +2375,6 @@ ${String(oldPlan7)}`);
           },
           [$source, fieldArgs, info] = planParams,
           $newPlan = planWrapper7(smartPlan, $source, fieldArgs, info);
-        if ($newPlan === void 0) throw new Error("Your plan wrapper didn't return anything; it must return a step or null!");
-        if ($newPlan !== null && !isExecutableStep($newPlan)) throw new Error(`Your plan wrapper returned something other than a step... It must return a step (or null). (Returned: ${inspect($newPlan)})`);
-        return $newPlan;
-      },
-      args: {
-        input(_, $object) {
-          return $object;
-        }
-      }
-    },
-    deletePostById: {
-      plan(_$root, args) {
-        const $delete = pgDeleteSingle(pgResource_postPgResource, specFromArgs_Post2(args));
-        args.apply($delete);
-        return object({
-          result: $delete
-        });
-      },
-      args: {
-        input(_, $object) {
-          return $object;
-        }
-      }
-    },
-    deletePost: {
-      plan(...planParams) {
-        const smartPlan = (...overrideParams) => {
-            const $prev = oldPlan8(...overrideParams.concat(planParams.slice(overrideParams.length)));
-            if (!($prev instanceof ExecutableStep)) {
-              console.error(`Wrapped a plan function at ${"Mutation"}.${"deletePost"}, but that function did not return a step!
-${String(oldPlan8)}`);
-              throw new Error("Wrapped a plan function, but that function did not return a step!");
-            }
-            return $prev;
-          },
-          [$source, fieldArgs, info] = planParams,
-          $newPlan = planWrapper8(smartPlan, $source, fieldArgs, info);
         if ($newPlan === void 0) throw new Error("Your plan wrapper didn't return anything; it must return a step or null!");
         if ($newPlan !== null && !isExecutableStep($newPlan)) throw new Error(`Your plan wrapper returned something other than a step... It must return a step (or null). (Returned: ${inspect($newPlan)})`);
         return $newPlan;
@@ -2705,7 +2406,7 @@ ${String(oldPlan8)}`);
             memo[attributeName] = $result.get(attributeName);
             return memo;
           }, Object.create(null));
-          return pgResource_userPgResource.find(spec);
+          return resource_userPgResource.find(spec);
         }
       })();
       fieldArgs.apply($select, "orderBy");
@@ -2769,7 +2470,7 @@ ${String(oldPlan8)}`);
             memo[attributeName] = $result.get(attributeName);
             return memo;
           }, Object.create(null));
-          return pgResource_postPgResource.find(spec);
+          return resource_postPgResource.find(spec);
         }
       })();
       fieldArgs.apply($select, "orderBy");
@@ -2845,7 +2546,7 @@ ${String(oldPlan8)}`);
             memo[attributeName] = $result.get(attributeName);
             return memo;
           }, Object.create(null));
-          return pgResource_userPgResource.find(spec);
+          return resource_userPgResource.find(spec);
         }
       })();
       fieldArgs.apply($select, "orderBy");
@@ -2854,7 +2555,7 @@ ${String(oldPlan8)}`);
       return new EdgeStep($connection, $single);
     }
   },
-  UpdateUserByIdInput: {
+  UpdateUserInput: {
     clientMutationId(qb, val) {
       qb.setMeta("clientMutationId", val);
     },
@@ -2889,14 +2590,6 @@ ${String(oldPlan8)}`);
       obj.set("updated_at", bakedInputRuntime(schema, field.type, val));
     }
   },
-  UpdateUserInput: {
-    clientMutationId(qb, val) {
-      qb.setMeta("clientMutationId", val);
-    },
-    patch(qb, arg) {
-      if (arg != null) return qb.setBuilder();
-    }
-  },
   UpdatePostPayload: {
     __assertStep: ObjectStep,
     clientMutationId($mutation) {
@@ -2917,7 +2610,7 @@ ${String(oldPlan8)}`);
             memo[attributeName] = $result.get(attributeName);
             return memo;
           }, Object.create(null));
-          return pgResource_postPgResource.find(spec);
+          return resource_postPgResource.find(spec);
         }
       })();
       fieldArgs.apply($select, "orderBy");
@@ -2926,7 +2619,7 @@ ${String(oldPlan8)}`);
       return new EdgeStep($connection, $single);
     }
   },
-  UpdatePostByIdInput: {
+  UpdatePostInput: {
     clientMutationId(qb, val) {
       qb.setMeta("clientMutationId", val);
     },
@@ -2973,14 +2666,6 @@ ${String(oldPlan8)}`);
       obj.set("updated_at", bakedInputRuntime(schema, field.type, val));
     }
   },
-  UpdatePostInput: {
-    clientMutationId(qb, val) {
-      qb.setMeta("clientMutationId", val);
-    },
-    patch(qb, arg) {
-      if (arg != null) return qb.setBuilder();
-    }
-  },
   DeleteUserPayload: {
     __assertStep: ObjectStep,
     clientMutationId($mutation) {
@@ -2988,11 +2673,6 @@ ${String(oldPlan8)}`);
     },
     user($object) {
       return $object.get("result");
-    },
-    deletedUserId($object) {
-      const $record = $object.getStepForKey("result"),
-        specifier = nodeIdHandlerByTypeName.User.plan($record);
-      return lambda(specifier, nodeIdCodecs_base64JSON_base64JSON.encode);
     },
     query() {
       return rootValue();
@@ -3006,18 +2686,13 @@ ${String(oldPlan8)}`);
             memo[attributeName] = $result.get(attributeName);
             return memo;
           }, Object.create(null));
-          return pgResource_userPgResource.find(spec);
+          return resource_userPgResource.find(spec);
         }
       })();
       fieldArgs.apply($select, "orderBy");
       const $connection = connection($select),
         $single = $select.row(first($select));
       return new EdgeStep($connection, $single);
-    }
-  },
-  DeleteUserByIdInput: {
-    clientMutationId(qb, val) {
-      qb.setMeta("clientMutationId", val);
     }
   },
   DeleteUserInput: {
@@ -3033,11 +2708,6 @@ ${String(oldPlan8)}`);
     post($object) {
       return $object.get("result");
     },
-    deletedPostId($object) {
-      const $record = $object.getStepForKey("result"),
-        specifier = nodeIdHandlerByTypeName.Post.plan($record);
-      return lambda(specifier, nodeIdCodecs_base64JSON_base64JSON.encode);
-    },
     query() {
       return rootValue();
     },
@@ -3050,18 +2720,13 @@ ${String(oldPlan8)}`);
             memo[attributeName] = $result.get(attributeName);
             return memo;
           }, Object.create(null));
-          return pgResource_postPgResource.find(spec);
+          return resource_postPgResource.find(spec);
         }
       })();
       fieldArgs.apply($select, "orderBy");
       const $connection = connection($select),
         $single = $select.row(first($select));
       return new EdgeStep($connection, $single);
-    }
-  },
-  DeletePostByIdInput: {
-    clientMutationId(qb, val) {
-      qb.setMeta("clientMutationId", val);
     }
   },
   DeletePostInput: {
