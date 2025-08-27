@@ -405,27 +405,12 @@ const oldPlan = (_$root, {
 }) => resource_postPgResource.get({
   id: $rowId
 });
-const mockIdToken_Jane_Doe = {
-  iss: "https://auth.example.com/",
-  sub: "550e8400-e29b-41d4-a716-446655440000",
-  aud: "template-elysia",
-  exp: 1732591385,
-  iat: 1732587785,
-  auth_time: 1732587700,
-  nonce: "n-0S6_WzA2Mj",
-  email: "user@example.com",
-  email_verified: true,
-  name: "Jane Doe",
-  given_name: "Jane",
-  family_name: "Doe",
-  preferred_username: "jdoe"
-};
 const planWrapper = (plan, _, fieldArgs) => {
   const $postId = fieldArgs.getRaw(["input", "rowId"]),
     $observer = context().get("observer");
   sideEffect([$postId, $observer], async ([postId, observer]) => {
     if (!postId || !observer) throw new Error("Ooops");
-    if (!(await permit.check(mockIdToken_Jane_Doe.sub, "read", "post"))) throw new Error("Permission denied");
+    if (!(await permit.check(observer.identityProviderId, "read", "post"))) throw new Error("Permission denied");
   });
   return plan();
 };
@@ -454,7 +439,7 @@ const planWrapper2 = (plan, _, fieldArgs) => {
     $observer = context().get("observer");
   sideEffect([$input, $observer], async ([input, observer]) => {
     if (!input.condition.authorId || !observer) throw new Error("Ooops");
-    if (!(await permit.check(mockIdToken_Jane_Doe.sub, "read", {
+    if (!(await permit.check(observer.identityProviderId, "read", {
       type: "post",
       attributes: {
         authorId: input.condition.authorId
@@ -629,7 +614,7 @@ const planWrapper3 = (plan, _, fieldArgs) => {
     $observer = context().get("observer");
   sideEffect([$postInput, $observer], async ([postInput, observer]) => {
     if (!postInput || !observer) throw new Error("Ooops");
-    if (!(await match("create").with("update", () => permit.check(mockIdToken_Jane_Doe.sub, "update", "post")).with("create", () => permit.check(mockIdToken_Jane_Doe.sub, "create", "post")).with("delete", () => permit.check(mockIdToken_Jane_Doe.sub, "delete", "post")).exhaustive())) throw new Error("Permission denied");
+    if (!(await match("create").with("update", () => permit.check(observer.identityProviderId, "update", "post")).with("create", () => permit.check(observer.identityProviderId, "create", "post")).with("delete", () => permit.check(observer.identityProviderId, "delete", "post")).exhaustive())) throw new Error("Permission denied");
   });
   return plan();
 };
@@ -665,7 +650,7 @@ const planWrapper5 = (plan, _, fieldArgs) => {
     $observer = context().get("observer");
   sideEffect([$postInput, $observer], async ([postInput, observer]) => {
     if (!postInput || !observer) throw new Error("Ooops");
-    if (!(await match("update").with("update", () => permit.check(mockIdToken_Jane_Doe.sub, "update", "post")).with("create", () => permit.check(mockIdToken_Jane_Doe.sub, "create", "post")).with("delete", () => permit.check(mockIdToken_Jane_Doe.sub, "delete", "post")).exhaustive())) throw new Error("Permission denied");
+    if (!(await match("update").with("update", () => permit.check(observer.identityProviderId, "update", "post")).with("create", () => permit.check(observer.identityProviderId, "create", "post")).with("delete", () => permit.check(observer.identityProviderId, "delete", "post")).exhaustive())) throw new Error("Permission denied");
   });
   return plan();
 };
@@ -701,7 +686,7 @@ const planWrapper7 = (plan, _, fieldArgs) => {
     $observer = context().get("observer");
   sideEffect([$postInput, $observer], async ([postInput, observer]) => {
     if (!postInput || !observer) throw new Error("Ooops");
-    if (!(await match("delete").with("update", () => permit.check(mockIdToken_Jane_Doe.sub, "update", "post")).with("create", () => permit.check(mockIdToken_Jane_Doe.sub, "create", "post")).with("delete", () => permit.check(mockIdToken_Jane_Doe.sub, "delete", "post")).exhaustive())) throw new Error("Permission denied");
+    if (!(await match("delete").with("update", () => permit.check(observer.identityProviderId, "update", "post")).with("create", () => permit.check(observer.identityProviderId, "create", "post")).with("delete", () => permit.check(observer.identityProviderId, "delete", "post")).exhaustive())) throw new Error("Permission denied");
   });
   return plan();
 };

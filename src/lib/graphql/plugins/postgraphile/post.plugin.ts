@@ -8,28 +8,11 @@ import { permit } from "lib/permit/permit";
 import type { GraphQLContext } from "lib/graphql/createGraphqlContext";
 import type { ExecutableStep, FieldArgs } from "postgraphile/grafast";
 
-// TODO: extract from context
-const mockIdToken = {
-  iss: "https://auth.example.com/",
-  sub: "550e8400-e29b-41d4-a716-446655440000",
-  aud: "template-elysia",
-  exp: 1732591385,
-  iat: 1732587785,
-  auth_time: 1732587700, // Time user authenticated
-  nonce: "n-0S6_WzA2Mj", // Nonce (replay protection)
-  email: "user@example.com", // Standard claim
-  email_verified: true, // Whether IdP verified email
-  name: "Jane Doe", // User's full name
-  given_name: "Jane",
-  family_name: "Doe",
-  preferred_username: "jdoe",
-};
-
 type MutationScope = "create" | "update" | "delete";
 
 const validateBulkQueryPermissions = () =>
   EXPORTABLE(
-    (permit, context, sideEffect, mockIdToken) =>
+    (permit, context, sideEffect) =>
       // biome-ignore lint/suspicious/noExplicitAny: SmartFieldPlanResolver is not an exported type
       (plan: any, _: ExecutableStep, fieldArgs: FieldArgs) => {
         const $input = fieldArgs.getRaw();
@@ -41,23 +24,27 @@ const validateBulkQueryPermissions = () =>
             throw new Error("Ooops");
           }
 
-          const permitted = await permit.check(mockIdToken.sub, "read", {
-            type: "post",
-            // Check that the user has permissions to read posts from the provided author through `authorId` condition
-            attributes: { authorId: input.condition.authorId },
-          });
+          const permitted = await permit.check(
+            observer.identityProviderId,
+            "read",
+            {
+              type: "post",
+              // Check that the user has permissions to read posts from the provided author through `authorId` condition
+              attributes: { authorId: input.condition.authorId },
+            },
+          );
 
           if (!permitted) throw new Error("Permission denied");
         });
 
         return plan();
       },
-    [permit, context, sideEffect, mockIdToken],
+    [permit, context, sideEffect],
   );
 
 const validateQueryPermissions = (propName: string) =>
   EXPORTABLE(
-    (permit, context, sideEffect, propName, mockIdToken) =>
+    (permit, context, sideEffect, propName) =>
       // biome-ignore lint/suspicious/noExplicitAny: SmartFieldPlanResolver is not an exported type
       (plan: any, _: ExecutableStep, fieldArgs: FieldArgs) => {
         const $postId = fieldArgs.getRaw(["input", propName]);
@@ -68,14 +55,18 @@ const validateQueryPermissions = (propName: string) =>
             throw new Error("Ooops");
           }
 
-          const permitted = await permit.check(mockIdToken.sub, "read", "post");
+          const permitted = await permit.check(
+            observer.identityProviderId,
+            "read",
+            "post",
+          );
 
           if (!permitted) throw new Error("Permission denied");
         });
 
         return plan();
       },
-    [permit, context, sideEffect, propName, mockIdToken],
+    [permit, context, sideEffect, propName],
   );
 
 const validateMutatationPermissions = (
@@ -83,7 +74,7 @@ const validateMutatationPermissions = (
   scope: MutationScope,
 ) =>
   EXPORTABLE(
-    (permit, match, context, sideEffect, propName, scope, mockIdToken) =>
+    (permit, match, context, sideEffect, propName, scope) =>
       // biome-ignore lint/suspicious/noExplicitAny: SmartFieldPlanResolver is not an exported type
       (plan: any, _: ExecutableStep, fieldArgs: FieldArgs) => {
         const $postInput = fieldArgs.getRaw(["input", propName]);
@@ -97,13 +88,13 @@ const validateMutatationPermissions = (
           const getPermission = async () =>
             match(scope)
               .with("update", () =>
-                permit.check(mockIdToken.sub, "update", "post"),
+                permit.check(observer.identityProviderId, "update", "post"),
               )
               .with("create", () =>
-                permit.check(mockIdToken.sub, "create", "post"),
+                permit.check(observer.identityProviderId, "create", "post"),
               )
               .with("delete", () =>
-                permit.check(mockIdToken.sub, "delete", "post"),
+                permit.check(observer.identityProviderId, "delete", "post"),
               )
               .exhaustive();
 
@@ -114,7 +105,7 @@ const validateMutatationPermissions = (
 
         return plan();
       },
-    [permit, match, context, sideEffect, propName, scope, mockIdToken],
+    [permit, match, context, sideEffect, propName, scope],
   );
 
 export const PostPlugin = makeWrapPlansPlugin({
