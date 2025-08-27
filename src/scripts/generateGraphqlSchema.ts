@@ -4,6 +4,7 @@ import { EXPORTABLE } from "graphile-export/helpers";
 import { makeSchema } from "postgraphile";
 import { context, sideEffect } from "postgraphile/grafast";
 import { replaceInFile } from "replace-in-file";
+import { match } from "ts-pattern";
 
 import graphilePreset from "lib/config/graphile.config";
 import { permit } from "lib/permit/permit";
@@ -30,6 +31,7 @@ const generateGraphqlSchema = async () => {
       "graphile-export/helpers": { EXPORTABLE },
       "postgraphile/grafast": { context, sideEffect },
       "lib/permit/permit": { permit },
+      "ts-pattern": { match },
     },
   });
 
