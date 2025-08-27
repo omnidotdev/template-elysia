@@ -12,28 +12,24 @@ const validateBulkQueryPermissions = () =>
   EXPORTABLE(
     (context, sideEffect) =>
       // biome-ignore lint/suspicious/noExplicitAny: SmartFieldPlanResolver is not an exported type
-      (plan: any, _: ExecutableStep, fieldArgs: FieldArgs) => {
-        const $input = fieldArgs.getRaw();
+      (plan: any, _: ExecutableStep, _fieldArgs: FieldArgs) => {
         const $observer = context<GraphQLContext>().get("observer");
         const $permit = context<GraphQLContext>().get("permit");
 
-        sideEffect(
-          [$input, $observer, $permit],
-          async ([input, observer, permit]) => {
-            // NB: this condition requires that all `posts` queries are filtered by an `authorId` condition. Should adjust accordingly when schema is expanded upon. Simply used to showcase permissions.
-            if (!input.condition.authorId || !observer) {
-              throw new Error("Ooops");
-            }
+        sideEffect([$observer, $permit], async ([observer, permit]) => {
+          if (!observer) {
+            throw new Error("Ooops");
+          }
 
-            const permitted = await permit.check(
-              observer.identityProviderId,
-              "read",
-              "user",
-            );
+          // TODO: adjust permission check accordingly
+          const permitted = await permit.check(
+            observer.identityProviderId,
+            "read",
+            "user",
+          );
 
-            if (!permitted) throw new Error("Permission denied");
-          },
-        );
+          if (!permitted) throw new Error("Permission denied");
+        });
 
         return plan();
       },

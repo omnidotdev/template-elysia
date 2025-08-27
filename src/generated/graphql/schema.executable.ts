@@ -432,12 +432,11 @@ const planWrapper2 = (plan, _, fieldArgs) => {
 function oldPlan3() {
   return connection(resource_userPgResource.find());
 }
-const planWrapper3 = (plan, _, fieldArgs) => {
-  const $input = fieldArgs.getRaw(),
-    $observer = context().get("observer"),
+const planWrapper3 = (plan, _, _fieldArgs) => {
+  const $observer = context().get("observer"),
     $permit = context().get("permit");
-  sideEffect([$input, $observer, $permit], async ([input, observer, permit]) => {
-    if (!input.condition.authorId || !observer) throw new Error("Ooops");
+  sideEffect([$observer, $permit], async ([observer, permit]) => {
+    if (!observer) throw new Error("Ooops");
     if (!(await permit.check(observer.identityProviderId, "read", "user"))) throw new Error("Permission denied");
   });
   return plan();
