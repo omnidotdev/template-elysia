@@ -640,7 +640,7 @@ const planWrapper5 = (plan, _, fieldArgs) => {
     if (!observer) throw new Error("Unauthorized");
     if ("create" !== "create") {
       if (!(await match("create").with("update", () => permit.check(observer.identityProviderId, "update", "user")).with("delete", () => permit.check(observer.identityProviderId, "delete", "user")).exhaustive())) throw new Error("Permission denied");
-    }
+    } else if (!(await permit.check(observer.identityProviderId, "create", "user"))) throw new Error("Permission denied");
   });
   return plan();
 };
@@ -678,7 +678,7 @@ const planWrapper7 = (plan, _, fieldArgs) => {
     if (!observer) throw new Error("Unauthorized");
     if ("update" !== "create") {
       if (!(await match("update").with("update", () => permit.check(observer.identityProviderId, "update", "user")).with("delete", () => permit.check(observer.identityProviderId, "delete", "user")).exhaustive())) throw new Error("Permission denied");
-    }
+    } else if (!(await permit.check(observer.identityProviderId, "create", "user"))) throw new Error("Permission denied");
   });
   return plan();
 };
@@ -718,7 +718,7 @@ const planWrapper9 = (plan, _, fieldArgs) => {
     if (!observer) throw new Error("Unauthorized");
     if ("delete" !== "create") {
       if (!(await match("delete").with("update", () => permit.check(observer.identityProviderId, "update", "user")).with("delete", () => permit.check(observer.identityProviderId, "delete", "user")).exhaustive())) throw new Error("Permission denied");
-    }
+    } else if (!(await permit.check(observer.identityProviderId, "create", "user"))) throw new Error("Permission denied");
   });
   return plan();
 };

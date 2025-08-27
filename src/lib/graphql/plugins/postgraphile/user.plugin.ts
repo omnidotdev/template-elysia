@@ -99,6 +99,14 @@ const validateMutationPermissions = (propName: string, scope: MutationScope) =>
 
               if (!permitted) throw new Error("Permission denied");
             } else {
+              const permitted = await permit.check(
+                observer.identityProviderId,
+                "create",
+                "user",
+              );
+
+              if (!permitted) throw new Error("Permission denied");
+
               // TODO: uncomment below when full info can be derived from `observer` including role assignments, etc
               // const user = await permit.api.syncUser({
               //   key: "bc8d19ed-b69a-43c3-1e9d-2301b2541f92",
