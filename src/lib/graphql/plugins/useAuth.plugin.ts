@@ -17,6 +17,7 @@ const mockUser: SelectUser = {
   createdAt: "2023-11-08 03:56:37-06",
   updatedAt: "2023-09-21 18:46:30-05",
 };
+
 /**
  * Validate user session and resolve user if successful.
  * @see https://the-guild.dev/graphql/envelop/plugins/use-generic-auth#getting-started
