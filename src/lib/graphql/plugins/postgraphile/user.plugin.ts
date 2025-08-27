@@ -25,6 +25,7 @@ const validateBulkQueryPermissions = () =>
           const permitted = await permit.check(
             observer.identityProviderId,
             "read",
+            // TODO: `user` is not currently a resource, so this will fail
             "user",
           );
 
@@ -55,6 +56,7 @@ const validateQueryPermissions = (propName: string) =>
             const permitted = await permit.check(
               observer.identityProviderId,
               "read",
+              // TODO: `user` is not currently a resource, so this will fail
               "user",
             );
 
@@ -88,9 +90,11 @@ const validateMutationPermissions = (propName: string, scope: MutationScope) =>
               const getPermission = async () =>
                 match(scope)
                   .with("update", () =>
+                    // TODO: `user` is not currently a resource, so this will fail
                     permit.check(observer.identityProviderId, "update", "user"),
                   )
                   .with("delete", () =>
+                    // TODO: `user` is not currently a resource, so this will fail
                     permit.check(observer.identityProviderId, "delete", "user"),
                   )
                   .exhaustive();
@@ -102,6 +106,7 @@ const validateMutationPermissions = (propName: string, scope: MutationScope) =>
               const permitted = await permit.check(
                 observer.identityProviderId,
                 "create",
+                // TODO: `user` is not currently a resource, so this will fail
                 "user",
               );
 
