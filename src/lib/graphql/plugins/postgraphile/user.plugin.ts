@@ -8,7 +8,70 @@ import type { ExecutableStep, FieldArgs } from "postgraphile/grafast";
 
 type MutationScope = "create" | "update" | "delete";
 
-const validatePermissions = (propName: string, scope: MutationScope) =>
+const validateBulkQueryPermissions = () =>
+  EXPORTABLE(
+    (context, sideEffect) =>
+      // biome-ignore lint/suspicious/noExplicitAny: SmartFieldPlanResolver is not an exported type
+      (plan: any, _: ExecutableStep, fieldArgs: FieldArgs) => {
+        const $input = fieldArgs.getRaw();
+        const $observer = context<GraphQLContext>().get("observer");
+        const $permit = context<GraphQLContext>().get("permit");
+
+        sideEffect(
+          [$input, $observer, $permit],
+          async ([input, observer, permit]) => {
+            // NB: this condition requires that all `posts` queries are filtered by an `authorId` condition. Should adjust accordingly when schema is expanded upon. Simply used to showcase permissions.
+            if (!input.condition.authorId || !observer) {
+              throw new Error("Ooops");
+            }
+
+            const permitted = await permit.check(
+              observer.identityProviderId,
+              "read",
+              "user",
+            );
+
+            if (!permitted) throw new Error("Permission denied");
+          },
+        );
+
+        return plan();
+      },
+    [context, sideEffect],
+  );
+
+const validateQueryPermissions = (propName: string) =>
+  EXPORTABLE(
+    (context, sideEffect, propName) =>
+      // biome-ignore lint/suspicious/noExplicitAny: SmartFieldPlanResolver is not an exported type
+      (plan: any, _: ExecutableStep, fieldArgs: FieldArgs) => {
+        const $userId = fieldArgs.getRaw(["input", propName]);
+        const $observer = context<GraphQLContext>().get("observer");
+        const $permit = context<GraphQLContext>().get("permit");
+
+        sideEffect(
+          [$userId, $observer, $permit],
+          async ([userId, observer, permit]) => {
+            if (!userId || !observer) {
+              throw new Error("Ooops");
+            }
+
+            const permitted = await permit.check(
+              observer.identityProviderId,
+              "read",
+              "user",
+            );
+
+            if (!permitted) throw new Error("Permission denied");
+          },
+        );
+
+        return plan();
+      },
+    [context, sideEffect, propName],
+  );
+
+const validateMutationPermissions = (propName: string, scope: MutationScope) =>
   EXPORTABLE(
     (match, context, sideEffect, propName, scope) =>
       // biome-ignore lint/suspicious/noExplicitAny: SmartFieldPlanResolver is not an exported type
@@ -63,8 +126,12 @@ const validatePermissions = (propName: string, scope: MutationScope) =>
  */
 export const UserPlugin = makeWrapPlansPlugin({
   Mutation: {
-    createUser: validatePermissions("user", "create"),
-    updateUser: validatePermissions("rowId", "update"),
-    deleteUser: validatePermissions("rowId", "delete"),
+    createUser: validateMutationPermissions("user", "create"),
+    updateUser: validateMutationPermissions("rowId", "update"),
+    deleteUser: validateMutationPermissions("rowId", "delete"),
+  },
+  Query: {
+    user: validateQueryPermissions("rowId"),
+    users: validateBulkQueryPermissions(),
   },
 });
