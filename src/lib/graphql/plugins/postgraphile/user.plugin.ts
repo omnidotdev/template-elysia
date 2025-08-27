@@ -59,7 +59,7 @@ const validatePermissions = (propName: string, scope: MutationScope) =>
   );
 
 /**
- * Plugin that handles API access for user table mutations.
+ * Plugin that handles API access for user table.
  */
 export const UserPlugin = makeWrapPlansPlugin({
   Mutation: {

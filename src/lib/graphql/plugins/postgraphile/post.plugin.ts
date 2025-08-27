@@ -122,6 +122,9 @@ const validateMutatationPermissions = (
     [match, context, sideEffect, propName, scope],
   );
 
+/**
+ * Plugin that handles API access for post table.
+ */
 export const PostPlugin = makeWrapPlansPlugin({
   Mutation: {
     createPost: validateMutatationPermissions("post", "create"),
