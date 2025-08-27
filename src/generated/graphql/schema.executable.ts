@@ -1038,14 +1038,14 @@ function oldPlan6(_, args) {
   });
 }
 const planWrapper6 = (plan, _, fieldArgs) => {
-  const $observerId = fieldArgs.getRaw(["input", "user"]),
+  const $input = fieldArgs.getRaw(["input", "user"]),
     $observer = context().get("observer"),
     $permit = context().get("permit");
-  sideEffect([$observerId, $observer, $permit], async ([observerId, observer, permit]) => {
+  sideEffect([$input, $observer, $permit], async ([input, observer, permit]) => {
     if (!observer) throw new Error("Unauthorized");
     if ("create" !== "create") {
       if (!(await match("create").with("update", () => permit.check(observer.identityProviderId, "update", "user")).with("delete", () => permit.check(observer.identityProviderId, "delete", "user")).exhaustive())) throw new Error("Permission denied");
-    } else if (!(await permit.check("550e8400-e29b-41d4-a716-446655440000", "create", "user"))) throw new Error("Permission denied");
+    } else if (!(await permit.check(observer.identityProviderId, "create", "user"))) throw new Error("Permission denied");
   });
   return plan();
 };
@@ -1078,14 +1078,14 @@ const oldPlan8 = (_$root, args) => {
   });
 };
 const planWrapper8 = (plan, _, fieldArgs) => {
-  const $observerId = fieldArgs.getRaw(["input", "rowId"]),
+  const $input = fieldArgs.getRaw(["input", "rowId"]),
     $observer = context().get("observer"),
     $permit = context().get("permit");
-  sideEffect([$observerId, $observer, $permit], async ([observerId, observer, permit]) => {
+  sideEffect([$input, $observer, $permit], async ([input, observer, permit]) => {
     if (!observer) throw new Error("Unauthorized");
     if ("update" !== "create") {
       if (!(await match("update").with("update", () => permit.check(observer.identityProviderId, "update", "user")).with("delete", () => permit.check(observer.identityProviderId, "delete", "user")).exhaustive())) throw new Error("Permission denied");
-    } else if (!(await permit.check("550e8400-e29b-41d4-a716-446655440000", "create", "user"))) throw new Error("Permission denied");
+    } else if (!(await permit.check(observer.identityProviderId, "create", "user"))) throw new Error("Permission denied");
   });
   return plan();
 };
@@ -1118,14 +1118,14 @@ const oldPlan10 = (_$root, args) => {
   });
 };
 const planWrapper10 = (plan, _, fieldArgs) => {
-  const $observerId = fieldArgs.getRaw(["input", "rowId"]),
+  const $input = fieldArgs.getRaw(["input", "rowId"]),
     $observer = context().get("observer"),
     $permit = context().get("permit");
-  sideEffect([$observerId, $observer, $permit], async ([observerId, observer, permit]) => {
+  sideEffect([$input, $observer, $permit], async ([input, observer, permit]) => {
     if (!observer) throw new Error("Unauthorized");
     if ("delete" !== "create") {
       if (!(await match("delete").with("update", () => permit.check(observer.identityProviderId, "update", "user")).with("delete", () => permit.check(observer.identityProviderId, "delete", "user")).exhaustive())) throw new Error("Permission denied");
-    } else if (!(await permit.check("550e8400-e29b-41d4-a716-446655440000", "create", "user"))) throw new Error("Permission denied");
+    } else if (!(await permit.check(observer.identityProviderId, "create", "user"))) throw new Error("Permission denied");
   });
   return plan();
 };

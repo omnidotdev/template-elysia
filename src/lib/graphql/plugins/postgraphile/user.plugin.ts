@@ -72,19 +72,19 @@ const validateMutationPermissions = (propName: string, scope: MutationScope) =>
     (match, context, sideEffect, propName, scope) =>
       // biome-ignore lint/suspicious/noExplicitAny: SmartFieldPlanResolver is not an exported type
       (plan: any, _: ExecutableStep, fieldArgs: FieldArgs) => {
-        const $observerId = fieldArgs.getRaw(["input", propName]);
+        const $input = fieldArgs.getRaw(["input", propName]);
         const $observer = context<GraphQLContext>().get("observer");
         const $permit = context<GraphQLContext>().get("permit");
 
         sideEffect(
-          [$observerId, $observer, $permit],
-          async ([observerId, observer, permit]) => {
+          [$input, $observer, $permit],
+          async ([input, observer, permit]) => {
             if (!observer) {
               throw new Error("Unauthorized");
             }
 
             if (scope !== "create") {
-              // TODO: update check constraints and make dependent on `observerId`
+              // TODO: update check constraints and make dependent on `observer` and `input`
               const getPermission = async () =>
                 match(scope)
                   .with("update", () =>
@@ -99,6 +99,7 @@ const validateMutationPermissions = (propName: string, scope: MutationScope) =>
 
               if (!permitted) throw new Error("Permission denied");
             } else {
+              // TODO: update check constraint and make dependent on `observer` and `input`
               const permitted = await permit.check(
                 observer.identityProviderId,
                 "create",
@@ -107,12 +108,13 @@ const validateMutationPermissions = (propName: string, scope: MutationScope) =>
 
               if (!permitted) throw new Error("Permission denied");
 
+              // TODO: verify that the `input` on each of these variables works appropriately. Thought is that if `createUser` is called, we need to create a record for the `input` details, not the observer as they should already have a record
               // TODO: uncomment below when full info can be derived from `observer` including role assignments, etc
               // const user = await permit.api.syncUser({
-              //   key: observer.identityProviderId,
-              //   first_name: observer.firstName ?? undefined,
-              //   last_name: observer.lastName ?? undefined,
-              //   email: observer.email,
+              //   key: input.identityProviderId,
+              //   first_name: input.firstName,
+              //   last_name: input.lastName,
+              //   email: input.email,
               //   role_assignments: [{ role: "viewer", tenant: "default" }],
               // });
               // if (!user) throw new Error("Could not create user");
