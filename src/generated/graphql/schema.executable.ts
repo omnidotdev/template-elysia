@@ -475,25 +475,10 @@ const planWrapper = (plan, _, fieldArgs) => {
   return plan();
 };
 const resource_userPgResource = registry.pgResources["user"];
-const oldPlan2 = (_$root, {
-  $rowId
-}) => resource_userPgResource.get({
-  id: $rowId
-});
-const planWrapper2 = (plan, _, fieldArgs) => {
-  const $userId = fieldArgs.getRaw(["input", "rowId"]),
-    $observer = context().get("observer"),
-    $permit = context().get("permit");
-  sideEffect([$userId, $observer, $permit], async ([userId, observer, permit]) => {
-    if (!userId || !observer) throw new Error("Ooops");
-    if (!(await permit.check(observer.identityProviderId, "read", "user"))) throw new Error("Permission denied");
-  });
-  return plan();
-};
-function oldPlan3() {
+function oldPlan2() {
   return connection(resource_postPgResource.find());
 }
-const planWrapper3 = (plan, _, fieldArgs) => {
+const planWrapper2 = (plan, _, fieldArgs) => {
   const $input = fieldArgs.getRaw(),
     $observer = context().get("observer"),
     $permit = context().get("permit");
@@ -520,18 +505,6 @@ function assertAllowed(value, mode) {
   }
   if (!true && value === null) throw Object.assign(new Error("Null literals are forbidden in filter argument input."), {});
 }
-function oldPlan4() {
-  return connection(resource_userPgResource.find());
-}
-const planWrapper4 = (plan, _, _fieldArgs) => {
-  const $observer = context().get("observer"),
-    $permit = context().get("permit");
-  sideEffect([$observer, $permit], async ([observer, permit]) => {
-    if (!observer) throw new Error("Ooops");
-    if (!(await permit.check(observer.identityProviderId, "read", "user"))) throw new Error("Permission denied");
-  });
-  return plan();
-};
 function assertAllowed2(value, mode) {
   if (mode === "object" && !true && isEmpty(value)) throw Object.assign(new Error("Empty objects are forbidden in filter argument input."), {});
   if (mode === "list" && !true) {
@@ -1013,14 +986,14 @@ function assertAllowed8(value, mode) {
   }
   if (!true && value === null) throw Object.assign(new Error("Null literals are forbidden in filter argument input."), {});
 }
-function oldPlan5(_, args) {
+function oldPlan3(_, args) {
   const $insert = pgInsertSingle(resource_postPgResource, Object.create(null));
   args.apply($insert);
   return object({
     result: $insert
   });
 }
-const planWrapper5 = (plan, _, fieldArgs) => {
+const planWrapper3 = (plan, _, fieldArgs) => {
   const $postInput = fieldArgs.getRaw(["input", "post"]),
     $observer = context().get("observer"),
     $permit = context().get("permit");
@@ -1030,26 +1003,7 @@ const planWrapper5 = (plan, _, fieldArgs) => {
   });
   return plan();
 };
-function oldPlan6(_, args) {
-  const $insert = pgInsertSingle(resource_userPgResource, Object.create(null));
-  args.apply($insert);
-  return object({
-    result: $insert
-  });
-}
-const planWrapper6 = (plan, _, fieldArgs) => {
-  const $input = fieldArgs.getRaw(["input", "user"]),
-    $observer = context().get("observer"),
-    $permit = context().get("permit");
-  sideEffect([$input, $observer, $permit], async ([input, observer, permit]) => {
-    if (!observer) throw new Error("Unauthorized");
-    if ("create" !== "create") {
-      if (!(await match("create").with("update", () => permit.check(observer.identityProviderId, "update", "user")).with("delete", () => permit.check(observer.identityProviderId, "delete", "user")).exhaustive())) throw new Error("Permission denied");
-    } else if (!(await permit.check(observer.identityProviderId, "create", "user"))) throw new Error("Permission denied");
-  });
-  return plan();
-};
-const oldPlan7 = (_$root, args) => {
+const oldPlan4 = (_$root, args) => {
   const $update = pgUpdateSingle(resource_postPgResource, {
     id: args.getRaw(['input', "rowId"])
   });
@@ -1058,7 +1012,7 @@ const oldPlan7 = (_$root, args) => {
     result: $update
   });
 };
-const planWrapper7 = (plan, _, fieldArgs) => {
+const planWrapper4 = (plan, _, fieldArgs) => {
   const $postInput = fieldArgs.getRaw(["input", "rowId"]),
     $observer = context().get("observer"),
     $permit = context().get("permit");
@@ -1068,7 +1022,7 @@ const planWrapper7 = (plan, _, fieldArgs) => {
   });
   return plan();
 };
-const oldPlan8 = (_$root, args) => {
+const oldPlan5 = (_$root, args) => {
   const $update = pgUpdateSingle(resource_userPgResource, {
     id: args.getRaw(['input', "rowId"])
   });
@@ -1077,19 +1031,16 @@ const oldPlan8 = (_$root, args) => {
     result: $update
   });
 };
-const planWrapper8 = (plan, _, fieldArgs) => {
-  const $input = fieldArgs.getRaw(["input", "rowId"]),
-    $observer = context().get("observer"),
-    $permit = context().get("permit");
-  sideEffect([$input, $observer, $permit], async ([input, observer, permit]) => {
+const planWrapper5 = (plan, _, fieldArgs) => {
+  const $userId = fieldArgs.getRaw(["input", "rowId"]),
+    $observer = context().get("observer");
+  sideEffect([$userId, $observer], async ([userId, observer]) => {
     if (!observer) throw new Error("Unauthorized");
-    if ("update" !== "create") {
-      if (!(await match("update").with("update", () => permit.check(observer.identityProviderId, "update", "user")).with("delete", () => permit.check(observer.identityProviderId, "delete", "user")).exhaustive())) throw new Error("Permission denied");
-    } else if (!(await permit.check(observer.identityProviderId, "create", "user"))) throw new Error("Permission denied");
+    if (userId !== observer.id) throw new Error("Insufficient permissions");
   });
   return plan();
 };
-const oldPlan9 = (_$root, args) => {
+const oldPlan6 = (_$root, args) => {
   const $delete = pgDeleteSingle(resource_postPgResource, {
     id: args.getRaw(['input', "rowId"])
   });
@@ -1098,7 +1049,7 @@ const oldPlan9 = (_$root, args) => {
     result: $delete
   });
 };
-const planWrapper9 = (plan, _, fieldArgs) => {
+const planWrapper6 = (plan, _, fieldArgs) => {
   const $postInput = fieldArgs.getRaw(["input", "rowId"]),
     $observer = context().get("observer"),
     $permit = context().get("permit");
@@ -1108,7 +1059,7 @@ const planWrapper9 = (plan, _, fieldArgs) => {
   });
   return plan();
 };
-const oldPlan10 = (_$root, args) => {
+const oldPlan7 = (_$root, args) => {
   const $delete = pgDeleteSingle(resource_userPgResource, {
     id: args.getRaw(['input', "rowId"])
   });
@@ -1117,15 +1068,12 @@ const oldPlan10 = (_$root, args) => {
     result: $delete
   });
 };
-const planWrapper10 = (plan, _, fieldArgs) => {
-  const $input = fieldArgs.getRaw(["input", "rowId"]),
-    $observer = context().get("observer"),
-    $permit = context().get("permit");
-  sideEffect([$input, $observer, $permit], async ([input, observer, permit]) => {
+const planWrapper7 = (plan, _, fieldArgs) => {
+  const $userId = fieldArgs.getRaw(["input", "rowId"]),
+    $observer = context().get("observer");
+  sideEffect([$userId, $observer], async ([userId, observer]) => {
     if (!observer) throw new Error("Unauthorized");
-    if ("delete" !== "create") {
-      if (!(await match("delete").with("update", () => permit.check(observer.identityProviderId, "update", "user")).with("delete", () => permit.check(observer.identityProviderId, "delete", "user")).exhaustive())) throw new Error("Permission denied");
-    } else if (!(await permit.check(observer.identityProviderId, "create", "user"))) throw new Error("Permission denied");
+    if (userId !== observer.id) throw new Error("Insufficient permissions");
   });
   return plan();
 };
@@ -2012,21 +1960,12 @@ ${String(oldPlan)}`);
       if ($newPlan !== null && !isExecutableStep($newPlan)) throw new Error(`Your plan wrapper returned something other than a step... It must return a step (or null). (Returned: ${inspect($newPlan)})`);
       return $newPlan;
     },
-    user(...planParams) {
-      const smartPlan = (...overrideParams) => {
-          const $prev = oldPlan2(...overrideParams.concat(planParams.slice(overrideParams.length)));
-          if (!($prev instanceof ExecutableStep)) {
-            console.error(`Wrapped a plan function at ${"Query"}.${"user"}, but that function did not return a step!
-${String(oldPlan2)}`);
-            throw new Error("Wrapped a plan function, but that function did not return a step!");
-          }
-          return $prev;
-        },
-        [$source, fieldArgs, info] = planParams,
-        $newPlan = planWrapper2(smartPlan, $source, fieldArgs, info);
-      if ($newPlan === void 0) throw new Error("Your plan wrapper didn't return anything; it must return a step or null!");
-      if ($newPlan !== null && !isExecutableStep($newPlan)) throw new Error(`Your plan wrapper returned something other than a step... It must return a step (or null). (Returned: ${inspect($newPlan)})`);
-      return $newPlan;
+    user(_$root, {
+      $rowId
+    }) {
+      return resource_userPgResource.get({
+        id: $rowId
+      });
     },
     userByEmail(_$root, {
       $email
@@ -2045,16 +1984,16 @@ ${String(oldPlan2)}`);
     posts: {
       plan(...planParams) {
         const smartPlan = (...overrideParams) => {
-            const $prev = oldPlan3(...overrideParams.concat(planParams.slice(overrideParams.length)));
+            const $prev = oldPlan2(...overrideParams.concat(planParams.slice(overrideParams.length)));
             if (!($prev instanceof ExecutableStep)) {
               console.error(`Wrapped a plan function at ${"Query"}.${"posts"}, but that function did not return a step!
-${String(oldPlan3)}`);
+${String(oldPlan2)}`);
               throw new Error("Wrapped a plan function, but that function did not return a step!");
             }
             return $prev;
           },
           [$source, fieldArgs, info] = planParams,
-          $newPlan = planWrapper3(smartPlan, $source, fieldArgs, info);
+          $newPlan = planWrapper2(smartPlan, $source, fieldArgs, info);
         if ($newPlan === void 0) throw new Error("Your plan wrapper didn't return anything; it must return a step or null!");
         if ($newPlan !== null && !isExecutableStep($newPlan)) throw new Error(`Your plan wrapper returned something other than a step... It must return a step (or null). (Returned: ${inspect($newPlan)})`);
         return $newPlan;
@@ -2095,21 +2034,8 @@ ${String(oldPlan3)}`);
       }
     },
     users: {
-      plan(...planParams) {
-        const smartPlan = (...overrideParams) => {
-            const $prev = oldPlan4(...overrideParams.concat(planParams.slice(overrideParams.length)));
-            if (!($prev instanceof ExecutableStep)) {
-              console.error(`Wrapped a plan function at ${"Query"}.${"users"}, but that function did not return a step!
-${String(oldPlan4)}`);
-              throw new Error("Wrapped a plan function, but that function did not return a step!");
-            }
-            return $prev;
-          },
-          [$source, fieldArgs, info] = planParams,
-          $newPlan = planWrapper4(smartPlan, $source, fieldArgs, info);
-        if ($newPlan === void 0) throw new Error("Your plan wrapper didn't return anything; it must return a step or null!");
-        if ($newPlan !== null && !isExecutableStep($newPlan)) throw new Error(`Your plan wrapper returned something other than a step... It must return a step (or null). (Returned: ${inspect($newPlan)})`);
-        return $newPlan;
+      plan() {
+        return connection(resource_userPgResource.find());
       },
       args: {
         first(_, $connection, arg) {
@@ -3794,9 +3720,69 @@ ${String(oldPlan4)}`);
     createPost: {
       plan(...planParams) {
         const smartPlan = (...overrideParams) => {
-            const $prev = oldPlan5(...overrideParams.concat(planParams.slice(overrideParams.length)));
+            const $prev = oldPlan3(...overrideParams.concat(planParams.slice(overrideParams.length)));
             if (!($prev instanceof ExecutableStep)) {
               console.error(`Wrapped a plan function at ${"Mutation"}.${"createPost"}, but that function did not return a step!
+${String(oldPlan3)}`);
+              throw new Error("Wrapped a plan function, but that function did not return a step!");
+            }
+            return $prev;
+          },
+          [$source, fieldArgs, info] = planParams,
+          $newPlan = planWrapper3(smartPlan, $source, fieldArgs, info);
+        if ($newPlan === void 0) throw new Error("Your plan wrapper didn't return anything; it must return a step or null!");
+        if ($newPlan !== null && !isExecutableStep($newPlan)) throw new Error(`Your plan wrapper returned something other than a step... It must return a step (or null). (Returned: ${inspect($newPlan)})`);
+        return $newPlan;
+      },
+      args: {
+        input(_, $object) {
+          return $object;
+        }
+      }
+    },
+    createUser: {
+      plan(_, args) {
+        const $insert = pgInsertSingle(resource_userPgResource, Object.create(null));
+        args.apply($insert);
+        return object({
+          result: $insert
+        });
+      },
+      args: {
+        input(_, $object) {
+          return $object;
+        }
+      }
+    },
+    updatePost: {
+      plan(...planParams) {
+        const smartPlan = (...overrideParams) => {
+            const $prev = oldPlan4(...overrideParams.concat(planParams.slice(overrideParams.length)));
+            if (!($prev instanceof ExecutableStep)) {
+              console.error(`Wrapped a plan function at ${"Mutation"}.${"updatePost"}, but that function did not return a step!
+${String(oldPlan4)}`);
+              throw new Error("Wrapped a plan function, but that function did not return a step!");
+            }
+            return $prev;
+          },
+          [$source, fieldArgs, info] = planParams,
+          $newPlan = planWrapper4(smartPlan, $source, fieldArgs, info);
+        if ($newPlan === void 0) throw new Error("Your plan wrapper didn't return anything; it must return a step or null!");
+        if ($newPlan !== null && !isExecutableStep($newPlan)) throw new Error(`Your plan wrapper returned something other than a step... It must return a step (or null). (Returned: ${inspect($newPlan)})`);
+        return $newPlan;
+      },
+      args: {
+        input(_, $object) {
+          return $object;
+        }
+      }
+    },
+    updateUser: {
+      plan(...planParams) {
+        const smartPlan = (...overrideParams) => {
+            const $prev = oldPlan5(...overrideParams.concat(planParams.slice(overrideParams.length)));
+            if (!($prev instanceof ExecutableStep)) {
+              console.error(`Wrapped a plan function at ${"Mutation"}.${"updateUser"}, but that function did not return a step!
 ${String(oldPlan5)}`);
               throw new Error("Wrapped a plan function, but that function did not return a step!");
             }
@@ -3814,12 +3800,12 @@ ${String(oldPlan5)}`);
         }
       }
     },
-    createUser: {
+    deletePost: {
       plan(...planParams) {
         const smartPlan = (...overrideParams) => {
             const $prev = oldPlan6(...overrideParams.concat(planParams.slice(overrideParams.length)));
             if (!($prev instanceof ExecutableStep)) {
-              console.error(`Wrapped a plan function at ${"Mutation"}.${"createUser"}, but that function did not return a step!
+              console.error(`Wrapped a plan function at ${"Mutation"}.${"deletePost"}, but that function did not return a step!
 ${String(oldPlan6)}`);
               throw new Error("Wrapped a plan function, but that function did not return a step!");
             }
@@ -3837,12 +3823,12 @@ ${String(oldPlan6)}`);
         }
       }
     },
-    updatePost: {
+    deleteUser: {
       plan(...planParams) {
         const smartPlan = (...overrideParams) => {
             const $prev = oldPlan7(...overrideParams.concat(planParams.slice(overrideParams.length)));
             if (!($prev instanceof ExecutableStep)) {
-              console.error(`Wrapped a plan function at ${"Mutation"}.${"updatePost"}, but that function did not return a step!
+              console.error(`Wrapped a plan function at ${"Mutation"}.${"deleteUser"}, but that function did not return a step!
 ${String(oldPlan7)}`);
               throw new Error("Wrapped a plan function, but that function did not return a step!");
             }
@@ -3850,75 +3836,6 @@ ${String(oldPlan7)}`);
           },
           [$source, fieldArgs, info] = planParams,
           $newPlan = planWrapper7(smartPlan, $source, fieldArgs, info);
-        if ($newPlan === void 0) throw new Error("Your plan wrapper didn't return anything; it must return a step or null!");
-        if ($newPlan !== null && !isExecutableStep($newPlan)) throw new Error(`Your plan wrapper returned something other than a step... It must return a step (or null). (Returned: ${inspect($newPlan)})`);
-        return $newPlan;
-      },
-      args: {
-        input(_, $object) {
-          return $object;
-        }
-      }
-    },
-    updateUser: {
-      plan(...planParams) {
-        const smartPlan = (...overrideParams) => {
-            const $prev = oldPlan8(...overrideParams.concat(planParams.slice(overrideParams.length)));
-            if (!($prev instanceof ExecutableStep)) {
-              console.error(`Wrapped a plan function at ${"Mutation"}.${"updateUser"}, but that function did not return a step!
-${String(oldPlan8)}`);
-              throw new Error("Wrapped a plan function, but that function did not return a step!");
-            }
-            return $prev;
-          },
-          [$source, fieldArgs, info] = planParams,
-          $newPlan = planWrapper8(smartPlan, $source, fieldArgs, info);
-        if ($newPlan === void 0) throw new Error("Your plan wrapper didn't return anything; it must return a step or null!");
-        if ($newPlan !== null && !isExecutableStep($newPlan)) throw new Error(`Your plan wrapper returned something other than a step... It must return a step (or null). (Returned: ${inspect($newPlan)})`);
-        return $newPlan;
-      },
-      args: {
-        input(_, $object) {
-          return $object;
-        }
-      }
-    },
-    deletePost: {
-      plan(...planParams) {
-        const smartPlan = (...overrideParams) => {
-            const $prev = oldPlan9(...overrideParams.concat(planParams.slice(overrideParams.length)));
-            if (!($prev instanceof ExecutableStep)) {
-              console.error(`Wrapped a plan function at ${"Mutation"}.${"deletePost"}, but that function did not return a step!
-${String(oldPlan9)}`);
-              throw new Error("Wrapped a plan function, but that function did not return a step!");
-            }
-            return $prev;
-          },
-          [$source, fieldArgs, info] = planParams,
-          $newPlan = planWrapper9(smartPlan, $source, fieldArgs, info);
-        if ($newPlan === void 0) throw new Error("Your plan wrapper didn't return anything; it must return a step or null!");
-        if ($newPlan !== null && !isExecutableStep($newPlan)) throw new Error(`Your plan wrapper returned something other than a step... It must return a step (or null). (Returned: ${inspect($newPlan)})`);
-        return $newPlan;
-      },
-      args: {
-        input(_, $object) {
-          return $object;
-        }
-      }
-    },
-    deleteUser: {
-      plan(...planParams) {
-        const smartPlan = (...overrideParams) => {
-            const $prev = oldPlan10(...overrideParams.concat(planParams.slice(overrideParams.length)));
-            if (!($prev instanceof ExecutableStep)) {
-              console.error(`Wrapped a plan function at ${"Mutation"}.${"deleteUser"}, but that function did not return a step!
-${String(oldPlan10)}`);
-              throw new Error("Wrapped a plan function, but that function did not return a step!");
-            }
-            return $prev;
-          },
-          [$source, fieldArgs, info] = planParams,
-          $newPlan = planWrapper10(smartPlan, $source, fieldArgs, info);
         if ($newPlan === void 0) throw new Error("Your plan wrapper didn't return anything; it must return a step or null!");
         if ($newPlan !== null && !isExecutableStep($newPlan)) throw new Error(`Your plan wrapper returned something other than a step... It must return a step (or null). (Returned: ${inspect($newPlan)})`);
         return $newPlan;
