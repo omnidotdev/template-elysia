@@ -468,10 +468,22 @@ const oldPlan = (_$root, {
 const planWrapper = (plan, _, fieldArgs) => {
   const $postId = fieldArgs.getRaw(["input", "rowId"]),
     $observer = context().get("observer"),
-    $permit = context().get("permit");
-  sideEffect([$postId, $observer, $permit], async ([postId, observer, permit]) => {
+    $permit = context().get("permit"),
+    $db = context().get("db");
+  sideEffect([$postId, $observer, $permit, $db], async ([postId, observer, permit, db]) => {
     if (!postId || !observer) throw new Error("Ooops");
-    if (!(await permit.check(observer.id, "read", "post"))) throw new Error("Permission denied");
+    const {
+        postTable
+      } = lib_db_schema,
+      [post] = await db.select({
+        authorId: postTable.authorId
+      }).from(postTable).where(eq(postTable.authorId, observer.id));
+    if (!(await permit.check(observer.id, "read", {
+      type: "post",
+      attributes: {
+        authorId: post.authorId
+      }
+    }))) throw new Error("Permission denied");
   });
   return plan();
 };
@@ -485,7 +497,12 @@ const planWrapper2 = (plan, _, fieldArgs) => {
     $permit = context().get("permit");
   sideEffect([$input, $observer, $permit], async ([input, observer, permit]) => {
     if (!input.condition.authorId || !observer) throw new Error("Ooops");
-    if (!(await permit.check(observer.id, "read", "post"))) throw new Error("Permission denied");
+    if (!(await permit.check(observer.id, "read", {
+      type: "post",
+      attributes: {
+        authorId: input.condition.authorId
+      }
+    }))) throw new Error("Permission denied");
   });
   return plan();
 };

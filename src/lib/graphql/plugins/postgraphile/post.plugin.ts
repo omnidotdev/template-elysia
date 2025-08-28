@@ -27,19 +27,11 @@ const validateBulkQueryPermissions = () =>
               throw new Error("Ooops");
             }
 
-            const permitted = await permit.check(
-              observer.id,
-              "read",
-              "post",
-              // TODO: replace `post` above with something like below. ABAC checks not supported by the cloud PDP currently
-              // You are passing attributes which are indication of an ABAC permission check. Currently, this is not supported by the cloud PDP.
-              // Please use the Docker PDP for ABAC checks. https://docs.permit.io/how-to/deploy/deploy-to-production/#installing-the-pdp
-              // {
-              //   type: "post",
-              //   // Check that the user has permissions to read posts from the provided author through `authorId` condition
-              //   attributes: { authorId: input.condition.authorId },
-              // },
-            );
+            const permitted = await permit.check(observer.id, "read", {
+              type: "post",
+              // Check that the user has permissions to read posts from the provided author through `authorId` condition
+              attributes: { authorId: input.condition.authorId },
+            });
 
             if (!permitted) throw new Error("Permission denied");
           },
@@ -52,21 +44,32 @@ const validateBulkQueryPermissions = () =>
 
 const validateQueryPermissions = (propName: string) =>
   EXPORTABLE(
-    (context, sideEffect, propName) =>
+    (eq, schema, context, sideEffect, propName) =>
       // biome-ignore lint/suspicious/noExplicitAny: SmartFieldPlanResolver is not an exported type
       (plan: any, _: ExecutableStep, fieldArgs: FieldArgs) => {
         const $postId = fieldArgs.getRaw(["input", propName]);
         const $observer = context<GraphQLContext>().get("observer");
         const $permit = context<GraphQLContext>().get("permit");
+        const $db = context<GraphQLContext>().get("db");
 
         sideEffect(
-          [$postId, $observer, $permit],
-          async ([postId, observer, permit]) => {
+          [$postId, $observer, $permit, $db],
+          async ([postId, observer, permit, db]) => {
             if (!postId || !observer) {
               throw new Error("Ooops");
             }
 
-            const permitted = await permit.check(observer.id, "read", "post");
+            const { postTable } = schema;
+
+            const [post] = await db
+              .select({ authorId: postTable.authorId })
+              .from(postTable)
+              .where(eq(postTable.authorId, observer.id));
+
+            const permitted = await permit.check(observer.id, "read", {
+              type: "post",
+              attributes: { authorId: post.authorId },
+            });
 
             if (!permitted) throw new Error("Permission denied");
           },
@@ -74,7 +77,7 @@ const validateQueryPermissions = (propName: string) =>
 
         return plan();
       },
-    [context, sideEffect, propName],
+    [eq, schema, context, sideEffect, propName],
   );
 
 const validateMutatationPermissions = (
