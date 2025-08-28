@@ -5,7 +5,6 @@ import { ConnectionStep, EdgeStep, ExecutableStep, ObjectStep, __ValueStep, asse
 import { GraphQLError, Kind } from "graphql";
 import * as lib_db_schema from "lib/db/schema";
 import { sql } from "pg-sql2";
-import { match } from "ts-pattern";
 import { inspect } from "util";
 const handler = {
   typeName: "Query",
@@ -472,7 +471,7 @@ const planWrapper = (plan, _, fieldArgs) => {
     $permit = context().get("permit");
   sideEffect([$postId, $observer, $permit], async ([postId, observer, permit]) => {
     if (!postId || !observer) throw new Error("Ooops");
-    if (!(await permit.check(observer.identityProviderId, "read", "post"))) throw new Error("Permission denied");
+    if (!(await permit.check(observer.id, "read", "post"))) throw new Error("Permission denied");
   });
   return plan();
 };
@@ -486,7 +485,7 @@ const planWrapper2 = (plan, _, fieldArgs) => {
     $permit = context().get("permit");
   sideEffect([$input, $observer, $permit], async ([input, observer, permit]) => {
     if (!input.condition.authorId || !observer) throw new Error("Ooops");
-    if (!(await permit.check(observer.identityProviderId, "read", "post"))) throw new Error("Permission denied");
+    if (!(await permit.check(observer.id, "read", "post"))) throw new Error("Permission denied");
   });
   return plan();
 };
@@ -1009,9 +1008,13 @@ const planWrapper3 = (plan, _, fieldArgs) => {
       const [post] = await db.select({
         authorId: postTable.authorId
       }).from(postTable).where(eq(postTable.id, input));
-      if (post.authorId === observer.id) return;
-    }
-    if (!(await match("create").with("update", () => permit.check(observer.identityProviderId, "update", "post")).with("create", () => permit.check(observer.identityProviderId, "create", "post")).with("delete", () => permit.check(observer.identityProviderId, "delete", "post")).exhaustive())) throw new Error("Permission denied");
+      if (!(await permit.check(observer.id, "create", {
+        type: "post",
+        attributes: {
+          authorId: post.authorId
+        }
+      }))) throw new Error("Permission denied");
+    } else if (!(await permit.check(observer.id, "create", "post"))) throw new Error("Permission denied");
   });
   return plan();
 };
@@ -1030,16 +1033,7 @@ const planWrapper4 = (plan, _, fieldArgs) => {
     if ("create" !== "create") {
       if (!observer) throw new Error("Unauthorized");
       if (input !== observer.id) throw new Error("Insufficient permissions");
-    } else await permit.api.syncUser({
-      key: input.identityProviderId,
-      first_name: input.firstName,
-      last_name: input.lastName,
-      email: input.email,
-      role_assignments: [{
-        role: "viewer",
-        tenant: "default"
-      }]
-    });
+    }
   });
   return plan();
 };
@@ -1066,9 +1060,13 @@ const planWrapper5 = (plan, _, fieldArgs) => {
       const [post] = await db.select({
         authorId: postTable.authorId
       }).from(postTable).where(eq(postTable.id, input));
-      if (post.authorId === observer.id) return;
-    }
-    if (!(await match("update").with("update", () => permit.check(observer.identityProviderId, "update", "post")).with("create", () => permit.check(observer.identityProviderId, "create", "post")).with("delete", () => permit.check(observer.identityProviderId, "delete", "post")).exhaustive())) throw new Error("Permission denied");
+      if (!(await permit.check(observer.id, "update", {
+        type: "post",
+        attributes: {
+          authorId: post.authorId
+        }
+      }))) throw new Error("Permission denied");
+    } else if (!(await permit.check(observer.id, "create", "post"))) throw new Error("Permission denied");
   });
   return plan();
 };
@@ -1089,16 +1087,7 @@ const planWrapper6 = (plan, _, fieldArgs) => {
     if ("update" !== "create") {
       if (!observer) throw new Error("Unauthorized");
       if (input !== observer.id) throw new Error("Insufficient permissions");
-    } else await permit.api.syncUser({
-      key: input.identityProviderId,
-      first_name: input.firstName,
-      last_name: input.lastName,
-      email: input.email,
-      role_assignments: [{
-        role: "viewer",
-        tenant: "default"
-      }]
-    });
+    }
   });
   return plan();
 };
@@ -1125,9 +1114,13 @@ const planWrapper7 = (plan, _, fieldArgs) => {
       const [post] = await db.select({
         authorId: postTable.authorId
       }).from(postTable).where(eq(postTable.id, input));
-      if (post.authorId === observer.id) return;
-    }
-    if (!(await match("delete").with("update", () => permit.check(observer.identityProviderId, "update", "post")).with("create", () => permit.check(observer.identityProviderId, "create", "post")).with("delete", () => permit.check(observer.identityProviderId, "delete", "post")).exhaustive())) throw new Error("Permission denied");
+      if (!(await permit.check(observer.id, "delete", {
+        type: "post",
+        attributes: {
+          authorId: post.authorId
+        }
+      }))) throw new Error("Permission denied");
+    } else if (!(await permit.check(observer.id, "create", "post"))) throw new Error("Permission denied");
   });
   return plan();
 };
@@ -1148,16 +1141,7 @@ const planWrapper8 = (plan, _, fieldArgs) => {
     if ("delete" !== "create") {
       if (!observer) throw new Error("Unauthorized");
       if (input !== observer.id) throw new Error("Insufficient permissions");
-    } else await permit.api.syncUser({
-      key: input.identityProviderId,
-      first_name: input.firstName,
-      last_name: input.lastName,
-      email: input.email,
-      role_assignments: [{
-        role: "viewer",
-        tenant: "default"
-      }]
-    });
+    }
   });
   return plan();
 };

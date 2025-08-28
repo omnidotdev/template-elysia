@@ -5,7 +5,6 @@ import { EXPORTABLE } from "graphile-export/helpers";
 import { makeSchema } from "postgraphile";
 import { context, sideEffect } from "postgraphile/grafast";
 import { replaceInFile } from "replace-in-file";
-import { match } from "ts-pattern";
 
 import graphilePreset from "lib/config/graphile.config";
 import * as dbSchema from "lib/db/schema";
@@ -31,7 +30,6 @@ const generateGraphqlSchema = async () => {
     modules: {
       "graphile-export/helpers": { EXPORTABLE },
       "postgraphile/grafast": { context, sideEffect },
-      "ts-pattern": { match },
       "drizzle-orm": { eq },
       "lib/db/schema": dbSchema,
     },

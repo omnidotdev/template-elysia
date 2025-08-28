@@ -2,9 +2,9 @@ import { eq } from "drizzle-orm";
 import { EXPORTABLE } from "graphile-export/helpers";
 import { context, sideEffect } from "postgraphile/grafast";
 import { makeWrapPlansPlugin } from "postgraphile/utils";
-import { match } from "ts-pattern";
 
 import * as schema from "lib/db/schema";
+
 import type { GraphQLContext } from "lib/graphql/createGraphqlContext";
 import type { ExecutableStep, FieldArgs } from "postgraphile/grafast";
 
@@ -28,7 +28,7 @@ const validateBulkQueryPermissions = () =>
             }
 
             const permitted = await permit.check(
-              observer.identityProviderId,
+              observer.id,
               "read",
               "post",
               // TODO: replace `post` above with something like below. ABAC checks not supported by the cloud PDP currently
@@ -66,11 +66,7 @@ const validateQueryPermissions = (propName: string) =>
               throw new Error("Ooops");
             }
 
-            const permitted = await permit.check(
-              observer.identityProviderId,
-              "read",
-              "post",
-            );
+            const permitted = await permit.check(observer.id, "read", "post");
 
             if (!permitted) throw new Error("Permission denied");
           },
@@ -86,7 +82,7 @@ const validateMutatationPermissions = (
   scope: MutationScope,
 ) =>
   EXPORTABLE(
-    (eq, schema, match, context, sideEffect, propName, scope) =>
+    (eq, schema, context, sideEffect, propName, scope) =>
       // biome-ignore lint/suspicious/noExplicitAny: SmartFieldPlanResolver is not an exported type
       (plan: any, _: ExecutableStep, fieldArgs: FieldArgs) => {
         const $input = fieldArgs.getRaw(["input", propName]);
@@ -102,38 +98,33 @@ const validateMutatationPermissions = (
             }
             const { postTable } = schema;
 
-            // NB: if the observer is the author of the post, allow delete and update mutations
             if (scope !== "create") {
               const [post] = await db
                 .select({ authorId: postTable.authorId })
                 .from(postTable)
                 .where(eq(postTable.id, input));
 
-              if (post.authorId === observer.id) return;
+              const permitted = await permit.check(observer.id, scope, {
+                type: "post",
+                attributes: { authorId: post.authorId },
+              });
+
+              if (!permitted) throw new Error("Permission denied");
+            } else {
+              const permitted = await permit.check(
+                observer.id,
+                "create",
+                "post",
+              );
+
+              if (!permitted) throw new Error("Permission denied");
             }
-
-            const getPermission = async () =>
-              match(scope)
-                .with("update", () =>
-                  permit.check(observer.identityProviderId, "update", "post"),
-                )
-                .with("create", () =>
-                  permit.check(observer.identityProviderId, "create", "post"),
-                )
-                .with("delete", () =>
-                  permit.check(observer.identityProviderId, "delete", "post"),
-                )
-                .exhaustive();
-
-            const permitted = await getPermission();
-
-            if (!permitted) throw new Error("Permission denied");
           },
         );
 
         return plan();
       },
-    [eq, schema, match, context, sideEffect, propName, scope],
+    [eq, schema, context, sideEffect, propName, scope],
   );
 
 /**

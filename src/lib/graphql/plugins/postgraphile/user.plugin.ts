@@ -29,14 +29,14 @@ const validatePermissions = (propName: string, scope: MutationScope) =>
                 throw new Error("Insufficient permissions");
               }
             } else {
-              // TODO: determine permissions check for creating a user
-              await permit.api.syncUser({
-                key: input.identityProviderId,
-                first_name: input.firstName,
-                last_name: input.lastName,
-                email: input.email,
-                role_assignments: [{ role: "viewer", tenant: "default" }],
-              });
+              // TODO: determine permissions check for creating a user as well as sync logic. For relations to seemlessly work, the `key` should be the `rowId` of the user (this allows us to compare to FKs easily)
+              // await permit.api.syncUser({
+              //   key: ** this should be the `rowId` of the created user **,
+              //   first_name: input.firstName,
+              //   last_name: input.lastName,
+              //   email: input.email,
+              //   role_assignments: [{ role: "viewer", tenant: "default" }],
+              // });
             }
           },
         );

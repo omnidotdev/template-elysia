@@ -11,9 +11,9 @@ import type { GraphQLContext } from "lib/graphql/createGraphqlContext";
 // TODO research best practices for all of this file (token validation, caching, etc.). Validate access token (introspection endpoint)? Cache userinfo output? etc. (https://linear.app/omnidev/issue/OMNI-302/increase-security-of-useauth-plugin)
 
 const mockUser: SelectUser = {
-  id: "c6fdab7e-4f0f-4956-5ed4-cb33ef4bf9c2",
-  identityProviderId: "550e8400-e29b-41d4-a716-446655440000", // use this to provide a `passing` permissions check
-  // identityProviderId: "bc8d19ed-b69a-43c3-1e9d-2301b2541f92", // use this to provide a `failing` permissions check
+  id: "550e8400-e29b-41d4-a716-446655440000", // use this to provide a `passing` permissions check
+  // id: "c6fdab7e-4f0f-4956-5ed4-cb33ef4bf9c2", // use this to provide a `failing` permissions check
+  identityProviderId: "bc8d19ed-b69a-43c3-1e9d-2301b2541f92",
   username: "Ramona",
   firstName: "Neola",
   lastName: "Trippe",
