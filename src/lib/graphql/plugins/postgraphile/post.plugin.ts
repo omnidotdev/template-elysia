@@ -27,10 +27,12 @@ const validateBulkQueryPermissions = () =>
               throw new Error("Ooops");
             }
 
+            // TODO: determine proper way to do attribute check. Do we need to sync posts or something?
             const permitted = await permit.check(observer.id, "read", {
               type: "post",
               // Check that the user has permissions to read posts from the provided author through `authorId` condition
               attributes: { authorId: input.condition.authorId },
+              tenant: "default",
             });
 
             if (!permitted) throw new Error("Permission denied");
@@ -66,9 +68,11 @@ const validateQueryPermissions = (propName: string) =>
               .from(postTable)
               .where(eq(postTable.authorId, observer.id));
 
+            // TODO: determine proper way to do attribute check. Do we need to sync posts or something?
             const permitted = await permit.check(observer.id, "read", {
               type: "post",
               attributes: { authorId: post.authorId },
+              tenant: "default",
             });
 
             if (!permitted) throw new Error("Permission denied");
@@ -107,9 +111,11 @@ const validateMutatationPermissions = (
                 .from(postTable)
                 .where(eq(postTable.id, input));
 
+              // TODO: determine proper way to do attribute check. Do we need to sync posts or something?
               const permitted = await permit.check(observer.id, scope, {
                 type: "post",
                 attributes: { authorId: post.authorId },
+                tenant: "default",
               });
 
               if (!permitted) throw new Error("Permission denied");

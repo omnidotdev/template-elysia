@@ -482,7 +482,8 @@ const planWrapper = (plan, _, fieldArgs) => {
       type: "post",
       attributes: {
         authorId: post.authorId
-      }
+      },
+      tenant: "default"
     }))) throw new Error("Permission denied");
   });
   return plan();
@@ -501,7 +502,8 @@ const planWrapper2 = (plan, _, fieldArgs) => {
       type: "post",
       attributes: {
         authorId: input.condition.authorId
-      }
+      },
+      tenant: "default"
     }))) throw new Error("Permission denied");
   });
   return plan();
@@ -1029,7 +1031,8 @@ const planWrapper3 = (plan, _, fieldArgs) => {
         type: "post",
         attributes: {
           authorId: post.authorId
-        }
+        },
+        tenant: "default"
       }))) throw new Error("Permission denied");
     } else if (!(await permit.check(observer.id, "create", "post"))) throw new Error("Permission denied");
   });
@@ -1081,7 +1084,8 @@ const planWrapper5 = (plan, _, fieldArgs) => {
         type: "post",
         attributes: {
           authorId: post.authorId
-        }
+        },
+        tenant: "default"
       }))) throw new Error("Permission denied");
     } else if (!(await permit.check(observer.id, "create", "post"))) throw new Error("Permission denied");
   });
@@ -1135,7 +1139,8 @@ const planWrapper7 = (plan, _, fieldArgs) => {
         type: "post",
         attributes: {
           authorId: post.authorId
-        }
+        },
+        tenant: "default"
       }))) throw new Error("Permission denied");
     } else if (!(await permit.check(observer.id, "create", "post"))) throw new Error("Permission denied");
   });
