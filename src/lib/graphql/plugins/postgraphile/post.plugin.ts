@@ -43,20 +43,20 @@ const validateBulkQueryPermissions = () =>
     [context, sideEffect],
   );
 
-const validateQueryPermissions = (propName: string) =>
+const validateQueryPermissions = () =>
   EXPORTABLE(
-    (eq, schema, context, sideEffect, propName) =>
+    (eq, schema, context, sideEffect) =>
       // biome-ignore lint/suspicious/noExplicitAny: SmartFieldPlanResolver is not an exported type
       (plan: any, _: ExecutableStep, fieldArgs: FieldArgs) => {
-        const $postId = fieldArgs.getRaw(["input", propName]);
+        const $input = fieldArgs.getRaw();
         const $observer = context<GraphQLContext>().get("observer");
         const $permit = context<GraphQLContext>().get("permit");
         const $db = context<GraphQLContext>().get("db");
 
         sideEffect(
-          [$postId, $observer, $permit, $db],
-          async ([postId, observer, permit, db]) => {
-            if (!postId || !observer) {
+          [$input, $observer, $permit, $db],
+          async ([input, observer, permit, db]) => {
+            if (!input.rowId || !observer) {
               throw new Error("Ooops");
             }
 
@@ -65,7 +65,7 @@ const validateQueryPermissions = (propName: string) =>
             const [post] = await db
               .select({ authorId: postTable.authorId })
               .from(postTable)
-              .where(eq(postTable.authorId, observer.id));
+              .where(eq(postTable.id, input.rowId));
 
             const permitted = await permit.check(observer.id, "read", {
               type: "post",
@@ -79,7 +79,7 @@ const validateQueryPermissions = (propName: string) =>
 
         return plan();
       },
-    [eq, schema, context, sideEffect, propName],
+    [eq, schema, context, sideEffect],
   );
 
 const validateMutatationPermissions = (
@@ -143,7 +143,7 @@ export const PostPlugin = makeWrapPlansPlugin({
     deletePost: validateMutatationPermissions("rowId", "delete"),
   },
   Query: {
-    post: validateQueryPermissions("rowId"),
+    post: validateQueryPermissions(),
     posts: validateBulkQueryPermissions(),
   },
 });

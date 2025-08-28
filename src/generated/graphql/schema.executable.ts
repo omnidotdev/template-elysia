@@ -466,18 +466,18 @@ const oldPlan = (_$root, {
   id: $rowId
 });
 const planWrapper = (plan, _, fieldArgs) => {
-  const $postId = fieldArgs.getRaw(["input", "rowId"]),
+  const $input = fieldArgs.getRaw(),
     $observer = context().get("observer"),
     $permit = context().get("permit"),
     $db = context().get("db");
-  sideEffect([$postId, $observer, $permit, $db], async ([postId, observer, permit, db]) => {
-    if (!postId || !observer) throw new Error("Ooops");
+  sideEffect([$input, $observer, $permit, $db], async ([input, observer, permit, db]) => {
+    if (!input.rowId || !observer) throw new Error("Ooops");
     const {
         postTable
       } = lib_db_schema,
       [post] = await db.select({
         authorId: postTable.authorId
-      }).from(postTable).where(eq(postTable.authorId, observer.id));
+      }).from(postTable).where(eq(postTable.id, input.rowId));
     if (!(await permit.check(observer.id, "read", {
       type: "post",
       attributes: {
