@@ -1,8 +1,10 @@
+import { eq } from "drizzle-orm";
 import { EXPORTABLE } from "graphile-export/helpers";
 import { context, sideEffect } from "postgraphile/grafast";
 import { makeWrapPlansPlugin } from "postgraphile/utils";
 import { match } from "ts-pattern";
 
+import * as schema from "lib/db/schema";
 import type { GraphQLContext } from "lib/graphql/createGraphqlContext";
 import type { ExecutableStep, FieldArgs } from "postgraphile/grafast";
 
@@ -84,18 +86,30 @@ const validateMutatationPermissions = (
   scope: MutationScope,
 ) =>
   EXPORTABLE(
-    (match, context, sideEffect, propName, scope) =>
+    (eq, schema, match, context, sideEffect, propName, scope) =>
       // biome-ignore lint/suspicious/noExplicitAny: SmartFieldPlanResolver is not an exported type
       (plan: any, _: ExecutableStep, fieldArgs: FieldArgs) => {
-        const $postInput = fieldArgs.getRaw(["input", propName]);
+        const $input = fieldArgs.getRaw(["input", propName]);
         const $observer = context<GraphQLContext>().get("observer");
         const $permit = context<GraphQLContext>().get("permit");
+        const $db = context<GraphQLContext>().get("db");
 
         sideEffect(
-          [$postInput, $observer, $permit],
-          async ([postInput, observer, permit]) => {
-            if (!postInput || !observer) {
+          [$input, $observer, $permit, $db],
+          async ([input, observer, permit, db]) => {
+            if (!input || !observer) {
               throw new Error("Ooops");
+            }
+            const { postTable } = schema;
+
+            // NB: if the observer is the author of the post, allow delete and update mutations
+            if (scope !== "create") {
+              const [post] = await db
+                .select({ authorId: postTable.authorId })
+                .from(postTable)
+                .where(eq(postTable.id, input));
+
+              if (post.authorId === observer.id) return;
             }
 
             const getPermission = async () =>
@@ -114,17 +128,12 @@ const validateMutatationPermissions = (
             const permitted = await getPermission();
 
             if (!permitted) throw new Error("Permission denied");
-
-            // TODO: determine need to update permissions for post mutations.
-            // Delete: remove permission records based on key?
-            // Update: anything that would alter permissions for certain users?
-            // Create: any permission records that need to be synced?
           },
         );
 
         return plan();
       },
-    [match, context, sideEffect, propName, scope],
+    [eq, schema, match, context, sideEffect, propName, scope],
   );
 
 /**

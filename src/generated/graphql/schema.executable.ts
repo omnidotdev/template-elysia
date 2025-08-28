@@ -1,7 +1,9 @@
 // @ts-nocheck
 import { PgCondition, PgDeleteSingleStep, PgExecutor, TYPES, assertPgClassSingleStep, listOfCodec, makeRegistry, pgDeleteSingle, pgInsertSingle, pgSelectFromRecord, pgUpdateSingle, recordCodec, sqlValueWithCodec } from "@dataplan/pg";
+import { eq } from "drizzle-orm";
 import { ConnectionStep, EdgeStep, ExecutableStep, ObjectStep, __ValueStep, assertEdgeCapableStep, assertExecutableStep, assertPageInfoCapableStep, bakedInputRuntime, connection, constant, context, createObjectAndApplyChildren, first, isExecutableStep, lambda, makeGrafastSchema, node, object, rootValue, sideEffect } from "grafast";
 import { GraphQLError, Kind } from "graphql";
+import * as lib_db_schema from "lib/db/schema";
 import { sql } from "pg-sql2";
 import { match } from "ts-pattern";
 import { inspect } from "util";
@@ -994,11 +996,21 @@ function oldPlan3(_, args) {
   });
 }
 const planWrapper3 = (plan, _, fieldArgs) => {
-  const $postInput = fieldArgs.getRaw(["input", "post"]),
+  const $input = fieldArgs.getRaw(["input", "post"]),
     $observer = context().get("observer"),
-    $permit = context().get("permit");
-  sideEffect([$postInput, $observer, $permit], async ([postInput, observer, permit]) => {
-    if (!postInput || !observer) throw new Error("Ooops");
+    $permit = context().get("permit"),
+    $db = context().get("db");
+  sideEffect([$input, $observer, $permit, $db], async ([input, observer, permit, db]) => {
+    if (!input || !observer) throw new Error("Ooops");
+    const {
+      postTable
+    } = lib_db_schema;
+    if ("create" !== "create") {
+      const [post] = await db.select({
+        authorId: postTable.authorId
+      }).from(postTable).where(eq(postTable.id, input));
+      if (post.authorId === observer.id) return;
+    }
     if (!(await match("create").with("update", () => permit.check(observer.identityProviderId, "update", "post")).with("create", () => permit.check(observer.identityProviderId, "create", "post")).with("delete", () => permit.check(observer.identityProviderId, "delete", "post")).exhaustive())) throw new Error("Permission denied");
   });
   return plan();
@@ -1041,11 +1053,21 @@ const oldPlan5 = (_$root, args) => {
   });
 };
 const planWrapper5 = (plan, _, fieldArgs) => {
-  const $postInput = fieldArgs.getRaw(["input", "rowId"]),
+  const $input = fieldArgs.getRaw(["input", "rowId"]),
     $observer = context().get("observer"),
-    $permit = context().get("permit");
-  sideEffect([$postInput, $observer, $permit], async ([postInput, observer, permit]) => {
-    if (!postInput || !observer) throw new Error("Ooops");
+    $permit = context().get("permit"),
+    $db = context().get("db");
+  sideEffect([$input, $observer, $permit, $db], async ([input, observer, permit, db]) => {
+    if (!input || !observer) throw new Error("Ooops");
+    const {
+      postTable
+    } = lib_db_schema;
+    if ("update" !== "create") {
+      const [post] = await db.select({
+        authorId: postTable.authorId
+      }).from(postTable).where(eq(postTable.id, input));
+      if (post.authorId === observer.id) return;
+    }
     if (!(await match("update").with("update", () => permit.check(observer.identityProviderId, "update", "post")).with("create", () => permit.check(observer.identityProviderId, "create", "post")).with("delete", () => permit.check(observer.identityProviderId, "delete", "post")).exhaustive())) throw new Error("Permission denied");
   });
   return plan();
@@ -1090,11 +1112,21 @@ const oldPlan7 = (_$root, args) => {
   });
 };
 const planWrapper7 = (plan, _, fieldArgs) => {
-  const $postInput = fieldArgs.getRaw(["input", "rowId"]),
+  const $input = fieldArgs.getRaw(["input", "rowId"]),
     $observer = context().get("observer"),
-    $permit = context().get("permit");
-  sideEffect([$postInput, $observer, $permit], async ([postInput, observer, permit]) => {
-    if (!postInput || !observer) throw new Error("Ooops");
+    $permit = context().get("permit"),
+    $db = context().get("db");
+  sideEffect([$input, $observer, $permit, $db], async ([input, observer, permit, db]) => {
+    if (!input || !observer) throw new Error("Ooops");
+    const {
+      postTable
+    } = lib_db_schema;
+    if ("delete" !== "create") {
+      const [post] = await db.select({
+        authorId: postTable.authorId
+      }).from(postTable).where(eq(postTable.id, input));
+      if (post.authorId === observer.id) return;
+    }
     if (!(await match("delete").with("update", () => permit.check(observer.identityProviderId, "update", "post")).with("create", () => permit.check(observer.identityProviderId, "create", "post")).with("delete", () => permit.check(observer.identityProviderId, "delete", "post")).exhaustive())) throw new Error("Permission denied");
   });
   return plan();

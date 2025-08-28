@@ -1,4 +1,5 @@
 import { existsSync, mkdirSync } from "node:fs";
+import { eq } from "drizzle-orm";
 import { exportSchema } from "graphile-export";
 import { EXPORTABLE } from "graphile-export/helpers";
 import { makeSchema } from "postgraphile";
@@ -7,6 +8,7 @@ import { replaceInFile } from "replace-in-file";
 import { match } from "ts-pattern";
 
 import graphilePreset from "lib/config/graphile.config";
+import * as dbSchema from "lib/db/schema";
 
 /**
  * Generate a GraphQL schema from a Postgres database.
@@ -30,6 +32,8 @@ const generateGraphqlSchema = async () => {
       "graphile-export/helpers": { EXPORTABLE },
       "postgraphile/grafast": { context, sideEffect },
       "ts-pattern": { match },
+      "drizzle-orm": { eq },
+      "lib/db/schema": dbSchema,
     },
   });
 
