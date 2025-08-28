@@ -5,27 +5,44 @@ import { makeWrapPlansPlugin } from "postgraphile/utils";
 import type { GraphQLContext } from "lib/graphql/createGraphqlContext";
 import type { ExecutableStep, FieldArgs } from "postgraphile/grafast";
 
-const validatePermissions = (propName: string) =>
+type MutationScope = "create" | "update" | "delete";
+
+const validatePermissions = (propName: string, scope: MutationScope) =>
   EXPORTABLE(
-    (context, sideEffect, propName) =>
+    (context, sideEffect, propName, scope) =>
       // biome-ignore lint/suspicious/noExplicitAny: SmartFieldPlanResolver is not an exported type
       (plan: any, _: ExecutableStep, fieldArgs: FieldArgs) => {
-        const $userId = fieldArgs.getRaw(["input", propName]);
+        const $input = fieldArgs.getRaw(["input", propName]);
         const $observer = context<GraphQLContext>().get("observer");
+        const $permit = context<GraphQLContext>().get("permit");
 
-        sideEffect([$userId, $observer], async ([userId, observer]) => {
-          if (!observer) {
-            throw new Error("Unauthorized");
-          }
+        sideEffect(
+          [$input, $observer, $permit],
+          async ([input, observer, permit]) => {
+            if (scope !== "create") {
+              if (!observer) {
+                throw new Error("Unauthorized");
+              }
 
-          if (userId !== observer.id) {
-            throw new Error("Insufficient permissions");
-          }
-        });
+              // Only allow users to update their own records. `input` in this case will be the user's `rowId`
+              if (input !== observer.id) {
+                throw new Error("Insufficient permissions");
+              }
+            } else {
+              // TODO: determine permissions check for creating a user
+              await permit.api.syncUser({
+                key: input.identityProviderId,
+                first_name: input.firstName,
+                last_name: input.lastName,
+                email: input.email,
+              });
+            }
+          },
+        );
 
         return plan();
       },
-    [context, sideEffect, propName],
+    [context, sideEffect, propName, scope],
   );
 
 /**
@@ -33,7 +50,8 @@ const validatePermissions = (propName: string) =>
  */
 export const UserPlugin = makeWrapPlansPlugin({
   Mutation: {
-    updateUser: validatePermissions("rowId"),
-    deleteUser: validatePermissions("rowId"),
+    createUser: validatePermissions("user", "create"),
+    updateUser: validatePermissions("rowId", "update"),
+    deleteUser: validatePermissions("rowId", "delete"),
   },
 });
