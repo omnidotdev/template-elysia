@@ -1034,7 +1034,13 @@ const planWrapper3 = (plan, _, fieldArgs) => {
         },
         tenant: "default"
       }))) throw new Error("Permission denied");
-    } else if (!(await permit.check(observer.id, "create", "post"))) throw new Error("Permission denied");
+    } else if (!(await permit.check(observer.id, "create", {
+      type: "post",
+      attributes: {
+        authorId: input.authorId
+      },
+      tenant: "default"
+    }))) throw new Error("Permission denied");
   });
   return plan();
 };
@@ -1087,7 +1093,13 @@ const planWrapper5 = (plan, _, fieldArgs) => {
         },
         tenant: "default"
       }))) throw new Error("Permission denied");
-    } else if (!(await permit.check(observer.id, "create", "post"))) throw new Error("Permission denied");
+    } else if (!(await permit.check(observer.id, "create", {
+      type: "post",
+      attributes: {
+        authorId: input.authorId
+      },
+      tenant: "default"
+    }))) throw new Error("Permission denied");
   });
   return plan();
 };
@@ -1142,7 +1154,13 @@ const planWrapper7 = (plan, _, fieldArgs) => {
         },
         tenant: "default"
       }))) throw new Error("Permission denied");
-    } else if (!(await permit.check(observer.id, "create", "post"))) throw new Error("Permission denied");
+    } else if (!(await permit.check(observer.id, "create", {
+      type: "post",
+      attributes: {
+        authorId: input.authorId
+      },
+      tenant: "default"
+    }))) throw new Error("Permission denied");
   });
   return plan();
 };

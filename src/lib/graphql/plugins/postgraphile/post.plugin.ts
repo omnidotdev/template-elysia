@@ -117,11 +117,11 @@ const validateMutatationPermissions = (
 
               if (!permitted) throw new Error("Permission denied");
             } else {
-              const permitted = await permit.check(
-                observer.id,
-                "create",
-                "post",
-              );
+              const permitted = await permit.check(observer.id, "create", {
+                type: "post",
+                attributes: { authorId: input.authorId },
+                tenant: "default",
+              });
 
               if (!permitted) throw new Error("Permission denied");
             }
