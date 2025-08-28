@@ -1022,7 +1022,11 @@ const planWrapper4 = (plan, _, fieldArgs) => {
       key: input.identityProviderId,
       first_name: input.firstName,
       last_name: input.lastName,
-      email: input.email
+      email: input.email,
+      role_assignments: [{
+        role: "viewer",
+        tenant: "default"
+      }]
     });
   });
   return plan();
@@ -1067,7 +1071,11 @@ const planWrapper6 = (plan, _, fieldArgs) => {
       key: input.identityProviderId,
       first_name: input.firstName,
       last_name: input.lastName,
-      email: input.email
+      email: input.email,
+      role_assignments: [{
+        role: "viewer",
+        tenant: "default"
+      }]
     });
   });
   return plan();
@@ -1112,7 +1120,11 @@ const planWrapper8 = (plan, _, fieldArgs) => {
       key: input.identityProviderId,
       first_name: input.firstName,
       last_name: input.lastName,
-      email: input.email
+      email: input.email,
+      role_assignments: [{
+        role: "viewer",
+        tenant: "default"
+      }]
     });
   });
   return plan();

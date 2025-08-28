@@ -35,6 +35,7 @@ const validatePermissions = (propName: string, scope: MutationScope) =>
                 first_name: input.firstName,
                 last_name: input.lastName,
                 email: input.email,
+                role_assignments: [{ role: "viewer", tenant: "default" }],
               });
             }
           },
