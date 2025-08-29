@@ -22,15 +22,14 @@ const validateBulkQueryPermissions = () =>
         sideEffect(
           [$input, $observer, $permit],
           async ([input, observer, permit]) => {
-            // NB: this condition requires that all `posts` queries are filtered by an `authorId` condition. Should adjust accordingly when schema is expanded upon. Simply used to showcase permissions.
-            if (!input.condition.authorId || !observer) {
+            if (!observer) {
               throw new Error("Ooops");
             }
 
             const permitted = await permit.check(observer.id, "read", {
               type: "post",
-              // Check that the user has permissions to read posts from the provided author through `authorId` condition
-              attributes: { authorId: input.condition.authorId },
+              // Check that the user has permissions to read posts from the provided author through `authorId` condition when applicable
+              attributes: { authorId: input?.condition?.authorId },
               tenant: "default",
             });
 

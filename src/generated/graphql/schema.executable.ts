@@ -497,11 +497,11 @@ const planWrapper2 = (plan, _, fieldArgs) => {
     $observer = context().get("observer"),
     $permit = context().get("permit");
   sideEffect([$input, $observer, $permit], async ([input, observer, permit]) => {
-    if (!input.condition.authorId || !observer) throw new Error("Ooops");
+    if (!observer) throw new Error("Ooops");
     if (!(await permit.check(observer.id, "read", {
       type: "post",
       attributes: {
-        authorId: input.condition.authorId
+        authorId: input?.condition?.authorId
       },
       tenant: "default"
     }))) throw new Error("Permission denied");
