@@ -100,6 +100,7 @@ const validateMutatationPermissions = (
             if (!input || !observer) {
               throw new Error("Ooops");
             }
+
             const { postTable } = schema;
 
             if (scope !== "create") {
