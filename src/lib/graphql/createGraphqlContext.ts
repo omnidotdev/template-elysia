@@ -1,7 +1,7 @@
+import { Permit as PermitClient } from "permitio";
 import { createWithPgClient } from "postgraphile/adaptors/pg";
 
 import { dbPool, pgPool } from "lib/db/db";
-import { permit } from "lib/permit/permit";
 
 import type { YogaInitialContext } from "graphql-yoga";
 import type { SelectUser } from "lib/db/schema";
@@ -14,6 +14,15 @@ import type {
 
 const withPgClient = createWithPgClient({ pool: pgPool });
 
+export const authorizationClient = new PermitClient({
+  pdp: "http://localhost:7766",
+  token:
+    "permit_key_BVteG96bKI9Ru4CPmgKZgdIAHBo909agAoPBer1eRQjwC83em8L9LlM3GvNjD40Oi1OLJu5e6GzUJa3exQX9Gu",
+  log: {
+    level: "debug",
+  },
+});
+
 export interface GraphQLContext {
   /** API observer, injected by the authentication plugin and controlled via `contextFieldName`. Related to the viewer pattern: https://wundergraph.com/blog/graphql_federation_viewer_pattern */
   observer: SelectUser | null;
@@ -21,8 +30,8 @@ export interface GraphQLContext {
   request: Request;
   /** Database. */
   db: typeof dbPool;
-  /** Permit instance to check permissions. */
-  permit: Permit;
+  /** Authorization instance for permission checks. */
+  authorization: Permit;
   /** Postgres client, injected by Postgraphile. */
   withPgClient: WithPgClient<NodePostgresPgClient>;
   /** Postgres settings for the current request, injected by Postgraphile. */
@@ -42,7 +51,7 @@ const createGraphqlContext = async ({
 > => ({
   request,
   db: dbPool,
-  permit,
+  authorization: authorizationClient,
   withPgClient,
 });
 

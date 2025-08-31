@@ -17,16 +17,16 @@ const validateBulkQueryPermissions = () =>
       (plan: any, _: ExecutableStep, fieldArgs: FieldArgs) => {
         const $input = fieldArgs.getRaw();
         const $observer = context<GraphQLContext>().get("observer");
-        const $permit = context<GraphQLContext>().get("permit");
+        const $authorization = context<GraphQLContext>().get("authorization");
 
         sideEffect(
-          [$input, $observer, $permit],
-          async ([input, observer, permit]) => {
+          [$input, $observer, $authorization],
+          async ([input, observer, authorization]) => {
             if (!observer) {
               throw new Error("Ooops");
             }
 
-            const permitted = await permit.check(observer.id, "read", {
+            const permitted = await authorization.check(observer.id, "read", {
               type: "post",
               // Check that the user has permissions to read posts from the provided author through `authorId` condition when applicable
               attributes: { authorId: input?.condition?.authorId },
@@ -49,12 +49,12 @@ const validateQueryPermissions = () =>
       (plan: any, _: ExecutableStep, fieldArgs: FieldArgs) => {
         const $input = fieldArgs.getRaw();
         const $observer = context<GraphQLContext>().get("observer");
-        const $permit = context<GraphQLContext>().get("permit");
+        const $authorization = context<GraphQLContext>().get("authorization");
         const $db = context<GraphQLContext>().get("db");
 
         sideEffect(
-          [$input, $observer, $permit, $db],
-          async ([input, observer, permit, db]) => {
+          [$input, $observer, $authorization, $db],
+          async ([input, observer, authorization, db]) => {
             if (!input.rowId || !observer) {
               throw new Error("Ooops");
             }
@@ -66,7 +66,7 @@ const validateQueryPermissions = () =>
               .from(postTable)
               .where(eq(postTable.id, input.rowId));
 
-            const permitted = await permit.check(observer.id, "read", {
+            const permitted = await authorization.check(observer.id, "read", {
               type: "post",
               attributes: { authorId: post.authorId },
               tenant: "default",
@@ -91,12 +91,12 @@ const validateMutatationPermissions = (
       (plan: any, _: ExecutableStep, fieldArgs: FieldArgs) => {
         const $input = fieldArgs.getRaw(["input", propName]);
         const $observer = context<GraphQLContext>().get("observer");
-        const $permit = context<GraphQLContext>().get("permit");
+        const $authorization = context<GraphQLContext>().get("authorization");
         const $db = context<GraphQLContext>().get("db");
 
         sideEffect(
-          [$input, $observer, $permit, $db],
-          async ([input, observer, permit, db]) => {
+          [$input, $observer, $authorization, $db],
+          async ([input, observer, authorization, db]) => {
             if (!input || !observer) {
               throw new Error("Ooops");
             }
@@ -109,7 +109,7 @@ const validateMutatationPermissions = (
                 .from(postTable)
                 .where(eq(postTable.id, input));
 
-              const permitted = await permit.check(observer.id, scope, {
+              const permitted = await authorization.check(observer.id, scope, {
                 type: "post",
                 attributes: { authorId: post.authorId },
                 tenant: "default",
@@ -117,11 +117,15 @@ const validateMutatationPermissions = (
 
               if (!permitted) throw new Error("Permission denied");
             } else {
-              const permitted = await permit.check(observer.id, "create", {
-                type: "post",
-                attributes: { authorId: input.authorId },
-                tenant: "default",
-              });
+              const permitted = await authorization.check(
+                observer.id,
+                "create",
+                {
+                  type: "post",
+                  attributes: { authorId: input.authorId },
+                  tenant: "default",
+                },
+              );
 
               if (!permitted) throw new Error("Permission denied");
             }

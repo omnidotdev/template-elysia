@@ -14,11 +14,11 @@ const validatePermissions = (propName: string, scope: MutationScope) =>
       (plan: any, _: ExecutableStep, fieldArgs: FieldArgs) => {
         const $input = fieldArgs.getRaw(["input", propName]);
         const $observer = context<GraphQLContext>().get("observer");
-        const $permit = context<GraphQLContext>().get("permit");
+        const $authorization = context<GraphQLContext>().get("authorization");
 
         sideEffect(
-          [$input, $observer, $permit],
-          async ([input, observer, permit]) => {
+          [$input, $observer, $authorization],
+          async ([input, observer, authorization]) => {
             if (scope !== "create") {
               if (!observer) {
                 throw new Error("Unauthorized");
@@ -30,7 +30,7 @@ const validatePermissions = (propName: string, scope: MutationScope) =>
               }
             } else {
               // TODO: determine permissions check for creating a user as well as sync logic. For relations to seemlessly work, the `key` should be the `rowId` of the user (this allows us to compare to FKs easily)
-              // await permit.api.syncUser({
+              // await authorization.api.syncUser({
               //   key: ** this should be the `rowId` of the created user **,
               //   first_name: input.firstName,
               //   last_name: input.lastName,
