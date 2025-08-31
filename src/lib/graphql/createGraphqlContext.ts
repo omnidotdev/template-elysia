@@ -12,7 +12,7 @@ import type {
   PgSubscriber,
 } from "postgraphile/adaptors/pg";
 
-const withPgClient = createWithPgClient({ pool: pgPool });
+const postgresClient = createWithPgClient({ pool: pgPool });
 
 export const authorizationClient = new PermitClient({
   pdp: "http://localhost:7766",
@@ -52,7 +52,8 @@ const createGraphqlContext = async ({
   request,
   db: dbPool,
   authorization: authorizationClient,
-  withPgClient,
+  // NB: Postgraphile expects `withPgClient`, exactly named, on the GraphQL context
+  withPgClient: postgresClient,
 });
 
 export default createGraphqlContext;
