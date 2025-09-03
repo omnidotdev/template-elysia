@@ -50,7 +50,6 @@
     "graphql": "^16.11.0",
     "graphql-yoga": "^5.13.4",
     "jose": "^6.0.11",
-    "permitio": "^2.7.5",
     "pg": "^8.16.0",
     "postgraphile": "5.0.0-beta.40",
     "postgraphile-plugin-connection-filter": "3.0.0-beta.8"
