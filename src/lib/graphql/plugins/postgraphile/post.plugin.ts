@@ -13,27 +13,40 @@ type MutationScope = "create" | "update" | "delete";
 const validateBulkQueryPermissions = () =>
   EXPORTABLE(
     (context, sideEffect) =>
-      // biome-ignore lint/suspicious/noExplicitAny: SmartFieldPlanResolver is not an exported type
-      (plan: any, _: ExecutableStep, fieldArgs: FieldArgs) => {
-        const $input = fieldArgs.getRaw();
+      // TODO automatic TS inference
+      (plan: any, _source: ExecutableStep, args: FieldArgs) => {
+        const $input = args.getRaw();
         const $observer = context<GraphQLContext>().get("observer");
         const $authorization = context<GraphQLContext>().get("authorization");
 
         sideEffect(
           [$input, $observer, $authorization],
           async ([input, observer, authorization]) => {
-            if (!observer) {
-              throw new Error("Ooops");
-            }
+            if (!observer) throw new Error("Observer not found");
 
-            const permitted = await authorization.check(observer.id, "read", {
-              type: "post",
-              // Check that the user has permissions to read posts from the provided author through `authorId` condition when applicable
-              attributes: { authorId: input?.condition?.authorId },
-              tenant: "default",
-            });
+            console.log(observer.id);
 
-            if (!permitted) throw new Error("Permission denied");
+            // const permitted = await authorization.enforce(observer.id, "read", {
+            //   type: "post",
+            //   // Check that the user has permissions to read posts from the provided author through `authorId` condition when applicable
+            //   attributes: { authorId: input?.condition?.authorId },
+            //   tenant: "default",
+            // });
+            const post = {
+              id: "post",
+              authorId: input?.condition?.authorId,
+            };
+
+            console.log(post);
+
+            const isPermitted = await authorization.enforce(
+              observer.id,
+              // "post",
+              { id: post.id, authorId: post.authorId },
+              "read",
+            );
+
+            if (!isPermitted) throw new Error("Permission denied");
           },
         );
 
@@ -141,13 +154,15 @@ const validateMutatationPermissions = (
  * Plugin that handles API access for post table.
  */
 export const PostPlugin = makeWrapPlansPlugin({
-  Mutation: {
-    createPost: validateMutatationPermissions("post", "create"),
-    updatePost: validateMutatationPermissions("rowId", "update"),
-    deletePost: validateMutatationPermissions("rowId", "delete"),
-  },
   Query: {
-    post: validateQueryPermissions(),
+    // TODO
+    // post: validateQueryPermissions(),
     posts: validateBulkQueryPermissions(),
   },
+  // TODO
+  // Mutation: {
+  //   createPost: validateMutatationPermissions("post", "create"),
+  //   updatePost: validateMutatationPermissions("rowId", "update"),
+  //   deletePost: validateMutatationPermissions("rowId", "delete"),
+  // },
 });
