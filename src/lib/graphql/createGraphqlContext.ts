@@ -1,10 +1,8 @@
-import { newEnforcer as createCasbinEnforcer } from "casbin";
+import * as permify from "@permify/permify-node";
 import { createWithPgClient } from "postgraphile/adaptors/pg";
 
-import { dbPool, pgPool } from "lib/db/db";
-
-import type { Enforcer as AuthorizationSDK } from "casbin";
 import type { YogaInitialContext } from "graphql-yoga";
+import { dbPool, pgPool } from "lib/db/db";
 import type { SelectUser } from "lib/db/schema";
 import type { WithPgClient } from "postgraphile/@dataplan/pg";
 import type {
@@ -14,10 +12,12 @@ import type {
 
 const postgresClient = createWithPgClient({ pool: pgPool });
 
-const authorizationClient = await createCasbinEnforcer(
-  "./model.conf",
-  "./policy.csv",
-);
+// @ts-ignore TODO: figure out ts issues
+const authorizationClient = permify.grpc.newClient({
+  endpoint: "localhost:3478",
+  cert: null,
+  insecure: true,
+});
 
 export interface GraphQLContext {
   /** API observer, injected by the authentication plugin and controlled via `contextFieldName`. Related to the viewer pattern: https://wundergraph.com/blog/graphql_federation_viewer_pattern */
@@ -27,7 +27,7 @@ export interface GraphQLContext {
   /** Database. */
   db: typeof dbPool;
   /** Authorization instance for permission checks. */
-  authorization: AuthorizationSDK;
+  authorization: typeof authorizationClient;
   /** Postgres client, injected by Postgraphile. */
   withPgClient: WithPgClient<NodePostgresPgClient>;
   /** Postgres settings for the current request, injected by Postgraphile. */
