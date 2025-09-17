@@ -1,8 +1,8 @@
+import { CheckResult } from "@permify/permify-node/dist/src/grpc/generated/base/v1/base";
 import { EXPORTABLE } from "graphile-export/helpers";
 import { context, sideEffect } from "postgraphile/grafast";
 import { makeWrapPlansPlugin } from "postgraphile/utils";
 
-import { CheckResult } from "@permify/permify-node/dist/src/grpc/generated/base/v1/base";
 import type { GraphQLContext } from "lib/graphql/createGraphqlContext";
 import type { ExecutableStep, FieldArgs } from "postgraphile/grafast";
 
