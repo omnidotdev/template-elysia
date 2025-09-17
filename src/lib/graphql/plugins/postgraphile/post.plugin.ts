@@ -33,7 +33,7 @@ const validateBulkQueryPermissions = () =>
 
 const validateQueryPermissions = () =>
   EXPORTABLE(
-    (context, sideEffect) =>
+    (CheckResult, context, sideEffect) =>
       // biome-ignore lint/suspicious/noExplicitAny: SmartFieldPlanResolver is not an exported type
       (plan: any, _: ExecutableStep, fieldArgs: FieldArgs) => {
         const $input = fieldArgs.getRaw();
@@ -60,7 +60,6 @@ const validateQueryPermissions = () =>
               },
             });
 
-            // TODO: make sure to add `CheckResult` import path the the generate schema script
             if (permitted.can !== CheckResult.CHECK_RESULT_ALLOWED)
               throw new Error("Permission denied");
           },
@@ -68,7 +67,7 @@ const validateQueryPermissions = () =>
 
         return plan();
       },
-    [context, sideEffect],
+    [CheckResult, context, sideEffect],
   );
 
 const validateMutatationPermissions = (
@@ -76,7 +75,7 @@ const validateMutatationPermissions = (
   scope: MutationScope,
 ) =>
   EXPORTABLE(
-    (context, sideEffect, propName, scope) =>
+    (CheckResult, context, sideEffect, propName, scope) =>
       // biome-ignore lint/suspicious/noExplicitAny: SmartFieldPlanResolver is not an exported type
       (plan: any, _: ExecutableStep, fieldArgs: FieldArgs) => {
         const $input = fieldArgs.getRaw(["input", propName]);
@@ -128,7 +127,7 @@ const validateMutatationPermissions = (
 
         return plan();
       },
-    [context, sideEffect, propName, scope],
+    [CheckResult, context, sideEffect, propName, scope],
   );
 
 /**

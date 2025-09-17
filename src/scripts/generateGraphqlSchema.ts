@@ -1,4 +1,5 @@
 import { existsSync, mkdirSync } from "node:fs";
+import { CheckResult } from "@permify/permify-node/dist/src/grpc/generated/base/v1/base";
 import { eq } from "drizzle-orm";
 import { exportSchema } from "graphile-export";
 import { EXPORTABLE } from "graphile-export/helpers";
@@ -32,6 +33,9 @@ const generateGraphqlSchema = async () => {
       "postgraphile/grafast": { context, sideEffect },
       "drizzle-orm": { eq },
       "lib/db/schema": dbSchema,
+      "@permify/permify-node/dist/src/grpc/generated/base/v1/base": {
+        CheckResult,
+      },
     },
   });
 
