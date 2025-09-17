@@ -1,10 +1,8 @@
-import { eq } from "drizzle-orm";
 import { EXPORTABLE } from "graphile-export/helpers";
 import { context, sideEffect } from "postgraphile/grafast";
 import { makeWrapPlansPlugin } from "postgraphile/utils";
 
-import * as schema from "lib/db/schema";
-
+import { CheckResult } from "@permify/permify-node/dist/src/grpc/generated/base/v1/base";
 import type { GraphQLContext } from "lib/graphql/createGraphqlContext";
 import type { ExecutableStep, FieldArgs } from "postgraphile/grafast";
 
@@ -13,7 +11,7 @@ type MutationScope = "create" | "update" | "delete";
 const validateBulkQueryPermissions = () =>
   EXPORTABLE(
     (context, sideEffect) =>
-      // TODO automatic TS inference
+      // biome-ignore lint: TODO: automatic TS inference
       (plan: any, _source: ExecutableStep, args: FieldArgs) => {
         const $input = args.getRaw();
         const $observer = context<GraphQLContext>().get("observer");
@@ -24,29 +22,7 @@ const validateBulkQueryPermissions = () =>
           async ([input, observer, authorization]) => {
             if (!observer) throw new Error("Observer not found");
 
-            console.log(observer.id);
-
-            // const permitted = await authorization.enforce(observer.id, "read", {
-            //   type: "post",
-            //   // Check that the user has permissions to read posts from the provided author through `authorId` condition when applicable
-            //   attributes: { authorId: input?.condition?.authorId },
-            //   tenant: "default",
-            // });
-            const post = {
-              id: "post",
-              authorId: input?.condition?.authorId,
-            };
-
-            console.log(post);
-
-            const isPermitted = await authorization.enforce(
-              observer.id,
-              // "post",
-              { id: post.id, authorId: post.authorId },
-              "read",
-            );
-
-            if (!isPermitted) throw new Error("Permission denied");
+            // TODO: add bulk permissions check
           },
         );
 
@@ -57,41 +33,42 @@ const validateBulkQueryPermissions = () =>
 
 const validateQueryPermissions = () =>
   EXPORTABLE(
-    (eq, schema, context, sideEffect) =>
+    (context, sideEffect) =>
       // biome-ignore lint/suspicious/noExplicitAny: SmartFieldPlanResolver is not an exported type
       (plan: any, _: ExecutableStep, fieldArgs: FieldArgs) => {
         const $input = fieldArgs.getRaw();
         const $observer = context<GraphQLContext>().get("observer");
         const $authorization = context<GraphQLContext>().get("authorization");
-        const $db = context<GraphQLContext>().get("db");
 
         sideEffect(
-          [$input, $observer, $authorization, $db],
-          async ([input, observer, authorization, db]) => {
+          [$input, $observer, $authorization],
+          async ([input, observer, authorization]) => {
             if (!input.rowId || !observer) {
               throw new Error("Ooops");
             }
 
-            const { postTable } = schema;
-
-            const [post] = await db
-              .select({ authorId: postTable.authorId })
-              .from(postTable)
-              .where(eq(postTable.id, input.rowId));
-
-            const permitted = await authorization.check(observer.id, "read", {
-              type: "post",
-              attributes: { authorId: post.authorId },
-              tenant: "default",
+            const permitted = await authorization.permission.check({
+              tenantId: "template-elysia",
+              entity: {
+                type: "post",
+                id: input.rowId,
+              },
+              permission: "view",
+              subject: {
+                type: "user",
+                id: observer.id,
+              },
             });
 
-            if (!permitted) throw new Error("Permission denied");
+            // TODO: make sure to add `CheckResult` import path the the generate schema script
+            if (permitted.can !== CheckResult.CHECK_RESULT_ALLOWED)
+              throw new Error("Permission denied");
           },
         );
 
         return plan();
       },
-    [eq, schema, context, sideEffect],
+    [context, sideEffect],
   );
 
 const validateMutatationPermissions = (
@@ -99,55 +76,59 @@ const validateMutatationPermissions = (
   scope: MutationScope,
 ) =>
   EXPORTABLE(
-    (eq, schema, context, sideEffect, propName, scope) =>
+    (context, sideEffect, propName, scope) =>
       // biome-ignore lint/suspicious/noExplicitAny: SmartFieldPlanResolver is not an exported type
       (plan: any, _: ExecutableStep, fieldArgs: FieldArgs) => {
         const $input = fieldArgs.getRaw(["input", propName]);
         const $observer = context<GraphQLContext>().get("observer");
         const $authorization = context<GraphQLContext>().get("authorization");
-        const $db = context<GraphQLContext>().get("db");
 
         sideEffect(
-          [$input, $observer, $authorization, $db],
-          async ([input, observer, authorization, db]) => {
+          [$input, $observer, $authorization],
+          async ([input, observer, authorization]) => {
             if (!input || !observer) {
               throw new Error("Ooops");
             }
 
-            const { postTable } = schema;
-
             if (scope !== "create") {
-              const [post] = await db
-                .select({ authorId: postTable.authorId })
-                .from(postTable)
-                .where(eq(postTable.id, input));
-
-              const permitted = await authorization.check(observer.id, scope, {
-                type: "post",
-                attributes: { authorId: post.authorId },
-                tenant: "default",
+              const permitted = await authorization.permission.check({
+                tenantId: "template-elysia",
+                entity: {
+                  type: "post",
+                  id: input,
+                },
+                permission: scope,
+                subject: {
+                  type: "user",
+                  id: observer.id,
+                },
               });
 
-              if (!permitted) throw new Error("Permission denied");
+              if (permitted.can !== CheckResult.CHECK_RESULT_ALLOWED)
+                throw new Error("Permission denied");
             } else {
-              const permitted = await authorization.check(
-                observer.id,
-                "create",
-                {
+              const permitted = await authorization.permission.check({
+                tenantId: "template-elysia",
+                entity: {
                   type: "post",
-                  attributes: { authorId: input.authorId },
-                  tenant: "default",
                 },
-              );
+                // TODO: add create permission scope
+                permission: "create",
+                subject: {
+                  type: "user",
+                  id: observer.id,
+                },
+              });
 
-              if (!permitted) throw new Error("Permission denied");
+              if (permitted.can !== CheckResult.CHECK_RESULT_ALLOWED)
+                throw new Error("Permission denied");
             }
           },
         );
 
         return plan();
       },
-    [eq, schema, context, sideEffect, propName, scope],
+    [context, sideEffect, propName, scope],
   );
 
 /**
@@ -155,14 +136,12 @@ const validateMutatationPermissions = (
  */
 export const PostPlugin = makeWrapPlansPlugin({
   Query: {
-    // TODO
-    // post: validateQueryPermissions(),
+    post: validateQueryPermissions(),
     posts: validateBulkQueryPermissions(),
   },
-  // TODO
-  // Mutation: {
-  //   createPost: validateMutatationPermissions("post", "create"),
-  //   updatePost: validateMutatationPermissions("rowId", "update"),
-  //   deletePost: validateMutatationPermissions("rowId", "delete"),
-  // },
+  Mutation: {
+    createPost: validateMutatationPermissions("post", "create"),
+    updatePost: validateMutatationPermissions("rowId", "update"),
+    deletePost: validateMutatationPermissions("rowId", "delete"),
+  },
 });
