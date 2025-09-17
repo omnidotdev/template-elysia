@@ -10,25 +10,37 @@ type MutationScope = "create" | "update" | "delete";
 
 const validateBulkQueryPermissions = () =>
   EXPORTABLE(
-    (context, sideEffect) =>
+    (CheckResult, context, sideEffect) =>
       // biome-ignore lint: TODO: automatic TS inference
-      (plan: any, _source: ExecutableStep, args: FieldArgs) => {
-        const $input = args.getRaw();
+      (plan: any, _source: ExecutableStep, _args: FieldArgs) => {
         const $observer = context<GraphQLContext>().get("observer");
         const $authorization = context<GraphQLContext>().get("authorization");
 
         sideEffect(
-          [$input, $observer, $authorization],
-          async ([input, observer, authorization]) => {
+          [$observer, $authorization],
+          async ([observer, authorization]) => {
             if (!observer) throw new Error("Observer not found");
 
-            // TODO: add bulk permissions check
+            const permitted = await authorization.permission.check({
+              tenantId: "template-elysia",
+              entity: {
+                type: "post",
+              },
+              permission: "view",
+              subject: {
+                type: "user",
+                id: observer.id,
+              },
+            });
+
+            if (permitted.can !== CheckResult.CHECK_RESULT_ALLOWED)
+              throw new Error("Permission denied");
           },
         );
 
         return plan();
       },
-    [context, sideEffect],
+    [CheckResult, context, sideEffect],
   );
 
 const validateQueryPermissions = () =>
@@ -111,7 +123,6 @@ const validateMutatationPermissions = (
                 entity: {
                   type: "post",
                 },
-                // TODO: add create permission scope
                 permission: "create",
                 subject: {
                   type: "user",

@@ -489,12 +489,22 @@ const resource_userPgResource = registry.pgResources["user"];
 function oldPlan2() {
   return connection(resource_postPgResource.find());
 }
-const planWrapper2 = (plan, _source, args) => {
-  const $input = args.getRaw(),
-    $observer = context().get("observer"),
+const planWrapper2 = (plan, _source, _args) => {
+  const $observer = context().get("observer"),
     $authorization = context().get("authorization");
-  sideEffect([$input, $observer, $authorization], async ([input, observer, authorization]) => {
+  sideEffect([$observer, $authorization], async ([observer, authorization]) => {
     if (!observer) throw new Error("Observer not found");
+    if ((await authorization.permission.check({
+      tenantId: "template-elysia",
+      entity: {
+        type: "post"
+      },
+      permission: "view",
+      subject: {
+        type: "user",
+        id: observer.id
+      }
+    })).can !== CheckResult.CHECK_RESULT_ALLOWED) throw new Error("Permission denied");
   });
   return plan();
 };
