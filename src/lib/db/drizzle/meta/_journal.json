@@ -15,6 +15,20 @@
       "when": 1758562690425,
       "tag": "0001_nebulous_ezekiel",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1758565112364,
+      "tag": "0002_solid_harrier",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1758565425230,
+      "tag": "0003_solid_sersi",
+      "breakpoints": true
     }
   ]
 }
