@@ -1,26 +1,21 @@
 import { index, pgTable, text, uniqueIndex, uuid } from "drizzle-orm/pg-core";
 
-import { communityTable } from "lib/db/schema/community.table";
 import { userTable } from "lib/db/schema/user.table";
 import { generateDefaultDate, generateDefaultId } from "lib/db/util";
 
 import type { InferInsertModel, InferSelectModel } from "drizzle-orm";
 
 /**
- * Post table.
+ * Community table.
  */
-export const postTable = pgTable(
-  "post",
+export const communityTable = pgTable(
+  "community",
   {
     id: generateDefaultId(),
-    title: text(),
+    name: text().notNull(),
+    displayName: text().notNull(),
     description: text(),
-    communityId: uuid()
-      .notNull()
-      .references(() => communityTable.id, {
-        onDelete: "cascade",
-      }),
-    authorId: uuid()
+    creatorId: uuid()
       .notNull()
       .references(() => userTable.id, {
         onDelete: "cascade",
@@ -30,10 +25,10 @@ export const postTable = pgTable(
   },
   (table) => [
     uniqueIndex().on(table.id),
-    index().on(table.authorId),
-    index().on(table.communityId),
+    uniqueIndex().on(table.name),
+    index().on(table.creatorId),
   ],
 );
 
-export type InsertPost = InferInsertModel<typeof postTable>;
-export type SelectPost = InferSelectModel<typeof postTable>;
+export type InsertCommunity = InferInsertModel<typeof communityTable>;
+export type SelectCommunity = InferSelectModel<typeof communityTable>;

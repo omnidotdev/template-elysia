@@ -1,4 +1,4 @@
-import { index, pgTable, text, uniqueIndex, uuid } from "drizzle-orm/pg-core";
+import { index, pgTable, uniqueIndex, uuid } from "drizzle-orm/pg-core";
 
 import { communityTable } from "lib/db/schema/community.table";
 import { userTable } from "lib/db/schema/user.table";
@@ -7,33 +7,35 @@ import { generateDefaultDate, generateDefaultId } from "lib/db/util";
 import type { InferInsertModel, InferSelectModel } from "drizzle-orm";
 
 /**
- * Post table.
+ * Community member junction table.
  */
-export const postTable = pgTable(
-  "post",
+export const communityMemberTable = pgTable(
+  "community_member",
   {
     id: generateDefaultId(),
-    title: text(),
-    description: text(),
     communityId: uuid()
       .notNull()
       .references(() => communityTable.id, {
         onDelete: "cascade",
       }),
-    authorId: uuid()
+    userId: uuid()
       .notNull()
       .references(() => userTable.id, {
         onDelete: "cascade",
       }),
-    createdAt: generateDefaultDate(),
-    updatedAt: generateDefaultDate(),
+    joinedAt: generateDefaultDate(),
   },
   (table) => [
     uniqueIndex().on(table.id),
-    index().on(table.authorId),
+    uniqueIndex().on(table.communityId, table.userId),
     index().on(table.communityId),
+    index().on(table.userId),
   ],
 );
 
-export type InsertPost = InferInsertModel<typeof postTable>;
-export type SelectPost = InferSelectModel<typeof postTable>;
+export type InsertCommunityMember = InferInsertModel<
+  typeof communityMemberTable
+>;
+export type SelectCommunityMember = InferSelectModel<
+  typeof communityMemberTable
+>;
