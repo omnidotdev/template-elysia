@@ -1,5 +1,6 @@
 {
   "lockfileVersion": 1,
+  "configVersion": 0,
   "workspaces": {
     "": {
       "name": "@omnidev/template-elysia",
@@ -7,7 +8,7 @@
         "@elysiajs/cors": "^1.3.3",
         "@elysiajs/graphql-yoga": "^1.3.0",
         "@envelop/generic-auth": "^9.1.3",
-        "@envelop/opentelemetry": "^7.1.3",
+        "@envelop/opentelemetry": "^9.0.0",
         "@envelop/parser-cache": "^8.1.3",
         "@envelop/validation-cache": "^8.1.3",
         "@escape.tech/graphql-armor": "^3.1.5",
@@ -93,9 +94,9 @@
 
     "@envelop/instrumentation": ["@envelop/instrumentation@1.0.0", "", { "dependencies": { "@whatwg-node/promise-helpers": "^1.2.1", "tslib": "^2.5.0" } }, "sha512-cxgkB66RQB95H3X27jlnxCRNTmPuSTgmBAq6/4n2Dtv4hsk4yz8FadA1ggmd0uZzvKqWD6CR+WFgTjhDqg7eyw=="],
 
-    "@envelop/on-resolve": ["@envelop/on-resolve@5.1.3", "", { "dependencies": { "@whatwg-node/promise-helpers": "^1.0.0" }, "peerDependencies": { "@envelop/core": "^5.2.3", "graphql": "^14.0.0 || ^15.0.0 || ^16.0.0" } }, "sha512-eSJya23Yl+4wKXHT75ZbuMfuoVCAtJQDp3CNmDBwbvMrk+UrnmaSLm8UveA3hQ/R+ZIMA2r37sWdtnX2VJqGgw=="],
+    "@envelop/on-resolve": ["@envelop/on-resolve@7.0.0", "", { "dependencies": { "@whatwg-node/promise-helpers": "^1.0.0" }, "peerDependencies": { "@envelop/core": "^5.4.0", "graphql": "^14.0.0 || ^15.0.0 || ^16.0.0" } }, "sha512-OfQMO28bfrwYoKCJmd55O60WuZ8Suep26GH1sjEI4m+R7WOUcXIqMyPfMp/cmLsD5aFBIkCGBsH0P77dqfPUqw=="],
 
-    "@envelop/opentelemetry": ["@envelop/opentelemetry@7.1.3", "", { "dependencies": { "@envelop/on-resolve": "^5.1.3", "@opentelemetry/api": "^1.8.0", "@opentelemetry/sdk-trace-base": "^1.11.0", "tslib": "^2.5.0" }, "peerDependencies": { "@envelop/core": "^5.2.3", "graphql": "^14.0.0 || ^15.0.0 || ^16.0.0" } }, "sha512-QUtFYc1KFDYByNgoRZV8ClWXbovq3L+gTUM/z9EVm11sJeSx0Wt2Ry4LcE6T51tcj/lMiJDw0K8oiDryfiWUcg=="],
+    "@envelop/opentelemetry": ["@envelop/opentelemetry@9.0.0", "", { "dependencies": { "@envelop/on-resolve": "^7.0.0", "@opentelemetry/api": "^1.8.0", "@opentelemetry/sdk-trace-base": "^1.11.0", "tslib": "^2.5.0" }, "peerDependencies": { "@envelop/core": "^5.4.0", "graphql": "^14.0.0 || ^15.0.0 || ^16.0.0" } }, "sha512-2iq5nzt4iwjcTOM5axv+ynDjIw+YUCyuDNfprXy/jXt1UPw7E/aMdgOIzxCo9+8s7mYlI2EDxZrHMtF57Rrltw=="],
 
     "@envelop/parser-cache": ["@envelop/parser-cache@8.1.3", "", { "dependencies": { "lru-cache": "^10.0.0", "tslib": "^2.5.0" }, "peerDependencies": { "@envelop/core": "^5.2.3", "graphql": "^14.0.0 || ^15.0.0 || ^16.0.0" } }, "sha512-JOKf8bL999DyZ1j8Ugka4xmbAoGaTRlArXf34fM4Vx7TfsapwwEaLPqdG/tA9921HvCZLlFfcimk7+Q06ujK4g=="],
 
