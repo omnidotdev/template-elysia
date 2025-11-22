@@ -1,5 +1,5 @@
 // @ts-nocheck
-import { PgDeleteSingleStep, PgExecutor, TYPES, assertPgClassSingleStep, makeRegistry, pgDeleteSingle, pgInsertSingle, pgSelectFromRecord, pgUpdateSingle, recordCodec, sqlValueWithCodec } from "@dataplan/pg";
+import { PgCondition, PgDeleteSingleStep, PgExecutor, TYPES, assertPgClassSingleStep, listOfCodec, makeRegistry, pgDeleteSingle, pgInsertSingle, pgSelectFromRecord, pgUpdateSingle, recordCodec, sqlValueWithCodec } from "@dataplan/pg";
 import { ConnectionStep, EdgeStep, ObjectStep, __ValueStep, access, assertEdgeCapableStep, assertExecutableStep, assertPageInfoCapableStep, bakedInputRuntime, connection, constant, context, createObjectAndApplyChildren, first, inhibitOnNull, lambda, list, makeGrafastSchema, node, object, rootValue, specFromNodeId } from "grafast";
 import { GraphQLError, Kind } from "graphql";
 import { sql } from "pg-sql2";
@@ -80,7 +80,7 @@ const executor = new PgExecutor({
   }
 });
 const postIdentifier = sql.identifier("public", "post");
-const postCodec = recordCodec({
+const spec_post = {
   name: "post",
   identifier: postIdentifier,
   attributes: {
@@ -164,7 +164,7 @@ const postCodec = recordCodec({
   },
   description: undefined,
   extensions: {
-    oid: "93148",
+    oid: "16405",
     isTableLike: true,
     pg: {
       serviceName: "main",
@@ -176,9 +176,10 @@ const postCodec = recordCodec({
     }
   },
   executor: executor
-});
+};
+const postCodec = recordCodec(spec_post);
 const userIdentifier = sql.identifier("public", "user");
-const userCodec = recordCodec({
+const spec_user = {
   name: "user",
   identifier: userIdentifier,
   attributes: {
@@ -236,7 +237,7 @@ const userCodec = recordCodec({
   },
   description: undefined,
   extensions: {
-    oid: "93158",
+    oid: "16417",
     isTableLike: true,
     pg: {
       serviceName: "main",
@@ -248,7 +249,8 @@ const userCodec = recordCodec({
     }
   },
   executor: executor
-});
+};
+const userCodec = recordCodec(spec_user);
 const userUniques = [{
   isPrimary: true,
   attributes: ["id"],
@@ -330,7 +332,7 @@ const registryConfig_pgResources_post_post = {
     canDelete: true
   }
 };
-const registry = makeRegistry({
+const registryConfig = {
   pgExecutors: {
     __proto__: null,
     main: executor
@@ -387,7 +389,8 @@ const registry = makeRegistry({
       }
     }
   }
-});
+};
+const registry = makeRegistry(registryConfig);
 const pgResource_userPgResource = registry.pgResources["user"];
 const pgResource_postPgResource = registry.pgResources["post"];
 const nodeIdHandlerByTypeName = {
@@ -462,6 +465,42 @@ const nodeFetcher_Post = $nodeId => {
 function qbWhereBuilder(qb) {
   return qb.whereBuilder();
 }
+function isEmpty(o) {
+  return typeof o === "object" && o !== null && Object.keys(o).length === 0;
+}
+function assertAllowed(value, mode) {
+  if (mode === "object" && !true && isEmpty(value)) throw Object.assign(Error("Empty objects are forbidden in filter argument input."), {});
+  if (mode === "list" && !true) {
+    const arr = value;
+    if (arr) {
+      const l = arr.length;
+      for (let i = 0; i < l; i++) if (isEmpty(arr[i])) throw Object.assign(Error("Empty objects are forbidden in filter argument input."), {});
+    }
+  }
+  if (!true && value === null) throw Object.assign(Error("Null literals are forbidden in filter argument input."), {});
+}
+function assertAllowed2(value, mode) {
+  if (mode === "object" && !true && isEmpty(value)) throw Object.assign(Error("Empty objects are forbidden in filter argument input."), {});
+  if (mode === "list" && !true) {
+    const arr = value;
+    if (arr) {
+      const l = arr.length;
+      for (let i = 0; i < l; i++) if (isEmpty(arr[i])) throw Object.assign(Error("Empty objects are forbidden in filter argument input."), {});
+    }
+  }
+  if (!true && value === null) throw Object.assign(Error("Null literals are forbidden in filter argument input."), {});
+}
+function assertAllowed3(value, mode) {
+  if (mode === "object" && !true && isEmpty(value)) throw Object.assign(Error("Empty objects are forbidden in filter argument input."), {});
+  if (mode === "list" && !true) {
+    const arr = value;
+    if (arr) {
+      const l = arr.length;
+      for (let i = 0; i < l; i++) if (isEmpty(arr[i])) throw Object.assign(Error("Empty objects are forbidden in filter argument input."), {});
+    }
+  }
+  if (!true && value === null) throw Object.assign(Error("Null literals are forbidden in filter argument input."), {});
+}
 function UUIDSerialize(value) {
   return "" + value;
 }
@@ -469,6 +508,131 @@ const coerce = string => {
   if (!/^[0-9a-f]{8}-?[0-9a-f]{4}-?[0-9a-f]{4}-?[0-9a-f]{4}-?[0-9a-f]{12}$/i.test(string)) throw new GraphQLError("Invalid UUID, expected 32 hexadecimal characters, optionally with hypens");
   return string;
 };
+const colSpec = {
+  fieldName: "rowId",
+  attributeName: "id",
+  attribute: spec_post.attributes.id
+};
+const colSpec2 = {
+  fieldName: "authorId",
+  attributeName: "author_id",
+  attribute: spec_post.attributes.author_id
+};
+function assertAllowed4(value, mode) {
+  if (mode === "object" && !true && isEmpty(value)) throw Object.assign(Error("Empty objects are forbidden in filter argument input."), {});
+  if (mode === "list" && !true) {
+    const arr = value;
+    if (arr) {
+      const l = arr.length;
+      for (let i = 0; i < l; i++) if (isEmpty(arr[i])) throw Object.assign(Error("Empty objects are forbidden in filter argument input."), {});
+    }
+  }
+  if (!true && value === null) throw Object.assign(Error("Null literals are forbidden in filter argument input."), {});
+}
+function assertAllowed5(value, mode) {
+  if (mode === "object" && !true && isEmpty(value)) throw Object.assign(Error("Empty objects are forbidden in filter argument input."), {});
+  if (mode === "list" && !true) {
+    const arr = value;
+    if (arr) {
+      const l = arr.length;
+      for (let i = 0; i < l; i++) if (isEmpty(arr[i])) throw Object.assign(Error("Empty objects are forbidden in filter argument input."), {});
+    }
+  }
+  if (!true && value === null) throw Object.assign(Error("Null literals are forbidden in filter argument input."), {});
+}
+const resolve = (i, _v, input) => sql`${i} ${input ? sql`IS NULL` : sql`IS NOT NULL`}`;
+const resolveInputCodec = () => TYPES.boolean;
+const resolveSqlValue = () => sql.null;
+const resolve2 = (i, v) => sql`${i} = ${v}`;
+const forceTextTypesSensitive = [TYPES.citext, TYPES.char, TYPES.bpchar];
+function resolveDomains(c) {
+  let current = c;
+  while (current.domainOfCodec) current = current.domainOfCodec;
+  return current;
+}
+function resolveInputCodec2(c) {
+  if (c.arrayOfCodec) {
+    if (forceTextTypesSensitive.includes(resolveDomains(c.arrayOfCodec))) return listOfCodec(TYPES.text, {
+      extensions: {
+        listItemNonNull: c.extensions?.listItemNonNull
+      }
+    });
+    return c;
+  } else {
+    if (forceTextTypesSensitive.includes(resolveDomains(c))) return TYPES.text;
+    return c;
+  }
+}
+function resolveSqlIdentifier(identifier, c) {
+  if (c.arrayOfCodec && forceTextTypesSensitive.includes(resolveDomains(c.arrayOfCodec))) return [sql`(${identifier})::text[]`, listOfCodec(TYPES.text, {
+    extensions: {
+      listItemNonNull: c.extensions?.listItemNonNull
+    }
+  })];else if (forceTextTypesSensitive.includes(resolveDomains(c))) return [sql`(${identifier})::text`, TYPES.text];else return [identifier, c];
+}
+const resolve3 = (i, v) => sql`${i} <> ${v}`;
+const resolve4 = (i, v) => sql`${i} IS DISTINCT FROM ${v}`;
+const resolve5 = (i, v) => sql`${i} IS NOT DISTINCT FROM ${v}`;
+const resolve6 = (i, v) => sql`${i} = ANY(${v})`;
+function resolveInputCodec3(c) {
+  if (forceTextTypesSensitive.includes(resolveDomains(c))) return listOfCodec(TYPES.text, {
+    extensions: {
+      listItemNonNull: !0
+    }
+  });else return listOfCodec(c, {
+    extensions: {
+      listItemNonNull: !0
+    }
+  });
+}
+const resolve7 = (i, v) => sql`${i} <> ALL(${v})`;
+const resolve8 = (i, v) => sql`${i} < ${v}`;
+const resolve9 = (i, v) => sql`${i} <= ${v}`;
+const resolve10 = (i, v) => sql`${i} > ${v}`;
+const resolve11 = (i, v) => sql`${i} >= ${v}`;
+const colSpec3 = {
+  fieldName: "rowId",
+  attributeName: "id",
+  attribute: spec_user.attributes.id
+};
+const colSpec4 = {
+  fieldName: "identityProviderId",
+  attributeName: "identity_provider_id",
+  attribute: spec_user.attributes.identity_provider_id
+};
+function assertAllowed6(value, mode) {
+  if (mode === "object" && !true && isEmpty(value)) throw Object.assign(Error("Empty objects are forbidden in filter argument input."), {});
+  if (mode === "list" && !true) {
+    const arr = value;
+    if (arr) {
+      const l = arr.length;
+      for (let i = 0; i < l; i++) if (isEmpty(arr[i])) throw Object.assign(Error("Empty objects are forbidden in filter argument input."), {});
+    }
+  }
+  if (!true && value === null) throw Object.assign(Error("Null literals are forbidden in filter argument input."), {});
+}
+function assertAllowed7(value, mode) {
+  if (mode === "object" && !true && isEmpty(value)) throw Object.assign(Error("Empty objects are forbidden in filter argument input."), {});
+  if (mode === "list" && !true) {
+    const arr = value;
+    if (arr) {
+      const l = arr.length;
+      for (let i = 0; i < l; i++) if (isEmpty(arr[i])) throw Object.assign(Error("Empty objects are forbidden in filter argument input."), {});
+    }
+  }
+  if (!true && value === null) throw Object.assign(Error("Null literals are forbidden in filter argument input."), {});
+}
+function assertAllowed8(value, mode) {
+  if (mode === "object" && !true && isEmpty(value)) throw Object.assign(Error("Empty objects are forbidden in filter argument input."), {});
+  if (mode === "list" && !true) {
+    const arr = value;
+    if (arr) {
+      const l = arr.length;
+      for (let i = 0; i < l; i++) if (isEmpty(arr[i])) throw Object.assign(Error("Empty objects are forbidden in filter argument input."), {});
+    }
+  }
+  if (!true && value === null) throw Object.assign(Error("Null literals are forbidden in filter argument input."), {});
+}
 const specFromArgs_User = args => {
   const $nodeId = args.getRaw(["input", "id"]);
   return specFromNodeId(nodeIdHandlerByTypeName.User, $nodeId);
@@ -550,6 +714,11 @@ type Query implements Node {
     """
     condition: UserCondition
 
+    """
+    A filter to be used in determining which values should be returned by the collection.
+    """
+    filter: UserFilter
+
     """The method to use when ordering \`User\`."""
     orderBy: [UserOrderBy!] = [PRIMARY_KEY_ASC]
   ): UserConnection
@@ -578,6 +747,11 @@ type Query implements Node {
     A condition to be used in determining which values should be returned by the collection.
     """
     condition: PostCondition
+
+    """
+    A filter to be used in determining which values should be returned by the collection.
+    """
+    filter: PostFilter
 
     """The method to use when ordering \`Post\`."""
     orderBy: [PostOrderBy!] = [PRIMARY_KEY_ASC]
@@ -626,6 +800,11 @@ type User implements Node {
     A condition to be used in determining which values should be returned by the collection.
     """
     condition: PostCondition
+
+    """
+    A filter to be used in determining which values should be returned by the collection.
+    """
+    filter: PostFilter
 
     """The method to use when ordering \`Post\`."""
     orderBy: [PostOrderBy!] = [PRIMARY_KEY_ASC]
@@ -715,6 +894,117 @@ input PostCondition {
 
   """Checks for equality with the object’s \`authorId\` field."""
   authorId: UUID
+}
+
+"""
+A filter to be used against \`Post\` object types. All fields are combined with a logical ‘and.’
+"""
+input PostFilter {
+  """Filter by the object’s \`rowId\` field."""
+  rowId: UUIDFilter
+
+  """Filter by the object’s \`authorId\` field."""
+  authorId: UUIDFilter
+
+  """Filter by the object’s \`author\` relation."""
+  author: UserFilter
+
+  """Checks for all expressions in this list."""
+  and: [PostFilter!]
+
+  """Checks for any expressions in this list."""
+  or: [PostFilter!]
+
+  """Negates the expression."""
+  not: PostFilter
+}
+
+"""
+A filter to be used against UUID fields. All fields are combined with a logical ‘and.’
+"""
+input UUIDFilter {
+  """
+  Is null (if \`true\` is specified) or is not null (if \`false\` is specified).
+  """
+  isNull: Boolean
+
+  """Equal to the specified value."""
+  equalTo: UUID
+
+  """Not equal to the specified value."""
+  notEqualTo: UUID
+
+  """
+  Not equal to the specified value, treating null like an ordinary value.
+  """
+  distinctFrom: UUID
+
+  """Equal to the specified value, treating null like an ordinary value."""
+  notDistinctFrom: UUID
+
+  """Included in the specified list."""
+  in: [UUID!]
+
+  """Not included in the specified list."""
+  notIn: [UUID!]
+
+  """Less than the specified value."""
+  lessThan: UUID
+
+  """Less than or equal to the specified value."""
+  lessThanOrEqualTo: UUID
+
+  """Greater than the specified value."""
+  greaterThan: UUID
+
+  """Greater than or equal to the specified value."""
+  greaterThanOrEqualTo: UUID
+}
+
+"""
+A filter to be used against \`User\` object types. All fields are combined with a logical ‘and.’
+"""
+input UserFilter {
+  """Filter by the object’s \`rowId\` field."""
+  rowId: UUIDFilter
+
+  """Filter by the object’s \`identityProviderId\` field."""
+  identityProviderId: UUIDFilter
+
+  """Filter by the object’s \`authoredPosts\` relation."""
+  authoredPosts: UserToManyPostFilter
+
+  """Some related \`authoredPosts\` exist."""
+  authoredPostsExist: Boolean
+
+  """Checks for all expressions in this list."""
+  and: [UserFilter!]
+
+  """Checks for any expressions in this list."""
+  or: [UserFilter!]
+
+  """Negates the expression."""
+  not: UserFilter
+}
+
+"""
+A filter to be used against many \`Post\` object types. All fields are combined with a logical ‘and.’
+"""
+input UserToManyPostFilter {
+  """
+  Every related \`Post\` matches the filter criteria. All fields are combined with a logical ‘and.’
+  """
+  every: PostFilter
+
+  """
+  Some related \`Post\` matches the filter criteria. All fields are combined with a logical ‘and.’
+  """
+  some: PostFilter
+
+  """
+  No related \`Post\` matches the filter criteria. All fields are combined with a logical ‘and.’
+  """
+  none: PostFilter
 }
 
 """Methods to use when ordering \`Post\`."""
@@ -1285,6 +1575,15 @@ export const plans = {
           const $select = $connection.getSubplan();
           arg.apply($select, qbWhereBuilder);
         },
+        filter(_, $connection, fieldArg) {
+          const $pgSelect = $connection.getSubplan();
+          fieldArg.apply($pgSelect, (queryBuilder, value) => {
+            assertAllowed(value, "object");
+            if (value == null) return;
+            const condition = new PgCondition(queryBuilder);
+            return condition;
+          });
+        },
         orderBy(parent, $connection, value) {
           const $select = $connection.getSubplan();
           value.apply($select);
@@ -1314,6 +1613,15 @@ export const plans = {
         condition(_condition, $connection, arg) {
           const $select = $connection.getSubplan();
           arg.apply($select, qbWhereBuilder);
+        },
+        filter(_, $connection, fieldArg) {
+          const $pgSelect = $connection.getSubplan();
+          fieldArg.apply($pgSelect, (queryBuilder, value) => {
+            assertAllowed2(value, "object");
+            if (value == null) return;
+            const condition = new PgCondition(queryBuilder);
+            return condition;
+          });
         },
         orderBy(parent, $connection, value) {
           const $select = $connection.getSubplan();
@@ -1366,6 +1674,15 @@ export const plans = {
         condition(_condition, $connection, arg) {
           const $select = $connection.getSubplan();
           arg.apply($select, qbWhereBuilder);
+        },
+        filter(_, $connection, fieldArg) {
+          const $pgSelect = $connection.getSubplan();
+          fieldArg.apply($pgSelect, (queryBuilder, value) => {
+            assertAllowed3(value, "object");
+            if (value == null) return;
+            const condition = new PgCondition(queryBuilder);
+            return condition;
+          });
         },
         orderBy(parent, $connection, value) {
           const $select = $connection.getSubplan();
@@ -1472,6 +1789,439 @@ export const plans = {
           return val === null ? sql`${expression} is null` : sql`${expression} = ${sqlValueWithCodec(val, TYPES.uuid)}`;
         }
       });
+    }
+  },
+  PostFilter: {
+    rowId(queryBuilder, value) {
+      if (value === void 0) return;
+      if (!true && isEmpty(value)) throw Object.assign(Error("Empty objects are forbidden in filter argument input."), {});
+      if (!true && value === null) throw Object.assign(Error("Null literals are forbidden in filter argument input."), {});
+      const condition = new PgCondition(queryBuilder);
+      condition.extensions.pgFilterAttribute = colSpec;
+      return condition;
+    },
+    authorId(queryBuilder, value) {
+      if (value === void 0) return;
+      if (!true && isEmpty(value)) throw Object.assign(Error("Empty objects are forbidden in filter argument input."), {});
+      if (!true && value === null) throw Object.assign(Error("Null literals are forbidden in filter argument input."), {});
+      const condition = new PgCondition(queryBuilder);
+      condition.extensions.pgFilterAttribute = colSpec2;
+      return condition;
+    },
+    author($where, value) {
+      assertAllowed4(value, "object");
+      if (value == null) return;
+      const $subQuery = $where.existsPlan({
+        tableExpression: userIdentifier,
+        alias: pgResource_userPgResource.name
+      });
+      registryConfig.pgRelations.post.userByMyAuthorId.localAttributes.forEach((localAttribute, i) => {
+        const remoteAttribute = registryConfig.pgRelations.post.userByMyAuthorId.remoteAttributes[i];
+        $subQuery.where(sql`${$where.alias}.${sql.identifier(localAttribute)} = ${$subQuery.alias}.${sql.identifier(remoteAttribute)}`);
+      });
+      return $subQuery;
+    },
+    and($where, value) {
+      assertAllowed5(value, "list");
+      if (value == null) return;
+      return $where.andPlan();
+    },
+    or($where, value) {
+      assertAllowed5(value, "list");
+      if (value == null) return;
+      const $or = $where.orPlan();
+      return () => $or.andPlan();
+    },
+    not($where, value) {
+      assertAllowed5(value, "object");
+      if (value == null) return;
+      return $where.notPlan().andPlan();
+    }
+  },
+  UUIDFilter: {
+    isNull($where, value) {
+      if (!$where.extensions?.pgFilterAttribute) throw Error("Planning error: expected 'pgFilterAttribute' to be present on the $where plan's extensions; your extensions to `postgraphile-plugin-connection-filter` does not implement the required interfaces.");
+      if (value === void 0) return;
+      const {
+          fieldName: parentFieldName,
+          attributeName,
+          attribute,
+          codec,
+          expression
+        } = $where.extensions.pgFilterAttribute,
+        sourceAlias = attribute ? attribute.expression ? attribute.expression($where.alias) : sql`${$where.alias}.${sql.identifier(attributeName)}` : expression ? expression : $where.alias,
+        sourceCodec = codec ?? attribute.codec,
+        [sqlIdentifier, identifierCodec] = [sourceAlias, sourceCodec];
+      if (true && value === null) return;
+      if (!true && value === null) throw Object.assign(Error("Null literals are forbidden in filter argument input."), {});
+      const resolvedInput = value,
+        inputCodec = resolveInputCodec ? resolveInputCodec(codec ?? attribute.codec) : codec ?? attribute.codec,
+        sqlValue = resolveSqlValue ? resolveSqlValue($where, value, inputCodec) : sqlValueWithCodec(resolvedInput, inputCodec),
+        fragment = resolve(sqlIdentifier, sqlValue, value, $where, {
+          fieldName: parentFieldName ?? null,
+          operatorName: "isNull"
+        });
+      $where.where(fragment);
+    },
+    equalTo($where, value) {
+      if (!$where.extensions?.pgFilterAttribute) throw Error("Planning error: expected 'pgFilterAttribute' to be present on the $where plan's extensions; your extensions to `postgraphile-plugin-connection-filter` does not implement the required interfaces.");
+      if (value === void 0) return;
+      const {
+          fieldName: parentFieldName,
+          attributeName,
+          attribute,
+          codec,
+          expression
+        } = $where.extensions.pgFilterAttribute,
+        sourceAlias = attribute ? attribute.expression ? attribute.expression($where.alias) : sql`${$where.alias}.${sql.identifier(attributeName)}` : expression ? expression : $where.alias,
+        sourceCodec = codec ?? attribute.codec,
+        [sqlIdentifier, identifierCodec] = resolveSqlIdentifier ? resolveSqlIdentifier(sourceAlias, sourceCodec) : [sourceAlias, sourceCodec];
+      if (true && value === null) return;
+      if (!true && value === null) throw Object.assign(Error("Null literals are forbidden in filter argument input."), {});
+      const resolvedInput = value,
+        inputCodec = resolveInputCodec2 ? resolveInputCodec2(codec ?? attribute.codec) : codec ?? attribute.codec,
+        sqlValue = sqlValueWithCodec(resolvedInput, inputCodec),
+        fragment = resolve2(sqlIdentifier, sqlValue, value, $where, {
+          fieldName: parentFieldName ?? null,
+          operatorName: "equalTo"
+        });
+      $where.where(fragment);
+    },
+    notEqualTo($where, value) {
+      if (!$where.extensions?.pgFilterAttribute) throw Error("Planning error: expected 'pgFilterAttribute' to be present on the $where plan's extensions; your extensions to `postgraphile-plugin-connection-filter` does not implement the required interfaces.");
+      if (value === void 0) return;
+      const {
+          fieldName: parentFieldName,
+          attributeName,
+          attribute,
+          codec,
+          expression
+        } = $where.extensions.pgFilterAttribute,
+        sourceAlias = attribute ? attribute.expression ? attribute.expression($where.alias) : sql`${$where.alias}.${sql.identifier(attributeName)}` : expression ? expression : $where.alias,
+        sourceCodec = codec ?? attribute.codec,
+        [sqlIdentifier, identifierCodec] = resolveSqlIdentifier ? resolveSqlIdentifier(sourceAlias, sourceCodec) : [sourceAlias, sourceCodec];
+      if (true && value === null) return;
+      if (!true && value === null) throw Object.assign(Error("Null literals are forbidden in filter argument input."), {});
+      const resolvedInput = value,
+        inputCodec = resolveInputCodec2 ? resolveInputCodec2(codec ?? attribute.codec) : codec ?? attribute.codec,
+        sqlValue = sqlValueWithCodec(resolvedInput, inputCodec),
+        fragment = resolve3(sqlIdentifier, sqlValue, value, $where, {
+          fieldName: parentFieldName ?? null,
+          operatorName: "notEqualTo"
+        });
+      $where.where(fragment);
+    },
+    distinctFrom($where, value) {
+      if (!$where.extensions?.pgFilterAttribute) throw Error("Planning error: expected 'pgFilterAttribute' to be present on the $where plan's extensions; your extensions to `postgraphile-plugin-connection-filter` does not implement the required interfaces.");
+      if (value === void 0) return;
+      const {
+          fieldName: parentFieldName,
+          attributeName,
+          attribute,
+          codec,
+          expression
+        } = $where.extensions.pgFilterAttribute,
+        sourceAlias = attribute ? attribute.expression ? attribute.expression($where.alias) : sql`${$where.alias}.${sql.identifier(attributeName)}` : expression ? expression : $where.alias,
+        sourceCodec = codec ?? attribute.codec,
+        [sqlIdentifier, identifierCodec] = resolveSqlIdentifier ? resolveSqlIdentifier(sourceAlias, sourceCodec) : [sourceAlias, sourceCodec];
+      if (true && value === null) return;
+      if (!true && value === null) throw Object.assign(Error("Null literals are forbidden in filter argument input."), {});
+      const resolvedInput = value,
+        inputCodec = resolveInputCodec2 ? resolveInputCodec2(codec ?? attribute.codec) : codec ?? attribute.codec,
+        sqlValue = sqlValueWithCodec(resolvedInput, inputCodec),
+        fragment = resolve4(sqlIdentifier, sqlValue, value, $where, {
+          fieldName: parentFieldName ?? null,
+          operatorName: "distinctFrom"
+        });
+      $where.where(fragment);
+    },
+    notDistinctFrom($where, value) {
+      if (!$where.extensions?.pgFilterAttribute) throw Error("Planning error: expected 'pgFilterAttribute' to be present on the $where plan's extensions; your extensions to `postgraphile-plugin-connection-filter` does not implement the required interfaces.");
+      if (value === void 0) return;
+      const {
+          fieldName: parentFieldName,
+          attributeName,
+          attribute,
+          codec,
+          expression
+        } = $where.extensions.pgFilterAttribute,
+        sourceAlias = attribute ? attribute.expression ? attribute.expression($where.alias) : sql`${$where.alias}.${sql.identifier(attributeName)}` : expression ? expression : $where.alias,
+        sourceCodec = codec ?? attribute.codec,
+        [sqlIdentifier, identifierCodec] = resolveSqlIdentifier ? resolveSqlIdentifier(sourceAlias, sourceCodec) : [sourceAlias, sourceCodec];
+      if (true && value === null) return;
+      if (!true && value === null) throw Object.assign(Error("Null literals are forbidden in filter argument input."), {});
+      const resolvedInput = value,
+        inputCodec = resolveInputCodec2 ? resolveInputCodec2(codec ?? attribute.codec) : codec ?? attribute.codec,
+        sqlValue = sqlValueWithCodec(resolvedInput, inputCodec),
+        fragment = resolve5(sqlIdentifier, sqlValue, value, $where, {
+          fieldName: parentFieldName ?? null,
+          operatorName: "notDistinctFrom"
+        });
+      $where.where(fragment);
+    },
+    in($where, value) {
+      if (!$where.extensions?.pgFilterAttribute) throw Error("Planning error: expected 'pgFilterAttribute' to be present on the $where plan's extensions; your extensions to `postgraphile-plugin-connection-filter` does not implement the required interfaces.");
+      if (value === void 0) return;
+      const {
+          fieldName: parentFieldName,
+          attributeName,
+          attribute,
+          codec,
+          expression
+        } = $where.extensions.pgFilterAttribute,
+        sourceAlias = attribute ? attribute.expression ? attribute.expression($where.alias) : sql`${$where.alias}.${sql.identifier(attributeName)}` : expression ? expression : $where.alias,
+        sourceCodec = codec ?? attribute.codec,
+        [sqlIdentifier, identifierCodec] = resolveSqlIdentifier ? resolveSqlIdentifier(sourceAlias, sourceCodec) : [sourceAlias, sourceCodec];
+      if (true && value === null) return;
+      if (!true && value === null) throw Object.assign(Error("Null literals are forbidden in filter argument input."), {});
+      const resolvedInput = value,
+        inputCodec = resolveInputCodec3 ? resolveInputCodec3(codec ?? attribute.codec) : codec ?? attribute.codec,
+        sqlValue = sqlValueWithCodec(resolvedInput, inputCodec),
+        fragment = resolve6(sqlIdentifier, sqlValue, value, $where, {
+          fieldName: parentFieldName ?? null,
+          operatorName: "in"
+        });
+      $where.where(fragment);
+    },
+    notIn($where, value) {
+      if (!$where.extensions?.pgFilterAttribute) throw Error("Planning error: expected 'pgFilterAttribute' to be present on the $where plan's extensions; your extensions to `postgraphile-plugin-connection-filter` does not implement the required interfaces.");
+      if (value === void 0) return;
+      const {
+          fieldName: parentFieldName,
+          attributeName,
+          attribute,
+          codec,
+          expression
+        } = $where.extensions.pgFilterAttribute,
+        sourceAlias = attribute ? attribute.expression ? attribute.expression($where.alias) : sql`${$where.alias}.${sql.identifier(attributeName)}` : expression ? expression : $where.alias,
+        sourceCodec = codec ?? attribute.codec,
+        [sqlIdentifier, identifierCodec] = resolveSqlIdentifier ? resolveSqlIdentifier(sourceAlias, sourceCodec) : [sourceAlias, sourceCodec];
+      if (true && value === null) return;
+      if (!true && value === null) throw Object.assign(Error("Null literals are forbidden in filter argument input."), {});
+      const resolvedInput = value,
+        inputCodec = resolveInputCodec3 ? resolveInputCodec3(codec ?? attribute.codec) : codec ?? attribute.codec,
+        sqlValue = sqlValueWithCodec(resolvedInput, inputCodec),
+        fragment = resolve7(sqlIdentifier, sqlValue, value, $where, {
+          fieldName: parentFieldName ?? null,
+          operatorName: "notIn"
+        });
+      $where.where(fragment);
+    },
+    lessThan($where, value) {
+      if (!$where.extensions?.pgFilterAttribute) throw Error("Planning error: expected 'pgFilterAttribute' to be present on the $where plan's extensions; your extensions to `postgraphile-plugin-connection-filter` does not implement the required interfaces.");
+      if (value === void 0) return;
+      const {
+          fieldName: parentFieldName,
+          attributeName,
+          attribute,
+          codec,
+          expression
+        } = $where.extensions.pgFilterAttribute,
+        sourceAlias = attribute ? attribute.expression ? attribute.expression($where.alias) : sql`${$where.alias}.${sql.identifier(attributeName)}` : expression ? expression : $where.alias,
+        sourceCodec = codec ?? attribute.codec,
+        [sqlIdentifier, identifierCodec] = resolveSqlIdentifier ? resolveSqlIdentifier(sourceAlias, sourceCodec) : [sourceAlias, sourceCodec];
+      if (true && value === null) return;
+      if (!true && value === null) throw Object.assign(Error("Null literals are forbidden in filter argument input."), {});
+      const resolvedInput = value,
+        inputCodec = resolveInputCodec2 ? resolveInputCodec2(codec ?? attribute.codec) : codec ?? attribute.codec,
+        sqlValue = sqlValueWithCodec(resolvedInput, inputCodec),
+        fragment = resolve8(sqlIdentifier, sqlValue, value, $where, {
+          fieldName: parentFieldName ?? null,
+          operatorName: "lessThan"
+        });
+      $where.where(fragment);
+    },
+    lessThanOrEqualTo($where, value) {
+      if (!$where.extensions?.pgFilterAttribute) throw Error("Planning error: expected 'pgFilterAttribute' to be present on the $where plan's extensions; your extensions to `postgraphile-plugin-connection-filter` does not implement the required interfaces.");
+      if (value === void 0) return;
+      const {
+          fieldName: parentFieldName,
+          attributeName,
+          attribute,
+          codec,
+          expression
+        } = $where.extensions.pgFilterAttribute,
+        sourceAlias = attribute ? attribute.expression ? attribute.expression($where.alias) : sql`${$where.alias}.${sql.identifier(attributeName)}` : expression ? expression : $where.alias,
+        sourceCodec = codec ?? attribute.codec,
+        [sqlIdentifier, identifierCodec] = resolveSqlIdentifier ? resolveSqlIdentifier(sourceAlias, sourceCodec) : [sourceAlias, sourceCodec];
+      if (true && value === null) return;
+      if (!true && value === null) throw Object.assign(Error("Null literals are forbidden in filter argument input."), {});
+      const resolvedInput = value,
+        inputCodec = resolveInputCodec2 ? resolveInputCodec2(codec ?? attribute.codec) : codec ?? attribute.codec,
+        sqlValue = sqlValueWithCodec(resolvedInput, inputCodec),
+        fragment = resolve9(sqlIdentifier, sqlValue, value, $where, {
+          fieldName: parentFieldName ?? null,
+          operatorName: "lessThanOrEqualTo"
+        });
+      $where.where(fragment);
+    },
+    greaterThan($where, value) {
+      if (!$where.extensions?.pgFilterAttribute) throw Error("Planning error: expected 'pgFilterAttribute' to be present on the $where plan's extensions; your extensions to `postgraphile-plugin-connection-filter` does not implement the required interfaces.");
+      if (value === void 0) return;
+      const {
+          fieldName: parentFieldName,
+          attributeName,
+          attribute,
+          codec,
+          expression
+        } = $where.extensions.pgFilterAttribute,
+        sourceAlias = attribute ? attribute.expression ? attribute.expression($where.alias) : sql`${$where.alias}.${sql.identifier(attributeName)}` : expression ? expression : $where.alias,
+        sourceCodec = codec ?? attribute.codec,
+        [sqlIdentifier, identifierCodec] = resolveSqlIdentifier ? resolveSqlIdentifier(sourceAlias, sourceCodec) : [sourceAlias, sourceCodec];
+      if (true && value === null) return;
+      if (!true && value === null) throw Object.assign(Error("Null literals are forbidden in filter argument input."), {});
+      const resolvedInput = value,
+        inputCodec = resolveInputCodec2 ? resolveInputCodec2(codec ?? attribute.codec) : codec ?? attribute.codec,
+        sqlValue = sqlValueWithCodec(resolvedInput, inputCodec),
+        fragment = resolve10(sqlIdentifier, sqlValue, value, $where, {
+          fieldName: parentFieldName ?? null,
+          operatorName: "greaterThan"
+        });
+      $where.where(fragment);
+    },
+    greaterThanOrEqualTo($where, value) {
+      if (!$where.extensions?.pgFilterAttribute) throw Error("Planning error: expected 'pgFilterAttribute' to be present on the $where plan's extensions; your extensions to `postgraphile-plugin-connection-filter` does not implement the required interfaces.");
+      if (value === void 0) return;
+      const {
+          fieldName: parentFieldName,
+          attributeName,
+          attribute,
+          codec,
+          expression
+        } = $where.extensions.pgFilterAttribute,
+        sourceAlias = attribute ? attribute.expression ? attribute.expression($where.alias) : sql`${$where.alias}.${sql.identifier(attributeName)}` : expression ? expression : $where.alias,
+        sourceCodec = codec ?? attribute.codec,
+        [sqlIdentifier, identifierCodec] = resolveSqlIdentifier ? resolveSqlIdentifier(sourceAlias, sourceCodec) : [sourceAlias, sourceCodec];
+      if (true && value === null) return;
+      if (!true && value === null) throw Object.assign(Error("Null literals are forbidden in filter argument input."), {});
+      const resolvedInput = value,
+        inputCodec = resolveInputCodec2 ? resolveInputCodec2(codec ?? attribute.codec) : codec ?? attribute.codec,
+        sqlValue = sqlValueWithCodec(resolvedInput, inputCodec),
+        fragment = resolve11(sqlIdentifier, sqlValue, value, $where, {
+          fieldName: parentFieldName ?? null,
+          operatorName: "greaterThanOrEqualTo"
+        });
+      $where.where(fragment);
+    }
+  },
+  UserFilter: {
+    rowId(queryBuilder, value) {
+      if (value === void 0) return;
+      if (!true && isEmpty(value)) throw Object.assign(Error("Empty objects are forbidden in filter argument input."), {});
+      if (!true && value === null) throw Object.assign(Error("Null literals are forbidden in filter argument input."), {});
+      const condition = new PgCondition(queryBuilder);
+      condition.extensions.pgFilterAttribute = colSpec3;
+      return condition;
+    },
+    identityProviderId(queryBuilder, value) {
+      if (value === void 0) return;
+      if (!true && isEmpty(value)) throw Object.assign(Error("Empty objects are forbidden in filter argument input."), {});
+      if (!true && value === null) throw Object.assign(Error("Null literals are forbidden in filter argument input."), {});
+      const condition = new PgCondition(queryBuilder);
+      condition.extensions.pgFilterAttribute = colSpec4;
+      return condition;
+    },
+    authoredPosts($where, value) {
+      assertAllowed6(value, "object");
+      const $rel = $where.andPlan();
+      $rel.extensions.pgFilterRelation = {
+        tableExpression: postIdentifier,
+        alias: pgResource_postPgResource.name,
+        localAttributes: registryConfig.pgRelations.user.postsByTheirAuthorId.localAttributes,
+        remoteAttributes: registryConfig.pgRelations.user.postsByTheirAuthorId.remoteAttributes
+      };
+      return $rel;
+    },
+    authoredPostsExist($where, value) {
+      assertAllowed6(value, "scalar");
+      if (value == null) return;
+      const $subQuery = $where.existsPlan({
+        tableExpression: postIdentifier,
+        alias: pgResource_postPgResource.name,
+        equals: value
+      });
+      registryConfig.pgRelations.user.postsByTheirAuthorId.localAttributes.forEach((localAttribute, i) => {
+        const remoteAttribute = registryConfig.pgRelations.user.postsByTheirAuthorId.remoteAttributes[i];
+        $subQuery.where(sql`${$where.alias}.${sql.identifier(localAttribute)} = ${$subQuery.alias}.${sql.identifier(remoteAttribute)}`);
+      });
+    },
+    and($where, value) {
+      assertAllowed7(value, "list");
+      if (value == null) return;
+      return $where.andPlan();
+    },
+    or($where, value) {
+      assertAllowed7(value, "list");
+      if (value == null) return;
+      const $or = $where.orPlan();
+      return () => $or.andPlan();
+    },
+    not($where, value) {
+      assertAllowed7(value, "object");
+      if (value == null) return;
+      return $where.notPlan().andPlan();
+    }
+  },
+  UserToManyPostFilter: {
+    every($where, value) {
+      assertAllowed8(value, "object");
+      if (value == null) return;
+      if (!$where.extensions.pgFilterRelation) throw Error("Invalid use of filter, 'pgFilterRelation' expected");
+      const {
+          localAttributes,
+          remoteAttributes,
+          tableExpression,
+          alias
+        } = $where.extensions.pgFilterRelation,
+        $subQuery = $where.notPlan().existsPlan({
+          tableExpression,
+          alias
+        });
+      localAttributes.forEach((localAttribute, i) => {
+        const remoteAttribute = remoteAttributes[i];
+        $subQuery.where(sql`${$where.alias}.${sql.identifier(localAttribute)} = ${$subQuery.alias}.${sql.identifier(remoteAttribute)}`);
+      });
+      return $subQuery.notPlan().andPlan();
+    },
+    some($where, value) {
+      assertAllowed8(value, "object");
+      if (value == null) return;
+      if (!$where.extensions.pgFilterRelation) throw Error("Invalid use of filter, 'pgFilterRelation' expected");
+      const {
+          localAttributes,
+          remoteAttributes,
+          tableExpression,
+          alias
+        } = $where.extensions.pgFilterRelation,
+        $subQuery = $where.existsPlan({
+          tableExpression,
+          alias
+        });
+      localAttributes.forEach((localAttribute, i) => {
+        const remoteAttribute = remoteAttributes[i];
+        $subQuery.where(sql`${$where.alias}.${sql.identifier(localAttribute)} = ${$subQuery.alias}.${sql.identifier(remoteAttribute)}`);
+      });
+      return $subQuery;
+    },
+    none($where, value) {
+      assertAllowed8(value, "object");
+      if (value == null) return;
+      if (!$where.extensions.pgFilterRelation) throw Error("Invalid use of filter, 'pgFilterRelation' expected");
+      const {
+          localAttributes,
+          remoteAttributes,
+          tableExpression,
+          alias
+        } = $where.extensions.pgFilterRelation,
+        $subQuery = $where.notPlan().existsPlan({
+          tableExpression,
+          alias
+        });
+      localAttributes.forEach((localAttribute, i) => {
+        const remoteAttribute = remoteAttributes[i];
+        $subQuery.where(sql`${$where.alias}.${sql.identifier(localAttribute)} = ${$subQuery.alias}.${sql.identifier(remoteAttribute)}`);
+      });
+      return $subQuery;
     }
   },
   PostOrderBy: {
