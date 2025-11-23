@@ -828,12 +828,12 @@ scalar Datetime
 """A connection to a list of \`Post\` values."""
 type PostConnection {
   """A list of \`Post\` objects."""
-  nodes: [Post]!
+  nodes: [Post!]!
 
   """
   A list of edges which contains the \`Post\` and cursor to aid in pagination.
   """
-  edges: [PostEdge]!
+  edges: [PostEdge!]!
 
   """Information to aid in pagination."""
   pageInfo: PageInfo!
@@ -864,7 +864,7 @@ type PostEdge {
   cursor: Cursor
 
   """The \`Post\` at the end of the edge."""
-  node: Post
+  node: Post!
 }
 
 """A location in a connection that can be used for resuming pagination."""
@@ -1021,12 +1021,12 @@ enum PostOrderBy {
 """A connection to a list of \`User\` values."""
 type UserConnection {
   """A list of \`User\` objects."""
-  nodes: [User]!
+  nodes: [User!]!
 
   """
   A list of edges which contains the \`User\` and cursor to aid in pagination.
   """
-  edges: [UserEdge]!
+  edges: [UserEdge!]!
 
   """Information to aid in pagination."""
   pageInfo: PageInfo!
@@ -1041,7 +1041,7 @@ type UserEdge {
   cursor: Cursor
 
   """The \`User\` at the end of the edge."""
-  node: User
+  node: User!
 }
 
 """
