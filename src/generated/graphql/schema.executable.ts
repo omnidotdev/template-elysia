@@ -1,9 +1,9 @@
-// @ts-nocheck
-import { PgCondition, PgDeleteSingleStep, PgExecutor, TYPES, assertPgClassSingleStep, listOfCodec, makeRegistry, pgDeleteSingle, pgInsertSingle, pgSelectFromRecord, pgUpdateSingle, recordCodec, sqlValueWithCodec } from "@dataplan/pg";
-import { ConnectionStep, EdgeStep, ObjectStep, __ValueStep, access, assertEdgeCapableStep, assertExecutableStep, assertPageInfoCapableStep, bakedInputRuntime, connection, constant, context, createObjectAndApplyChildren, first, inhibitOnNull, lambda, list, makeGrafastSchema, node, object, rootValue, specFromNodeId } from "grafast";
+/* eslint-disable graphile-export/export-instances, graphile-export/export-methods, graphile-export/export-plans, graphile-export/exhaustive-deps */
+import { PgCondition, PgDeleteSingleStep, PgExecutor, TYPES, assertPgClassSingleStep, listOfCodec, makeRegistry, pgInsertSingle, pgSelectFromRecord, recordCodec, sqlValueWithCodec } from "@dataplan/pg";
+import { ConnectionStep, EdgeStep, __ValueStep, access, assertExecutableStep, connection, constant, context, first, get as get2, inhibitOnNull, inspect, lambda, list, makeDecodeNodeId, makeGrafastSchema, object, rootValue } from "grafast";
 import { GraphQLError, Kind } from "graphql";
 import { sql } from "pg-sql2";
-const handler = {
+const nodeIdHandler_Query = {
   typeName: "Query",
   codec: {
     name: "raw",
@@ -53,7 +53,7 @@ const nodeIdCodecs_base64JSON_base64JSON = {
 };
 const nodeIdCodecs = {
   __proto__: null,
-  raw: handler.codec,
+  raw: nodeIdHandler_Query.codec,
   base64JSON: nodeIdCodecs_base64JSON_base64JSON,
   pipeString: {
     name: "pipeString",
@@ -245,7 +245,8 @@ const spec_user = {
       name: "user"
     },
     tags: {
-      __proto__: null
+      __proto__: null,
+      behavior: "+insert"
     }
   },
   executor: executor
@@ -266,7 +267,8 @@ const userUniques = [{
   description: undefined,
   extensions: {
     tags: {
-      __proto__: null
+      __proto__: null,
+      behavior: ["-update", "-delete"]
     }
   }
 }];
@@ -289,7 +291,9 @@ const registryConfig_pgResources_user_user = {
     isInsertable: true,
     isUpdatable: true,
     isDeletable: true,
-    tags: {},
+    tags: {
+      behavior: "+insert"
+    },
     canSelect: true,
     canInsert: true,
     canUpdate: true,
@@ -391,57 +395,34 @@ const registryConfig = {
   }
 };
 const registry = makeRegistry(registryConfig);
-const pgResource_userPgResource = registry.pgResources["user"];
-const pgResource_postPgResource = registry.pgResources["post"];
-const nodeIdHandlerByTypeName = {
-  __proto__: null,
-  Query: handler,
-  User: {
-    typeName: "User",
-    codec: nodeIdCodecs_base64JSON_base64JSON,
-    deprecationReason: undefined,
-    plan($record) {
-      return list([constant("User", false), $record.get("id")]);
-    },
-    getSpec($list) {
-      return {
-        id: inhibitOnNull(access($list, [1]))
-      };
-    },
-    getIdentifiers(value) {
-      return value.slice(1);
-    },
-    get(spec) {
-      return pgResource_userPgResource.get(spec);
-    },
-    match(obj) {
-      return obj[0] === "User";
-    }
+const resource_userPgResource = registry.pgResources["user"];
+const resource_postPgResource = registry.pgResources["post"];
+const nodeIdHandler_User = {
+  typeName: "User",
+  codec: nodeIdCodecs_base64JSON_base64JSON,
+  deprecationReason: undefined,
+  plan($record) {
+    return list([constant("User", false), $record.get("id")]);
   },
-  Post: {
-    typeName: "Post",
-    codec: nodeIdCodecs_base64JSON_base64JSON,
-    deprecationReason: undefined,
-    plan($record) {
-      return list([constant("Post", false), $record.get("id")]);
-    },
-    getSpec($list) {
-      return {
-        id: inhibitOnNull(access($list, [1]))
-      };
-    },
-    getIdentifiers(value) {
-      return value.slice(1);
-    },
-    get(spec) {
-      return pgResource_postPgResource.get(spec);
-    },
-    match(obj) {
-      return obj[0] === "Post";
-    }
+  getSpec($list) {
+    return {
+      id: inhibitOnNull(access($list, [1]))
+    };
+  },
+  getIdentifiers(value) {
+    return value.slice(1);
+  },
+  get(spec) {
+    return resource_userPgResource.get(spec);
+  },
+  match(obj) {
+    return obj[0] === "User";
   }
 };
+const specForHandlerCache = new Map();
 function specForHandler(handler) {
+  const existing = specForHandlerCache.get(handler);
+  if (existing) return existing;
   function spec(nodeId) {
     if (nodeId == null) return null;
     try {
@@ -452,15 +433,38 @@ function specForHandler(handler) {
   }
   spec.displayName = `specifier_${handler.typeName}_${handler.codec.name}`;
   spec.isSyncAndSafe = !0;
+  specForHandlerCache.set(handler, spec);
   return spec;
 }
 const nodeFetcher_User = $nodeId => {
-  const $decoded = lambda($nodeId, specForHandler(nodeIdHandlerByTypeName.User));
-  return nodeIdHandlerByTypeName.User.get(nodeIdHandlerByTypeName.User.getSpec($decoded));
+  const $decoded = lambda($nodeId, specForHandler(nodeIdHandler_User));
+  return nodeIdHandler_User.get(nodeIdHandler_User.getSpec($decoded));
+};
+const nodeIdHandler_Post = {
+  typeName: "Post",
+  codec: nodeIdCodecs_base64JSON_base64JSON,
+  deprecationReason: undefined,
+  plan($record) {
+    return list([constant("Post", false), $record.get("id")]);
+  },
+  getSpec($list) {
+    return {
+      id: inhibitOnNull(access($list, [1]))
+    };
+  },
+  getIdentifiers(value) {
+    return value.slice(1);
+  },
+  get(spec) {
+    return resource_postPgResource.get(spec);
+  },
+  match(obj) {
+    return obj[0] === "Post";
+  }
 };
 const nodeFetcher_Post = $nodeId => {
-  const $decoded = lambda($nodeId, specForHandler(nodeIdHandlerByTypeName.Post));
-  return nodeIdHandlerByTypeName.Post.get(nodeIdHandlerByTypeName.Post.getSpec($decoded));
+  const $decoded = lambda($nodeId, specForHandler(nodeIdHandler_Post));
+  return nodeIdHandler_Post.get(nodeIdHandler_Post.getSpec($decoded));
 };
 function qbWhereBuilder(qb) {
   return qb.whereBuilder();
@@ -490,6 +494,22 @@ function assertAllowed2(value, mode) {
   }
   if (!true && value === null) throw Object.assign(Error("Null literals are forbidden in filter argument input."), {});
 }
+const nodeIdHandlerByTypeName = {
+  __proto__: null,
+  Query: nodeIdHandler_Query,
+  User: nodeIdHandler_User,
+  Post: nodeIdHandler_Post
+};
+const decodeNodeId = makeDecodeNodeId(Object.values(nodeIdHandlerByTypeName));
+function findTypeNameMatch(specifier) {
+  if (!specifier) return null;
+  for (const [typeName, typeSpec] of Object.entries(nodeIdHandlerByTypeName)) {
+    const value = specifier[typeSpec.codec.name];
+    if (value != null && typeSpec.match(value)) return typeName;
+  }
+  console.warn(`Could not find a type that matched the specifier '${inspect(specifier)}'`);
+  return null;
+}
 function assertAllowed3(value, mode) {
   if (mode === "object" && !true && isEmpty(value)) throw Object.assign(Error("Empty objects are forbidden in filter argument input."), {});
   if (mode === "list" && !true) {
@@ -505,7 +525,7 @@ function UUIDSerialize(value) {
   return "" + value;
 }
 const coerce = string => {
-  if (!/^[0-9a-f]{8}-?[0-9a-f]{4}-?[0-9a-f]{4}-?[0-9a-f]{4}-?[0-9a-f]{12}$/i.test(string)) throw new GraphQLError("Invalid UUID, expected 32 hexadecimal characters, optionally with hypens");
+  if (!/^[0-9a-f]{8}-?[0-9a-f]{4}-?[0-9a-f]{4}-?[0-9a-f]{4}-?[0-9a-f]{12}$/i.test(string)) throw new GraphQLError("Invalid UUID, expected 32 hexadecimal characters, optionally with hyphens");
   return string;
 };
 const colSpec = {
@@ -633,21 +653,23 @@ function assertAllowed8(value, mode) {
   }
   if (!true && value === null) throw Object.assign(Error("Null literals are forbidden in filter argument input."), {});
 }
-const specFromArgs_User = args => {
-  const $nodeId = args.getRaw(["input", "id"]);
-  return specFromNodeId(nodeIdHandlerByTypeName.User, $nodeId);
+const getPgSelectSingleFromMutationResult = (resource, pkAttributes, $mutation) => {
+  const $result = $mutation.getStepForKey("result", !0);
+  if (!$result) return null;
+  if ($result instanceof PgDeleteSingleStep) return pgSelectFromRecord($result.resource, $result.record());else {
+    const spec = pkAttributes.reduce((memo, attributeName) => {
+      memo[attributeName] = $result.get(attributeName);
+      return memo;
+    }, Object.create(null));
+    return resource.find(spec);
+  }
 };
-const specFromArgs_Post = args => {
-  const $nodeId = args.getRaw(["input", "id"]);
-  return specFromNodeId(nodeIdHandlerByTypeName.Post, $nodeId);
-};
-const specFromArgs_User2 = args => {
-  const $nodeId = args.getRaw(["input", "id"]);
-  return specFromNodeId(nodeIdHandlerByTypeName.User, $nodeId);
-};
-const specFromArgs_Post2 = args => {
-  const $nodeId = args.getRaw(["input", "id"]);
-  return specFromNodeId(nodeIdHandlerByTypeName.Post, $nodeId);
+const pgMutationPayloadEdge = (resource, pkAttributes, $mutation, fieldArgs) => {
+  const $select = getPgSelectSingleFromMutationResult(resource, pkAttributes, $mutation);
+  if (!$select) return constant(null);
+  fieldArgs.apply($select, "orderBy");
+  const $connection = connection($select);
+  return new EdgeStep($connection, first($connection));
 };
 export const typeDefs = /* GraphQL */`"""The root query type which gives access points into the data universe."""
 type Query implements Node {
@@ -1077,94 +1099,6 @@ type Mutation {
     """
     input: CreateUserInput!
   ): CreateUserPayload
-
-  """Creates a single \`Post\`."""
-  createPost(
-    """
-    The exclusive input argument for this mutation. An object type, make sure to see documentation for this object’s fields.
-    """
-    input: CreatePostInput!
-  ): CreatePostPayload
-
-  """Updates a single \`User\` using its globally unique id and a patch."""
-  updateUserById(
-    """
-    The exclusive input argument for this mutation. An object type, make sure to see documentation for this object’s fields.
-    """
-    input: UpdateUserByIdInput!
-  ): UpdateUserPayload
-
-  """Updates a single \`User\` using a unique key and a patch."""
-  updateUser(
-    """
-    The exclusive input argument for this mutation. An object type, make sure to see documentation for this object’s fields.
-    """
-    input: UpdateUserInput!
-  ): UpdateUserPayload
-
-  """Updates a single \`User\` using a unique key and a patch."""
-  updateUserByIdentityProviderId(
-    """
-    The exclusive input argument for this mutation. An object type, make sure to see documentation for this object’s fields.
-    """
-    input: UpdateUserByIdentityProviderIdInput!
-  ): UpdateUserPayload
-
-  """Updates a single \`Post\` using its globally unique id and a patch."""
-  updatePostById(
-    """
-    The exclusive input argument for this mutation. An object type, make sure to see documentation for this object’s fields.
-    """
-    input: UpdatePostByIdInput!
-  ): UpdatePostPayload
-
-  """Updates a single \`Post\` using a unique key and a patch."""
-  updatePost(
-    """
-    The exclusive input argument for this mutation. An object type, make sure to see documentation for this object’s fields.
-    """
-    input: UpdatePostInput!
-  ): UpdatePostPayload
-
-  """Deletes a single \`User\` using its globally unique id."""
-  deleteUserById(
-    """
-    The exclusive input argument for this mutation. An object type, make sure to see documentation for this object’s fields.
-    """
-    input: DeleteUserByIdInput!
-  ): DeleteUserPayload
-
-  """Deletes a single \`User\` using a unique key."""
-  deleteUser(
-    """
-    The exclusive input argument for this mutation. An object type, make sure to see documentation for this object’s fields.
-    """
-    input: DeleteUserInput!
-  ): DeleteUserPayload
-
-  """Deletes a single \`User\` using a unique key."""
-  deleteUserByIdentityProviderId(
-    """
-    The exclusive input argument for this mutation. An object type, make sure to see documentation for this object’s fields.
-    """
-    input: DeleteUserByIdentityProviderIdInput!
-  ): DeleteUserPayload
-
-  """Deletes a single \`Post\` using its globally unique id."""
-  deletePostById(
-    """
-    The exclusive input argument for this mutation. An object type, make sure to see documentation for this object’s fields.
-    """
-    input: DeletePostByIdInput!
-  ): DeletePostPayload
-
-  """Deletes a single \`Post\` using a unique key."""
-  deletePost(
-    """
-    The exclusive input argument for this mutation. An object type, make sure to see documentation for this object’s fields.
-    """
-    input: DeletePostInput!
-  ): DeletePostPayload
 }
 
 """The output of our create \`User\` mutation."""
@@ -1197,498 +1131,807 @@ input CreateUserInput {
   payload verbatim. May be used to track mutations by the client.
   """
   clientMutationId: String
-
-  """The \`User\` to be created by this mutation."""
-  user: UserInput!
-}
-
-"""An input for mutations affecting \`User\`"""
-input UserInput {
-  rowId: UUID
-  identityProviderId: UUID!
-  createdAt: Datetime
-  updatedAt: Datetime
-}
-
-"""The output of our create \`Post\` mutation."""
-type CreatePostPayload {
-  """
-  The exact same \`clientMutationId\` that was provided in the mutation input,
-  unchanged and unused. May be used by a client to track mutations.
-  """
-  clientMutationId: String
-
-  """The \`Post\` that was created by this mutation."""
-  post: Post
-
-  """
-  Our root query field type. Allows us to run any query from our mutation payload.
-  """
-  query: Query
-
-  """An edge for our \`Post\`. May be used by Relay 1."""
-  postEdge(
-    """The method to use when ordering \`Post\`."""
-    orderBy: [PostOrderBy!]! = [PRIMARY_KEY_ASC]
-  ): PostEdge
-}
-
-"""All input for the create \`Post\` mutation."""
-input CreatePostInput {
-  """
-  An arbitrary string value with no semantic meaning. Will be included in the
-  payload verbatim. May be used to track mutations by the client.
-  """
-  clientMutationId: String
-
-  """The \`Post\` to be created by this mutation."""
-  post: PostInput!
-}
-
-"""An input for mutations affecting \`Post\`"""
-input PostInput {
-  rowId: UUID
-  title: String
-  description: String
-  authorId: UUID!
-  createdAt: Datetime
-  updatedAt: Datetime
-}
-
-"""The output of our update \`User\` mutation."""
-type UpdateUserPayload {
-  """
-  The exact same \`clientMutationId\` that was provided in the mutation input,
-  unchanged and unused. May be used by a client to track mutations.
-  """
-  clientMutationId: String
-
-  """The \`User\` that was updated by this mutation."""
-  user: User
-
-  """
-  Our root query field type. Allows us to run any query from our mutation payload.
-  """
-  query: Query
-
-  """An edge for our \`User\`. May be used by Relay 1."""
-  userEdge(
-    """The method to use when ordering \`User\`."""
-    orderBy: [UserOrderBy!]! = [PRIMARY_KEY_ASC]
-  ): UserEdge
-}
-
-"""All input for the \`updateUserById\` mutation."""
-input UpdateUserByIdInput {
-  """
-  An arbitrary string value with no semantic meaning. Will be included in the
-  payload verbatim. May be used to track mutations by the client.
-  """
-  clientMutationId: String
-
-  """
-  The globally unique \`ID\` which will identify a single \`User\` to be updated.
-  """
-  id: ID!
-
-  """
-  An object where the defined keys will be set on the \`User\` being updated.
-  """
-  patch: UserPatch!
-}
-
-"""Represents an update to a \`User\`. Fields that are set will be updated."""
-input UserPatch {
-  rowId: UUID
-  identityProviderId: UUID
-  createdAt: Datetime
-  updatedAt: Datetime
-}
-
-"""All input for the \`updateUser\` mutation."""
-input UpdateUserInput {
-  """
-  An arbitrary string value with no semantic meaning. Will be included in the
-  payload verbatim. May be used to track mutations by the client.
-  """
-  clientMutationId: String
-  rowId: UUID!
-
-  """
-  An object where the defined keys will be set on the \`User\` being updated.
-  """
-  patch: UserPatch!
-}
-
-"""All input for the \`updateUserByIdentityProviderId\` mutation."""
-input UpdateUserByIdentityProviderIdInput {
-  """
-  An arbitrary string value with no semantic meaning. Will be included in the
-  payload verbatim. May be used to track mutations by the client.
-  """
-  clientMutationId: String
-  identityProviderId: UUID!
-
-  """
-  An object where the defined keys will be set on the \`User\` being updated.
-  """
-  patch: UserPatch!
-}
-
-"""The output of our update \`Post\` mutation."""
-type UpdatePostPayload {
-  """
-  The exact same \`clientMutationId\` that was provided in the mutation input,
-  unchanged and unused. May be used by a client to track mutations.
-  """
-  clientMutationId: String
-
-  """The \`Post\` that was updated by this mutation."""
-  post: Post
-
-  """
-  Our root query field type. Allows us to run any query from our mutation payload.
-  """
-  query: Query
-
-  """An edge for our \`Post\`. May be used by Relay 1."""
-  postEdge(
-    """The method to use when ordering \`Post\`."""
-    orderBy: [PostOrderBy!]! = [PRIMARY_KEY_ASC]
-  ): PostEdge
-}
-
-"""All input for the \`updatePostById\` mutation."""
-input UpdatePostByIdInput {
-  """
-  An arbitrary string value with no semantic meaning. Will be included in the
-  payload verbatim. May be used to track mutations by the client.
-  """
-  clientMutationId: String
-
-  """
-  The globally unique \`ID\` which will identify a single \`Post\` to be updated.
-  """
-  id: ID!
-
-  """
-  An object where the defined keys will be set on the \`Post\` being updated.
-  """
-  patch: PostPatch!
-}
-
-"""Represents an update to a \`Post\`. Fields that are set will be updated."""
-input PostPatch {
-  rowId: UUID
-  title: String
-  description: String
-  authorId: UUID
-  createdAt: Datetime
-  updatedAt: Datetime
-}
-
-"""All input for the \`updatePost\` mutation."""
-input UpdatePostInput {
-  """
-  An arbitrary string value with no semantic meaning. Will be included in the
-  payload verbatim. May be used to track mutations by the client.
-  """
-  clientMutationId: String
-  rowId: UUID!
-
-  """
-  An object where the defined keys will be set on the \`Post\` being updated.
-  """
-  patch: PostPatch!
-}
-
-"""The output of our delete \`User\` mutation."""
-type DeleteUserPayload {
-  """
-  The exact same \`clientMutationId\` that was provided in the mutation input,
-  unchanged and unused. May be used by a client to track mutations.
-  """
-  clientMutationId: String
-
-  """The \`User\` that was deleted by this mutation."""
-  user: User
-  deletedUserId: ID
-
-  """
-  Our root query field type. Allows us to run any query from our mutation payload.
-  """
-  query: Query
-
-  """An edge for our \`User\`. May be used by Relay 1."""
-  userEdge(
-    """The method to use when ordering \`User\`."""
-    orderBy: [UserOrderBy!]! = [PRIMARY_KEY_ASC]
-  ): UserEdge
-}
-
-"""All input for the \`deleteUserById\` mutation."""
-input DeleteUserByIdInput {
-  """
-  An arbitrary string value with no semantic meaning. Will be included in the
-  payload verbatim. May be used to track mutations by the client.
-  """
-  clientMutationId: String
-
-  """
-  The globally unique \`ID\` which will identify a single \`User\` to be deleted.
-  """
-  id: ID!
-}
-
-"""All input for the \`deleteUser\` mutation."""
-input DeleteUserInput {
-  """
-  An arbitrary string value with no semantic meaning. Will be included in the
-  payload verbatim. May be used to track mutations by the client.
-  """
-  clientMutationId: String
-  rowId: UUID!
-}
-
-"""All input for the \`deleteUserByIdentityProviderId\` mutation."""
-input DeleteUserByIdentityProviderIdInput {
-  """
-  An arbitrary string value with no semantic meaning. Will be included in the
-  payload verbatim. May be used to track mutations by the client.
-  """
-  clientMutationId: String
-  identityProviderId: UUID!
-}
-
-"""The output of our delete \`Post\` mutation."""
-type DeletePostPayload {
-  """
-  The exact same \`clientMutationId\` that was provided in the mutation input,
-  unchanged and unused. May be used by a client to track mutations.
-  """
-  clientMutationId: String
-
-  """The \`Post\` that was deleted by this mutation."""
-  post: Post
-  deletedPostId: ID
-
-  """
-  Our root query field type. Allows us to run any query from our mutation payload.
-  """
-  query: Query
-
-  """An edge for our \`Post\`. May be used by Relay 1."""
-  postEdge(
-    """The method to use when ordering \`Post\`."""
-    orderBy: [PostOrderBy!]! = [PRIMARY_KEY_ASC]
-  ): PostEdge
-}
-
-"""All input for the \`deletePostById\` mutation."""
-input DeletePostByIdInput {
-  """
-  An arbitrary string value with no semantic meaning. Will be included in the
-  payload verbatim. May be used to track mutations by the client.
-  """
-  clientMutationId: String
-
-  """
-  The globally unique \`ID\` which will identify a single \`Post\` to be deleted.
-  """
-  id: ID!
-}
-
-"""All input for the \`deletePost\` mutation."""
-input DeletePostInput {
-  """
-  An arbitrary string value with no semantic meaning. Will be included in the
-  payload verbatim. May be used to track mutations by the client.
-  """
-  clientMutationId: String
-  rowId: UUID!
 }`;
-export const plans = {
+export const objects = {
   Query: {
-    __assertStep() {
+    assertStep() {
       return !0;
     },
-    query() {
-      return rootValue();
-    },
-    id($parent) {
-      const specifier = handler.plan($parent);
-      return lambda(specifier, nodeIdCodecs[handler.codec.name].encode);
-    },
-    node(_$root, args) {
-      return node(nodeIdHandlerByTypeName, args.getRaw("id"));
-    },
-    user(_$root, {
-      $rowId
-    }) {
-      return pgResource_userPgResource.get({
-        id: $rowId
-      });
-    },
-    userByIdentityProviderId(_$root, {
-      $identityProviderId
-    }) {
-      return pgResource_userPgResource.get({
-        identity_provider_id: $identityProviderId
-      });
-    },
-    post(_$root, {
-      $rowId
-    }) {
-      return pgResource_postPgResource.get({
-        id: $rowId
-      });
-    },
-    userById(_$parent, args) {
-      const $nodeId = args.getRaw("id");
-      return nodeFetcher_User($nodeId);
-    },
-    postById(_$parent, args) {
-      const $nodeId = args.getRaw("id");
-      return nodeFetcher_Post($nodeId);
-    },
-    users: {
-      plan() {
-        return connection(pgResource_userPgResource.find());
+    plans: {
+      id($parent) {
+        const specifier = nodeIdHandler_Query.plan($parent);
+        return lambda(specifier, nodeIdCodecs[nodeIdHandler_Query.codec.name].encode);
       },
-      args: {
-        first(_, $connection, arg) {
-          $connection.setFirst(arg.getRaw());
+      node(_$root, fieldArgs) {
+        return fieldArgs.getRaw("id");
+      },
+      post(_$root, {
+        $rowId
+      }) {
+        return resource_postPgResource.get({
+          id: $rowId
+        });
+      },
+      postById(_$parent, args) {
+        const $nodeId = args.getRaw("id");
+        return nodeFetcher_Post($nodeId);
+      },
+      posts: {
+        plan() {
+          return connection(resource_postPgResource.find());
         },
-        last(_, $connection, val) {
-          $connection.setLast(val.getRaw());
-        },
-        offset(_, $connection, val) {
-          $connection.setOffset(val.getRaw());
-        },
-        before(_, $connection, val) {
-          $connection.setBefore(val.getRaw());
-        },
-        after(_, $connection, val) {
-          $connection.setAfter(val.getRaw());
-        },
-        condition(_condition, $connection, arg) {
-          const $select = $connection.getSubplan();
-          arg.apply($select, qbWhereBuilder);
-        },
-        filter(_, $connection, fieldArg) {
-          const $pgSelect = $connection.getSubplan();
-          fieldArg.apply($pgSelect, (queryBuilder, value) => {
-            assertAllowed(value, "object");
-            if (value == null) return;
-            const condition = new PgCondition(queryBuilder);
-            return condition;
-          });
-        },
-        orderBy(parent, $connection, value) {
-          const $select = $connection.getSubplan();
-          value.apply($select);
+        args: {
+          first(_, $connection, arg) {
+            $connection.setFirst(arg.getRaw());
+          },
+          last(_, $connection, val) {
+            $connection.setLast(val.getRaw());
+          },
+          offset(_, $connection, val) {
+            $connection.setOffset(val.getRaw());
+          },
+          before(_, $connection, val) {
+            $connection.setBefore(val.getRaw());
+          },
+          after(_, $connection, val) {
+            $connection.setAfter(val.getRaw());
+          },
+          condition(_condition, $connection, arg) {
+            const $select = $connection.getSubplan();
+            arg.apply($select, qbWhereBuilder);
+          },
+          filter(_, $connection, fieldArg) {
+            const $pgSelect = $connection.getSubplan();
+            fieldArg.apply($pgSelect, (queryBuilder, value) => {
+              assertAllowed2(value, "object");
+              if (value == null) return;
+              const condition = new PgCondition(queryBuilder);
+              return condition;
+            });
+          },
+          orderBy(parent, $connection, value) {
+            const $select = $connection.getSubplan();
+            value.apply($select);
+          }
         }
-      }
-    },
-    posts: {
-      plan() {
-        return connection(pgResource_postPgResource.find());
       },
-      args: {
-        first(_, $connection, arg) {
-          $connection.setFirst(arg.getRaw());
+      query() {
+        return rootValue();
+      },
+      user(_$root, {
+        $rowId
+      }) {
+        return resource_userPgResource.get({
+          id: $rowId
+        });
+      },
+      userById(_$parent, args) {
+        const $nodeId = args.getRaw("id");
+        return nodeFetcher_User($nodeId);
+      },
+      userByIdentityProviderId(_$root, {
+        $identityProviderId
+      }) {
+        return resource_userPgResource.get({
+          identity_provider_id: $identityProviderId
+        });
+      },
+      users: {
+        plan() {
+          return connection(resource_userPgResource.find());
         },
-        last(_, $connection, val) {
-          $connection.setLast(val.getRaw());
-        },
-        offset(_, $connection, val) {
-          $connection.setOffset(val.getRaw());
-        },
-        before(_, $connection, val) {
-          $connection.setBefore(val.getRaw());
-        },
-        after(_, $connection, val) {
-          $connection.setAfter(val.getRaw());
-        },
-        condition(_condition, $connection, arg) {
-          const $select = $connection.getSubplan();
-          arg.apply($select, qbWhereBuilder);
-        },
-        filter(_, $connection, fieldArg) {
-          const $pgSelect = $connection.getSubplan();
-          fieldArg.apply($pgSelect, (queryBuilder, value) => {
-            assertAllowed2(value, "object");
-            if (value == null) return;
-            const condition = new PgCondition(queryBuilder);
-            return condition;
-          });
-        },
-        orderBy(parent, $connection, value) {
-          const $select = $connection.getSubplan();
-          value.apply($select);
+        args: {
+          first(_, $connection, arg) {
+            $connection.setFirst(arg.getRaw());
+          },
+          last(_, $connection, val) {
+            $connection.setLast(val.getRaw());
+          },
+          offset(_, $connection, val) {
+            $connection.setOffset(val.getRaw());
+          },
+          before(_, $connection, val) {
+            $connection.setBefore(val.getRaw());
+          },
+          after(_, $connection, val) {
+            $connection.setAfter(val.getRaw());
+          },
+          condition(_condition, $connection, arg) {
+            const $select = $connection.getSubplan();
+            arg.apply($select, qbWhereBuilder);
+          },
+          filter(_, $connection, fieldArg) {
+            const $pgSelect = $connection.getSubplan();
+            fieldArg.apply($pgSelect, (queryBuilder, value) => {
+              assertAllowed(value, "object");
+              if (value == null) return;
+              const condition = new PgCondition(queryBuilder);
+              return condition;
+            });
+          },
+          orderBy(parent, $connection, value) {
+            const $select = $connection.getSubplan();
+            value.apply($select);
+          }
         }
       }
     }
   },
-  User: {
-    __assertStep: assertPgClassSingleStep,
-    id($parent) {
-      const specifier = nodeIdHandlerByTypeName.User.plan($parent);
-      return lambda(specifier, nodeIdCodecs[nodeIdHandlerByTypeName.User.codec.name].encode);
-    },
-    rowId($record) {
-      return $record.get("id");
-    },
-    identityProviderId($record) {
-      return $record.get("identity_provider_id");
-    },
-    createdAt($record) {
-      return $record.get("created_at");
-    },
-    updatedAt($record) {
-      return $record.get("updated_at");
-    },
-    authoredPosts: {
-      plan($record) {
-        const $records = pgResource_postPgResource.find({
-          author_id: $record.get("id")
-        });
-        return connection($records);
-      },
-      args: {
-        first(_, $connection, arg) {
-          $connection.setFirst(arg.getRaw());
-        },
-        last(_, $connection, val) {
-          $connection.setLast(val.getRaw());
-        },
-        offset(_, $connection, val) {
-          $connection.setOffset(val.getRaw());
-        },
-        before(_, $connection, val) {
-          $connection.setBefore(val.getRaw());
-        },
-        after(_, $connection, val) {
-          $connection.setAfter(val.getRaw());
-        },
-        condition(_condition, $connection, arg) {
-          const $select = $connection.getSubplan();
-          arg.apply($select, qbWhereBuilder);
-        },
-        filter(_, $connection, fieldArg) {
-          const $pgSelect = $connection.getSubplan();
-          fieldArg.apply($pgSelect, (queryBuilder, value) => {
-            assertAllowed3(value, "object");
-            if (value == null) return;
-            const condition = new PgCondition(queryBuilder);
-            return condition;
+  Mutation: {
+    assertStep: __ValueStep,
+    plans: {
+      createUser: {
+        plan(_, args) {
+          const $insert = pgInsertSingle(resource_userPgResource, Object.create(null));
+          args.apply($insert);
+          return object({
+            result: $insert
           });
         },
-        orderBy(parent, $connection, value) {
-          const $select = $connection.getSubplan();
-          value.apply($select);
+        args: {
+          input(_, $object) {
+            return $object;
+          }
         }
       }
+    }
+  },
+  CreateUserPayload: {
+    assertStep: assertExecutableStep,
+    plans: {
+      clientMutationId($mutation) {
+        return $mutation.getStepForKey("result").getMeta("clientMutationId");
+      },
+      query() {
+        return rootValue();
+      },
+      user($object) {
+        return $object.get("result");
+      },
+      userEdge($mutation, fieldArgs) {
+        return pgMutationPayloadEdge(resource_userPgResource, userUniques[0].attributes, $mutation, fieldArgs);
+      }
+    }
+  },
+  Post: {
+    assertStep: assertPgClassSingleStep,
+    plans: {
+      author($record) {
+        return resource_userPgResource.get({
+          id: $record.get("author_id")
+        });
+      },
+      authorId($record) {
+        return $record.get("author_id");
+      },
+      createdAt($record) {
+        return $record.get("created_at");
+      },
+      id($parent) {
+        const specifier = nodeIdHandler_Post.plan($parent);
+        return lambda(specifier, nodeIdCodecs[nodeIdHandler_Post.codec.name].encode);
+      },
+      rowId($record) {
+        return $record.get("id");
+      },
+      updatedAt($record) {
+        return $record.get("updated_at");
+      }
+    },
+    planType($specifier) {
+      const spec = Object.create(null);
+      for (const pkCol of postUniques[0].attributes) spec[pkCol] = get2($specifier, pkCol);
+      return resource_postPgResource.get(spec);
+    }
+  },
+  PostConnection: {
+    assertStep: ConnectionStep,
+    plans: {
+      totalCount($connection) {
+        return $connection.cloneSubplanWithoutPagination("aggregate").singleAsRecord().select(sql`count(*)`, TYPES.bigint, !1);
+      }
+    }
+  },
+  User: {
+    assertStep: assertPgClassSingleStep,
+    plans: {
+      authoredPosts: {
+        plan($record) {
+          const $records = resource_postPgResource.find({
+            author_id: $record.get("id")
+          });
+          return connection($records);
+        },
+        args: {
+          first(_, $connection, arg) {
+            $connection.setFirst(arg.getRaw());
+          },
+          last(_, $connection, val) {
+            $connection.setLast(val.getRaw());
+          },
+          offset(_, $connection, val) {
+            $connection.setOffset(val.getRaw());
+          },
+          before(_, $connection, val) {
+            $connection.setBefore(val.getRaw());
+          },
+          after(_, $connection, val) {
+            $connection.setAfter(val.getRaw());
+          },
+          condition(_condition, $connection, arg) {
+            const $select = $connection.getSubplan();
+            arg.apply($select, qbWhereBuilder);
+          },
+          filter(_, $connection, fieldArg) {
+            const $pgSelect = $connection.getSubplan();
+            fieldArg.apply($pgSelect, (queryBuilder, value) => {
+              assertAllowed3(value, "object");
+              if (value == null) return;
+              const condition = new PgCondition(queryBuilder);
+              return condition;
+            });
+          },
+          orderBy(parent, $connection, value) {
+            const $select = $connection.getSubplan();
+            value.apply($select);
+          }
+        }
+      },
+      createdAt($record) {
+        return $record.get("created_at");
+      },
+      id($parent) {
+        const specifier = nodeIdHandler_User.plan($parent);
+        return lambda(specifier, nodeIdCodecs[nodeIdHandler_User.codec.name].encode);
+      },
+      identityProviderId($record) {
+        return $record.get("identity_provider_id");
+      },
+      rowId($record) {
+        return $record.get("id");
+      },
+      updatedAt($record) {
+        return $record.get("updated_at");
+      }
+    },
+    planType($specifier) {
+      const spec = Object.create(null);
+      for (const pkCol of userUniques[0].attributes) spec[pkCol] = get2($specifier, pkCol);
+      return resource_userPgResource.get(spec);
+    }
+  },
+  UserConnection: {
+    assertStep: ConnectionStep,
+    plans: {
+      totalCount($connection) {
+        return $connection.cloneSubplanWithoutPagination("aggregate").singleAsRecord().select(sql`count(*)`, TYPES.bigint, !1);
+      }
+    }
+  }
+};
+export const interfaces = {
+  Node: {
+    planType($nodeId) {
+      const $specifier = decodeNodeId($nodeId);
+      return {
+        $__typename: lambda($specifier, findTypeNameMatch, !0),
+        planForType(type) {
+          const spec = nodeIdHandlerByTypeName[type.name];
+          if (spec) return spec.get(spec.getSpec(access($specifier, [spec.codec.name])));else throw Error(`Failed to find handler for ${type.name}`);
+        }
+      };
+    }
+  }
+};
+export const inputObjects = {
+  CreateUserInput: {
+    plans: {
+      clientMutationId(qb, val) {
+        qb.setMeta("clientMutationId", val);
+      }
+    }
+  },
+  PostCondition: {
+    plans: {
+      authorId($condition, val) {
+        $condition.where({
+          type: "attribute",
+          attribute: "author_id",
+          callback(expression) {
+            return val === null ? sql`${expression} is null` : sql`${expression} = ${sqlValueWithCodec(val, TYPES.uuid)}`;
+          }
+        });
+      },
+      rowId($condition, val) {
+        $condition.where({
+          type: "attribute",
+          attribute: "id",
+          callback(expression) {
+            return val === null ? sql`${expression} is null` : sql`${expression} = ${sqlValueWithCodec(val, TYPES.uuid)}`;
+          }
+        });
+      }
+    }
+  },
+  PostFilter: {
+    plans: {
+      and($where, value) {
+        assertAllowed5(value, "list");
+        if (value == null) return;
+        return $where.andPlan();
+      },
+      author($where, value) {
+        assertAllowed4(value, "object");
+        if (value == null) return;
+        const $subQuery = $where.existsPlan({
+          tableExpression: userIdentifier,
+          alias: resource_userPgResource.name
+        });
+        registryConfig.pgRelations.post.userByMyAuthorId.localAttributes.forEach((localAttribute, i) => {
+          const remoteAttribute = registryConfig.pgRelations.post.userByMyAuthorId.remoteAttributes[i];
+          $subQuery.where(sql`${$where.alias}.${sql.identifier(localAttribute)} = ${$subQuery.alias}.${sql.identifier(remoteAttribute)}`);
+        });
+        return $subQuery;
+      },
+      authorId(queryBuilder, value) {
+        if (value === void 0) return;
+        if (!true && isEmpty(value)) throw Object.assign(Error("Empty objects are forbidden in filter argument input."), {});
+        if (!true && value === null) throw Object.assign(Error("Null literals are forbidden in filter argument input."), {});
+        const condition = new PgCondition(queryBuilder);
+        condition.extensions.pgFilterAttribute = colSpec2;
+        return condition;
+      },
+      not($where, value) {
+        assertAllowed5(value, "object");
+        if (value == null) return;
+        return $where.notPlan().andPlan();
+      },
+      or($where, value) {
+        assertAllowed5(value, "list");
+        if (value == null) return;
+        const $or = $where.orPlan();
+        return () => $or.andPlan();
+      },
+      rowId(queryBuilder, value) {
+        if (value === void 0) return;
+        if (!true && isEmpty(value)) throw Object.assign(Error("Empty objects are forbidden in filter argument input."), {});
+        if (!true && value === null) throw Object.assign(Error("Null literals are forbidden in filter argument input."), {});
+        const condition = new PgCondition(queryBuilder);
+        condition.extensions.pgFilterAttribute = colSpec;
+        return condition;
+      }
+    }
+  },
+  UserCondition: {
+    plans: {
+      identityProviderId($condition, val) {
+        $condition.where({
+          type: "attribute",
+          attribute: "identity_provider_id",
+          callback(expression) {
+            return val === null ? sql`${expression} is null` : sql`${expression} = ${sqlValueWithCodec(val, TYPES.uuid)}`;
+          }
+        });
+      },
+      rowId($condition, val) {
+        $condition.where({
+          type: "attribute",
+          attribute: "id",
+          callback(expression) {
+            return val === null ? sql`${expression} is null` : sql`${expression} = ${sqlValueWithCodec(val, TYPES.uuid)}`;
+          }
+        });
+      }
+    }
+  },
+  UserFilter: {
+    plans: {
+      and($where, value) {
+        assertAllowed7(value, "list");
+        if (value == null) return;
+        return $where.andPlan();
+      },
+      authoredPosts($where, value) {
+        assertAllowed6(value, "object");
+        const $rel = $where.andPlan();
+        $rel.extensions.pgFilterRelation = {
+          tableExpression: postIdentifier,
+          alias: resource_postPgResource.name,
+          localAttributes: registryConfig.pgRelations.user.postsByTheirAuthorId.localAttributes,
+          remoteAttributes: registryConfig.pgRelations.user.postsByTheirAuthorId.remoteAttributes
+        };
+        return $rel;
+      },
+      authoredPostsExist($where, value) {
+        assertAllowed6(value, "scalar");
+        if (value == null) return;
+        const $subQuery = $where.existsPlan({
+          tableExpression: postIdentifier,
+          alias: resource_postPgResource.name,
+          equals: value
+        });
+        registryConfig.pgRelations.user.postsByTheirAuthorId.localAttributes.forEach((localAttribute, i) => {
+          const remoteAttribute = registryConfig.pgRelations.user.postsByTheirAuthorId.remoteAttributes[i];
+          $subQuery.where(sql`${$where.alias}.${sql.identifier(localAttribute)} = ${$subQuery.alias}.${sql.identifier(remoteAttribute)}`);
+        });
+      },
+      identityProviderId(queryBuilder, value) {
+        if (value === void 0) return;
+        if (!true && isEmpty(value)) throw Object.assign(Error("Empty objects are forbidden in filter argument input."), {});
+        if (!true && value === null) throw Object.assign(Error("Null literals are forbidden in filter argument input."), {});
+        const condition = new PgCondition(queryBuilder);
+        condition.extensions.pgFilterAttribute = colSpec4;
+        return condition;
+      },
+      not($where, value) {
+        assertAllowed7(value, "object");
+        if (value == null) return;
+        return $where.notPlan().andPlan();
+      },
+      or($where, value) {
+        assertAllowed7(value, "list");
+        if (value == null) return;
+        const $or = $where.orPlan();
+        return () => $or.andPlan();
+      },
+      rowId(queryBuilder, value) {
+        if (value === void 0) return;
+        if (!true && isEmpty(value)) throw Object.assign(Error("Empty objects are forbidden in filter argument input."), {});
+        if (!true && value === null) throw Object.assign(Error("Null literals are forbidden in filter argument input."), {});
+        const condition = new PgCondition(queryBuilder);
+        condition.extensions.pgFilterAttribute = colSpec3;
+        return condition;
+      }
+    }
+  },
+  UserToManyPostFilter: {
+    plans: {
+      every($where, value) {
+        assertAllowed8(value, "object");
+        if (value == null) return;
+        if (!$where.extensions.pgFilterRelation) throw Error("Invalid use of filter, 'pgFilterRelation' expected");
+        const {
+            localAttributes,
+            remoteAttributes,
+            tableExpression,
+            alias
+          } = $where.extensions.pgFilterRelation,
+          $subQuery = $where.notPlan().existsPlan({
+            tableExpression,
+            alias
+          });
+        localAttributes.forEach((localAttribute, i) => {
+          const remoteAttribute = remoteAttributes[i];
+          $subQuery.where(sql`${$where.alias}.${sql.identifier(localAttribute)} = ${$subQuery.alias}.${sql.identifier(remoteAttribute)}`);
+        });
+        return $subQuery.notPlan().andPlan();
+      },
+      none($where, value) {
+        assertAllowed8(value, "object");
+        if (value == null) return;
+        if (!$where.extensions.pgFilterRelation) throw Error("Invalid use of filter, 'pgFilterRelation' expected");
+        const {
+            localAttributes,
+            remoteAttributes,
+            tableExpression,
+            alias
+          } = $where.extensions.pgFilterRelation,
+          $subQuery = $where.notPlan().existsPlan({
+            tableExpression,
+            alias
+          });
+        localAttributes.forEach((localAttribute, i) => {
+          const remoteAttribute = remoteAttributes[i];
+          $subQuery.where(sql`${$where.alias}.${sql.identifier(localAttribute)} = ${$subQuery.alias}.${sql.identifier(remoteAttribute)}`);
+        });
+        return $subQuery;
+      },
+      some($where, value) {
+        assertAllowed8(value, "object");
+        if (value == null) return;
+        if (!$where.extensions.pgFilterRelation) throw Error("Invalid use of filter, 'pgFilterRelation' expected");
+        const {
+            localAttributes,
+            remoteAttributes,
+            tableExpression,
+            alias
+          } = $where.extensions.pgFilterRelation,
+          $subQuery = $where.existsPlan({
+            tableExpression,
+            alias
+          });
+        localAttributes.forEach((localAttribute, i) => {
+          const remoteAttribute = remoteAttributes[i];
+          $subQuery.where(sql`${$where.alias}.${sql.identifier(localAttribute)} = ${$subQuery.alias}.${sql.identifier(remoteAttribute)}`);
+        });
+        return $subQuery;
+      }
+    }
+  },
+  UUIDFilter: {
+    plans: {
+      distinctFrom($where, value) {
+        if (!$where.extensions?.pgFilterAttribute) throw Error("Planning error: expected 'pgFilterAttribute' to be present on the $where plan's extensions; your extensions to `postgraphile-plugin-connection-filter` does not implement the required interfaces.");
+        if (value === void 0) return;
+        const {
+            fieldName: parentFieldName,
+            attributeName,
+            attribute,
+            codec,
+            expression
+          } = $where.extensions.pgFilterAttribute,
+          sourceAlias = attribute ? attribute.expression ? attribute.expression($where.alias) : sql`${$where.alias}.${sql.identifier(attributeName)}` : expression ? expression : $where.alias,
+          sourceCodec = codec ?? attribute.codec,
+          [sqlIdentifier, identifierCodec] = resolveSqlIdentifier ? resolveSqlIdentifier(sourceAlias, sourceCodec) : [sourceAlias, sourceCodec];
+        if (true && value === null) return;
+        if (!true && value === null) throw Object.assign(Error("Null literals are forbidden in filter argument input."), {});
+        const resolvedInput = value,
+          inputCodec = resolveInputCodec2 ? resolveInputCodec2(codec ?? attribute.codec) : codec ?? attribute.codec,
+          sqlValue = sqlValueWithCodec(resolvedInput, inputCodec),
+          fragment = resolve4(sqlIdentifier, sqlValue, value, $where, {
+            fieldName: parentFieldName ?? null,
+            operatorName: "distinctFrom"
+          });
+        $where.where(fragment);
+      },
+      equalTo($where, value) {
+        if (!$where.extensions?.pgFilterAttribute) throw Error("Planning error: expected 'pgFilterAttribute' to be present on the $where plan's extensions; your extensions to `postgraphile-plugin-connection-filter` does not implement the required interfaces.");
+        if (value === void 0) return;
+        const {
+            fieldName: parentFieldName,
+            attributeName,
+            attribute,
+            codec,
+            expression
+          } = $where.extensions.pgFilterAttribute,
+          sourceAlias = attribute ? attribute.expression ? attribute.expression($where.alias) : sql`${$where.alias}.${sql.identifier(attributeName)}` : expression ? expression : $where.alias,
+          sourceCodec = codec ?? attribute.codec,
+          [sqlIdentifier, identifierCodec] = resolveSqlIdentifier ? resolveSqlIdentifier(sourceAlias, sourceCodec) : [sourceAlias, sourceCodec];
+        if (true && value === null) return;
+        if (!true && value === null) throw Object.assign(Error("Null literals are forbidden in filter argument input."), {});
+        const resolvedInput = value,
+          inputCodec = resolveInputCodec2 ? resolveInputCodec2(codec ?? attribute.codec) : codec ?? attribute.codec,
+          sqlValue = sqlValueWithCodec(resolvedInput, inputCodec),
+          fragment = resolve2(sqlIdentifier, sqlValue, value, $where, {
+            fieldName: parentFieldName ?? null,
+            operatorName: "equalTo"
+          });
+        $where.where(fragment);
+      },
+      greaterThan($where, value) {
+        if (!$where.extensions?.pgFilterAttribute) throw Error("Planning error: expected 'pgFilterAttribute' to be present on the $where plan's extensions; your extensions to `postgraphile-plugin-connection-filter` does not implement the required interfaces.");
+        if (value === void 0) return;
+        const {
+            fieldName: parentFieldName,
+            attributeName,
+            attribute,
+            codec,
+            expression
+          } = $where.extensions.pgFilterAttribute,
+          sourceAlias = attribute ? attribute.expression ? attribute.expression($where.alias) : sql`${$where.alias}.${sql.identifier(attributeName)}` : expression ? expression : $where.alias,
+          sourceCodec = codec ?? attribute.codec,
+          [sqlIdentifier, identifierCodec] = resolveSqlIdentifier ? resolveSqlIdentifier(sourceAlias, sourceCodec) : [sourceAlias, sourceCodec];
+        if (true && value === null) return;
+        if (!true && value === null) throw Object.assign(Error("Null literals are forbidden in filter argument input."), {});
+        const resolvedInput = value,
+          inputCodec = resolveInputCodec2 ? resolveInputCodec2(codec ?? attribute.codec) : codec ?? attribute.codec,
+          sqlValue = sqlValueWithCodec(resolvedInput, inputCodec),
+          fragment = resolve10(sqlIdentifier, sqlValue, value, $where, {
+            fieldName: parentFieldName ?? null,
+            operatorName: "greaterThan"
+          });
+        $where.where(fragment);
+      },
+      greaterThanOrEqualTo($where, value) {
+        if (!$where.extensions?.pgFilterAttribute) throw Error("Planning error: expected 'pgFilterAttribute' to be present on the $where plan's extensions; your extensions to `postgraphile-plugin-connection-filter` does not implement the required interfaces.");
+        if (value === void 0) return;
+        const {
+            fieldName: parentFieldName,
+            attributeName,
+            attribute,
+            codec,
+            expression
+          } = $where.extensions.pgFilterAttribute,
+          sourceAlias = attribute ? attribute.expression ? attribute.expression($where.alias) : sql`${$where.alias}.${sql.identifier(attributeName)}` : expression ? expression : $where.alias,
+          sourceCodec = codec ?? attribute.codec,
+          [sqlIdentifier, identifierCodec] = resolveSqlIdentifier ? resolveSqlIdentifier(sourceAlias, sourceCodec) : [sourceAlias, sourceCodec];
+        if (true && value === null) return;
+        if (!true && value === null) throw Object.assign(Error("Null literals are forbidden in filter argument input."), {});
+        const resolvedInput = value,
+          inputCodec = resolveInputCodec2 ? resolveInputCodec2(codec ?? attribute.codec) : codec ?? attribute.codec,
+          sqlValue = sqlValueWithCodec(resolvedInput, inputCodec),
+          fragment = resolve11(sqlIdentifier, sqlValue, value, $where, {
+            fieldName: parentFieldName ?? null,
+            operatorName: "greaterThanOrEqualTo"
+          });
+        $where.where(fragment);
+      },
+      in($where, value) {
+        if (!$where.extensions?.pgFilterAttribute) throw Error("Planning error: expected 'pgFilterAttribute' to be present on the $where plan's extensions; your extensions to `postgraphile-plugin-connection-filter` does not implement the required interfaces.");
+        if (value === void 0) return;
+        const {
+            fieldName: parentFieldName,
+            attributeName,
+            attribute,
+            codec,
+            expression
+          } = $where.extensions.pgFilterAttribute,
+          sourceAlias = attribute ? attribute.expression ? attribute.expression($where.alias) : sql`${$where.alias}.${sql.identifier(attributeName)}` : expression ? expression : $where.alias,
+          sourceCodec = codec ?? attribute.codec,
+          [sqlIdentifier, identifierCodec] = resolveSqlIdentifier ? resolveSqlIdentifier(sourceAlias, sourceCodec) : [sourceAlias, sourceCodec];
+        if (true && value === null) return;
+        if (!true && value === null) throw Object.assign(Error("Null literals are forbidden in filter argument input."), {});
+        const resolvedInput = value,
+          inputCodec = resolveInputCodec3 ? resolveInputCodec3(codec ?? attribute.codec) : codec ?? attribute.codec,
+          sqlValue = sqlValueWithCodec(resolvedInput, inputCodec),
+          fragment = resolve6(sqlIdentifier, sqlValue, value, $where, {
+            fieldName: parentFieldName ?? null,
+            operatorName: "in"
+          });
+        $where.where(fragment);
+      },
+      isNull($where, value) {
+        if (!$where.extensions?.pgFilterAttribute) throw Error("Planning error: expected 'pgFilterAttribute' to be present on the $where plan's extensions; your extensions to `postgraphile-plugin-connection-filter` does not implement the required interfaces.");
+        if (value === void 0) return;
+        const {
+            fieldName: parentFieldName,
+            attributeName,
+            attribute,
+            codec,
+            expression
+          } = $where.extensions.pgFilterAttribute,
+          sourceAlias = attribute ? attribute.expression ? attribute.expression($where.alias) : sql`${$where.alias}.${sql.identifier(attributeName)}` : expression ? expression : $where.alias,
+          sourceCodec = codec ?? attribute.codec,
+          [sqlIdentifier, identifierCodec] = [sourceAlias, sourceCodec];
+        if (true && value === null) return;
+        if (!true && value === null) throw Object.assign(Error("Null literals are forbidden in filter argument input."), {});
+        const resolvedInput = value,
+          inputCodec = resolveInputCodec ? resolveInputCodec(codec ?? attribute.codec) : codec ?? attribute.codec,
+          sqlValue = resolveSqlValue ? resolveSqlValue($where, value, inputCodec) : sqlValueWithCodec(resolvedInput, inputCodec),
+          fragment = resolve(sqlIdentifier, sqlValue, value, $where, {
+            fieldName: parentFieldName ?? null,
+            operatorName: "isNull"
+          });
+        $where.where(fragment);
+      },
+      lessThan($where, value) {
+        if (!$where.extensions?.pgFilterAttribute) throw Error("Planning error: expected 'pgFilterAttribute' to be present on the $where plan's extensions; your extensions to `postgraphile-plugin-connection-filter` does not implement the required interfaces.");
+        if (value === void 0) return;
+        const {
+            fieldName: parentFieldName,
+            attributeName,
+            attribute,
+            codec,
+            expression
+          } = $where.extensions.pgFilterAttribute,
+          sourceAlias = attribute ? attribute.expression ? attribute.expression($where.alias) : sql`${$where.alias}.${sql.identifier(attributeName)}` : expression ? expression : $where.alias,
+          sourceCodec = codec ?? attribute.codec,
+          [sqlIdentifier, identifierCodec] = resolveSqlIdentifier ? resolveSqlIdentifier(sourceAlias, sourceCodec) : [sourceAlias, sourceCodec];
+        if (true && value === null) return;
+        if (!true && value === null) throw Object.assign(Error("Null literals are forbidden in filter argument input."), {});
+        const resolvedInput = value,
+          inputCodec = resolveInputCodec2 ? resolveInputCodec2(codec ?? attribute.codec) : codec ?? attribute.codec,
+          sqlValue = sqlValueWithCodec(resolvedInput, inputCodec),
+          fragment = resolve8(sqlIdentifier, sqlValue, value, $where, {
+            fieldName: parentFieldName ?? null,
+            operatorName: "lessThan"
+          });
+        $where.where(fragment);
+      },
+      lessThanOrEqualTo($where, value) {
+        if (!$where.extensions?.pgFilterAttribute) throw Error("Planning error: expected 'pgFilterAttribute' to be present on the $where plan's extensions; your extensions to `postgraphile-plugin-connection-filter` does not implement the required interfaces.");
+        if (value === void 0) return;
+        const {
+            fieldName: parentFieldName,
+            attributeName,
+            attribute,
+            codec,
+            expression
+          } = $where.extensions.pgFilterAttribute,
+          sourceAlias = attribute ? attribute.expression ? attribute.expression($where.alias) : sql`${$where.alias}.${sql.identifier(attributeName)}` : expression ? expression : $where.alias,
+          sourceCodec = codec ?? attribute.codec,
+          [sqlIdentifier, identifierCodec] = resolveSqlIdentifier ? resolveSqlIdentifier(sourceAlias, sourceCodec) : [sourceAlias, sourceCodec];
+        if (true && value === null) return;
+        if (!true && value === null) throw Object.assign(Error("Null literals are forbidden in filter argument input."), {});
+        const resolvedInput = value,
+          inputCodec = resolveInputCodec2 ? resolveInputCodec2(codec ?? attribute.codec) : codec ?? attribute.codec,
+          sqlValue = sqlValueWithCodec(resolvedInput, inputCodec),
+          fragment = resolve9(sqlIdentifier, sqlValue, value, $where, {
+            fieldName: parentFieldName ?? null,
+            operatorName: "lessThanOrEqualTo"
+          });
+        $where.where(fragment);
+      },
+      notDistinctFrom($where, value) {
+        if (!$where.extensions?.pgFilterAttribute) throw Error("Planning error: expected 'pgFilterAttribute' to be present on the $where plan's extensions; your extensions to `postgraphile-plugin-connection-filter` does not implement the required interfaces.");
+        if (value === void 0) return;
+        const {
+            fieldName: parentFieldName,
+            attributeName,
+            attribute,
+            codec,
+            expression
+          } = $where.extensions.pgFilterAttribute,
+          sourceAlias = attribute ? attribute.expression ? attribute.expression($where.alias) : sql`${$where.alias}.${sql.identifier(attributeName)}` : expression ? expression : $where.alias,
+          sourceCodec = codec ?? attribute.codec,
+          [sqlIdentifier, identifierCodec] = resolveSqlIdentifier ? resolveSqlIdentifier(sourceAlias, sourceCodec) : [sourceAlias, sourceCodec];
+        if (true && value === null) return;
+        if (!true && value === null) throw Object.assign(Error("Null literals are forbidden in filter argument input."), {});
+        const resolvedInput = value,
+          inputCodec = resolveInputCodec2 ? resolveInputCodec2(codec ?? attribute.codec) : codec ?? attribute.codec,
+          sqlValue = sqlValueWithCodec(resolvedInput, inputCodec),
+          fragment = resolve5(sqlIdentifier, sqlValue, value, $where, {
+            fieldName: parentFieldName ?? null,
+            operatorName: "notDistinctFrom"
+          });
+        $where.where(fragment);
+      },
+      notEqualTo($where, value) {
+        if (!$where.extensions?.pgFilterAttribute) throw Error("Planning error: expected 'pgFilterAttribute' to be present on the $where plan's extensions; your extensions to `postgraphile-plugin-connection-filter` does not implement the required interfaces.");
+        if (value === void 0) return;
+        const {
+            fieldName: parentFieldName,
+            attributeName,
+            attribute,
+            codec,
+            expression
+          } = $where.extensions.pgFilterAttribute,
+          sourceAlias = attribute ? attribute.expression ? attribute.expression($where.alias) : sql`${$where.alias}.${sql.identifier(attributeName)}` : expression ? expression : $where.alias,
+          sourceCodec = codec ?? attribute.codec,
+          [sqlIdentifier, identifierCodec] = resolveSqlIdentifier ? resolveSqlIdentifier(sourceAlias, sourceCodec) : [sourceAlias, sourceCodec];
+        if (true && value === null) return;
+        if (!true && value === null) throw Object.assign(Error("Null literals are forbidden in filter argument input."), {});
+        const resolvedInput = value,
+          inputCodec = resolveInputCodec2 ? resolveInputCodec2(codec ?? attribute.codec) : codec ?? attribute.codec,
+          sqlValue = sqlValueWithCodec(resolvedInput, inputCodec),
+          fragment = resolve3(sqlIdentifier, sqlValue, value, $where, {
+            fieldName: parentFieldName ?? null,
+            operatorName: "notEqualTo"
+          });
+        $where.where(fragment);
+      },
+      notIn($where, value) {
+        if (!$where.extensions?.pgFilterAttribute) throw Error("Planning error: expected 'pgFilterAttribute' to be present on the $where plan's extensions; your extensions to `postgraphile-plugin-connection-filter` does not implement the required interfaces.");
+        if (value === void 0) return;
+        const {
+            fieldName: parentFieldName,
+            attributeName,
+            attribute,
+            codec,
+            expression
+          } = $where.extensions.pgFilterAttribute,
+          sourceAlias = attribute ? attribute.expression ? attribute.expression($where.alias) : sql`${$where.alias}.${sql.identifier(attributeName)}` : expression ? expression : $where.alias,
+          sourceCodec = codec ?? attribute.codec,
+          [sqlIdentifier, identifierCodec] = resolveSqlIdentifier ? resolveSqlIdentifier(sourceAlias, sourceCodec) : [sourceAlias, sourceCodec];
+        if (true && value === null) return;
+        if (!true && value === null) throw Object.assign(Error("Null literals are forbidden in filter argument input."), {});
+        const resolvedInput = value,
+          inputCodec = resolveInputCodec3 ? resolveInputCodec3(codec ?? attribute.codec) : codec ?? attribute.codec,
+          sqlValue = sqlValueWithCodec(resolvedInput, inputCodec),
+          fragment = resolve7(sqlIdentifier, sqlValue, value, $where, {
+            fieldName: parentFieldName ?? null,
+            operatorName: "notIn"
+          });
+        $where.where(fragment);
+      }
+    }
+  }
+};
+export const scalars = {
+  Cursor: {
+    serialize: UUIDSerialize,
+    parseValue: UUIDSerialize,
+    parseLiteral(ast) {
+      if (ast.kind !== Kind.STRING) throw new GraphQLError(`${"Cursor" ?? "This scalar"} can only parse string values (kind='${ast.kind}')`);
+      return ast.value;
+    }
+  },
+  Datetime: {
+    serialize: UUIDSerialize,
+    parseValue: UUIDSerialize,
+    parseLiteral(ast) {
+      if (ast.kind !== Kind.STRING) throw new GraphQLError(`${"Datetime" ?? "This scalar"} can only parse string values (kind='${ast.kind}')`);
+      return ast.value;
     }
   },
   UUID: {
@@ -1700,1241 +1943,113 @@ export const plans = {
       if (ast.kind !== Kind.STRING) throw new GraphQLError(`${"UUID" ?? "This scalar"} can only parse string values (kind = '${ast.kind}')`);
       return coerce(ast.value);
     }
-  },
-  Datetime: {
-    serialize: UUIDSerialize,
-    parseValue: UUIDSerialize,
-    parseLiteral(ast) {
-      if (ast.kind !== Kind.STRING) throw new GraphQLError(`${"Datetime" ?? "This scalar"} can only parse string values (kind='${ast.kind}')`);
-      return ast.value;
-    }
-  },
-  PostConnection: {
-    __assertStep: ConnectionStep,
-    totalCount($connection) {
-      return $connection.cloneSubplanWithoutPagination("aggregate").singleAsRecord().select(sql`count(*)`, TYPES.bigint, !1);
-    }
-  },
-  Post: {
-    __assertStep: assertPgClassSingleStep,
-    id($parent) {
-      const specifier = nodeIdHandlerByTypeName.Post.plan($parent);
-      return lambda(specifier, nodeIdCodecs[nodeIdHandlerByTypeName.Post.codec.name].encode);
-    },
-    rowId($record) {
-      return $record.get("id");
-    },
-    authorId($record) {
-      return $record.get("author_id");
-    },
-    createdAt($record) {
-      return $record.get("created_at");
-    },
-    updatedAt($record) {
-      return $record.get("updated_at");
-    },
-    author($record) {
-      return pgResource_userPgResource.get({
-        id: $record.get("author_id")
-      });
-    }
-  },
-  PostEdge: {
-    __assertStep: assertEdgeCapableStep,
-    cursor($edge) {
-      return $edge.cursor();
-    },
-    node($edge) {
-      return $edge.node();
-    }
-  },
-  Cursor: {
-    serialize: UUIDSerialize,
-    parseValue: UUIDSerialize,
-    parseLiteral(ast) {
-      if (ast.kind !== Kind.STRING) throw new GraphQLError(`${"Cursor" ?? "This scalar"} can only parse string values (kind='${ast.kind}')`);
-      return ast.value;
-    }
-  },
-  PageInfo: {
-    __assertStep: assertPageInfoCapableStep,
-    hasNextPage($pageInfo) {
-      return $pageInfo.hasNextPage();
-    },
-    hasPreviousPage($pageInfo) {
-      return $pageInfo.hasPreviousPage();
-    },
-    startCursor($pageInfo) {
-      return $pageInfo.startCursor();
-    },
-    endCursor($pageInfo) {
-      return $pageInfo.endCursor();
-    }
-  },
-  PostCondition: {
-    rowId($condition, val) {
-      $condition.where({
-        type: "attribute",
-        attribute: "id",
-        callback(expression) {
-          return val === null ? sql`${expression} is null` : sql`${expression} = ${sqlValueWithCodec(val, TYPES.uuid)}`;
-        }
-      });
-    },
-    authorId($condition, val) {
-      $condition.where({
-        type: "attribute",
-        attribute: "author_id",
-        callback(expression) {
-          return val === null ? sql`${expression} is null` : sql`${expression} = ${sqlValueWithCodec(val, TYPES.uuid)}`;
-        }
-      });
-    }
-  },
-  PostFilter: {
-    rowId(queryBuilder, value) {
-      if (value === void 0) return;
-      if (!true && isEmpty(value)) throw Object.assign(Error("Empty objects are forbidden in filter argument input."), {});
-      if (!true && value === null) throw Object.assign(Error("Null literals are forbidden in filter argument input."), {});
-      const condition = new PgCondition(queryBuilder);
-      condition.extensions.pgFilterAttribute = colSpec;
-      return condition;
-    },
-    authorId(queryBuilder, value) {
-      if (value === void 0) return;
-      if (!true && isEmpty(value)) throw Object.assign(Error("Empty objects are forbidden in filter argument input."), {});
-      if (!true && value === null) throw Object.assign(Error("Null literals are forbidden in filter argument input."), {});
-      const condition = new PgCondition(queryBuilder);
-      condition.extensions.pgFilterAttribute = colSpec2;
-      return condition;
-    },
-    author($where, value) {
-      assertAllowed4(value, "object");
-      if (value == null) return;
-      const $subQuery = $where.existsPlan({
-        tableExpression: userIdentifier,
-        alias: pgResource_userPgResource.name
-      });
-      registryConfig.pgRelations.post.userByMyAuthorId.localAttributes.forEach((localAttribute, i) => {
-        const remoteAttribute = registryConfig.pgRelations.post.userByMyAuthorId.remoteAttributes[i];
-        $subQuery.where(sql`${$where.alias}.${sql.identifier(localAttribute)} = ${$subQuery.alias}.${sql.identifier(remoteAttribute)}`);
-      });
-      return $subQuery;
-    },
-    and($where, value) {
-      assertAllowed5(value, "list");
-      if (value == null) return;
-      return $where.andPlan();
-    },
-    or($where, value) {
-      assertAllowed5(value, "list");
-      if (value == null) return;
-      const $or = $where.orPlan();
-      return () => $or.andPlan();
-    },
-    not($where, value) {
-      assertAllowed5(value, "object");
-      if (value == null) return;
-      return $where.notPlan().andPlan();
-    }
-  },
-  UUIDFilter: {
-    isNull($where, value) {
-      if (!$where.extensions?.pgFilterAttribute) throw Error("Planning error: expected 'pgFilterAttribute' to be present on the $where plan's extensions; your extensions to `postgraphile-plugin-connection-filter` does not implement the required interfaces.");
-      if (value === void 0) return;
-      const {
-          fieldName: parentFieldName,
-          attributeName,
-          attribute,
-          codec,
-          expression
-        } = $where.extensions.pgFilterAttribute,
-        sourceAlias = attribute ? attribute.expression ? attribute.expression($where.alias) : sql`${$where.alias}.${sql.identifier(attributeName)}` : expression ? expression : $where.alias,
-        sourceCodec = codec ?? attribute.codec,
-        [sqlIdentifier, identifierCodec] = [sourceAlias, sourceCodec];
-      if (true && value === null) return;
-      if (!true && value === null) throw Object.assign(Error("Null literals are forbidden in filter argument input."), {});
-      const resolvedInput = value,
-        inputCodec = resolveInputCodec ? resolveInputCodec(codec ?? attribute.codec) : codec ?? attribute.codec,
-        sqlValue = resolveSqlValue ? resolveSqlValue($where, value, inputCodec) : sqlValueWithCodec(resolvedInput, inputCodec),
-        fragment = resolve(sqlIdentifier, sqlValue, value, $where, {
-          fieldName: parentFieldName ?? null,
-          operatorName: "isNull"
-        });
-      $where.where(fragment);
-    },
-    equalTo($where, value) {
-      if (!$where.extensions?.pgFilterAttribute) throw Error("Planning error: expected 'pgFilterAttribute' to be present on the $where plan's extensions; your extensions to `postgraphile-plugin-connection-filter` does not implement the required interfaces.");
-      if (value === void 0) return;
-      const {
-          fieldName: parentFieldName,
-          attributeName,
-          attribute,
-          codec,
-          expression
-        } = $where.extensions.pgFilterAttribute,
-        sourceAlias = attribute ? attribute.expression ? attribute.expression($where.alias) : sql`${$where.alias}.${sql.identifier(attributeName)}` : expression ? expression : $where.alias,
-        sourceCodec = codec ?? attribute.codec,
-        [sqlIdentifier, identifierCodec] = resolveSqlIdentifier ? resolveSqlIdentifier(sourceAlias, sourceCodec) : [sourceAlias, sourceCodec];
-      if (true && value === null) return;
-      if (!true && value === null) throw Object.assign(Error("Null literals are forbidden in filter argument input."), {});
-      const resolvedInput = value,
-        inputCodec = resolveInputCodec2 ? resolveInputCodec2(codec ?? attribute.codec) : codec ?? attribute.codec,
-        sqlValue = sqlValueWithCodec(resolvedInput, inputCodec),
-        fragment = resolve2(sqlIdentifier, sqlValue, value, $where, {
-          fieldName: parentFieldName ?? null,
-          operatorName: "equalTo"
-        });
-      $where.where(fragment);
-    },
-    notEqualTo($where, value) {
-      if (!$where.extensions?.pgFilterAttribute) throw Error("Planning error: expected 'pgFilterAttribute' to be present on the $where plan's extensions; your extensions to `postgraphile-plugin-connection-filter` does not implement the required interfaces.");
-      if (value === void 0) return;
-      const {
-          fieldName: parentFieldName,
-          attributeName,
-          attribute,
-          codec,
-          expression
-        } = $where.extensions.pgFilterAttribute,
-        sourceAlias = attribute ? attribute.expression ? attribute.expression($where.alias) : sql`${$where.alias}.${sql.identifier(attributeName)}` : expression ? expression : $where.alias,
-        sourceCodec = codec ?? attribute.codec,
-        [sqlIdentifier, identifierCodec] = resolveSqlIdentifier ? resolveSqlIdentifier(sourceAlias, sourceCodec) : [sourceAlias, sourceCodec];
-      if (true && value === null) return;
-      if (!true && value === null) throw Object.assign(Error("Null literals are forbidden in filter argument input."), {});
-      const resolvedInput = value,
-        inputCodec = resolveInputCodec2 ? resolveInputCodec2(codec ?? attribute.codec) : codec ?? attribute.codec,
-        sqlValue = sqlValueWithCodec(resolvedInput, inputCodec),
-        fragment = resolve3(sqlIdentifier, sqlValue, value, $where, {
-          fieldName: parentFieldName ?? null,
-          operatorName: "notEqualTo"
-        });
-      $where.where(fragment);
-    },
-    distinctFrom($where, value) {
-      if (!$where.extensions?.pgFilterAttribute) throw Error("Planning error: expected 'pgFilterAttribute' to be present on the $where plan's extensions; your extensions to `postgraphile-plugin-connection-filter` does not implement the required interfaces.");
-      if (value === void 0) return;
-      const {
-          fieldName: parentFieldName,
-          attributeName,
-          attribute,
-          codec,
-          expression
-        } = $where.extensions.pgFilterAttribute,
-        sourceAlias = attribute ? attribute.expression ? attribute.expression($where.alias) : sql`${$where.alias}.${sql.identifier(attributeName)}` : expression ? expression : $where.alias,
-        sourceCodec = codec ?? attribute.codec,
-        [sqlIdentifier, identifierCodec] = resolveSqlIdentifier ? resolveSqlIdentifier(sourceAlias, sourceCodec) : [sourceAlias, sourceCodec];
-      if (true && value === null) return;
-      if (!true && value === null) throw Object.assign(Error("Null literals are forbidden in filter argument input."), {});
-      const resolvedInput = value,
-        inputCodec = resolveInputCodec2 ? resolveInputCodec2(codec ?? attribute.codec) : codec ?? attribute.codec,
-        sqlValue = sqlValueWithCodec(resolvedInput, inputCodec),
-        fragment = resolve4(sqlIdentifier, sqlValue, value, $where, {
-          fieldName: parentFieldName ?? null,
-          operatorName: "distinctFrom"
-        });
-      $where.where(fragment);
-    },
-    notDistinctFrom($where, value) {
-      if (!$where.extensions?.pgFilterAttribute) throw Error("Planning error: expected 'pgFilterAttribute' to be present on the $where plan's extensions; your extensions to `postgraphile-plugin-connection-filter` does not implement the required interfaces.");
-      if (value === void 0) return;
-      const {
-          fieldName: parentFieldName,
-          attributeName,
-          attribute,
-          codec,
-          expression
-        } = $where.extensions.pgFilterAttribute,
-        sourceAlias = attribute ? attribute.expression ? attribute.expression($where.alias) : sql`${$where.alias}.${sql.identifier(attributeName)}` : expression ? expression : $where.alias,
-        sourceCodec = codec ?? attribute.codec,
-        [sqlIdentifier, identifierCodec] = resolveSqlIdentifier ? resolveSqlIdentifier(sourceAlias, sourceCodec) : [sourceAlias, sourceCodec];
-      if (true && value === null) return;
-      if (!true && value === null) throw Object.assign(Error("Null literals are forbidden in filter argument input."), {});
-      const resolvedInput = value,
-        inputCodec = resolveInputCodec2 ? resolveInputCodec2(codec ?? attribute.codec) : codec ?? attribute.codec,
-        sqlValue = sqlValueWithCodec(resolvedInput, inputCodec),
-        fragment = resolve5(sqlIdentifier, sqlValue, value, $where, {
-          fieldName: parentFieldName ?? null,
-          operatorName: "notDistinctFrom"
-        });
-      $where.where(fragment);
-    },
-    in($where, value) {
-      if (!$where.extensions?.pgFilterAttribute) throw Error("Planning error: expected 'pgFilterAttribute' to be present on the $where plan's extensions; your extensions to `postgraphile-plugin-connection-filter` does not implement the required interfaces.");
-      if (value === void 0) return;
-      const {
-          fieldName: parentFieldName,
-          attributeName,
-          attribute,
-          codec,
-          expression
-        } = $where.extensions.pgFilterAttribute,
-        sourceAlias = attribute ? attribute.expression ? attribute.expression($where.alias) : sql`${$where.alias}.${sql.identifier(attributeName)}` : expression ? expression : $where.alias,
-        sourceCodec = codec ?? attribute.codec,
-        [sqlIdentifier, identifierCodec] = resolveSqlIdentifier ? resolveSqlIdentifier(sourceAlias, sourceCodec) : [sourceAlias, sourceCodec];
-      if (true && value === null) return;
-      if (!true && value === null) throw Object.assign(Error("Null literals are forbidden in filter argument input."), {});
-      const resolvedInput = value,
-        inputCodec = resolveInputCodec3 ? resolveInputCodec3(codec ?? attribute.codec) : codec ?? attribute.codec,
-        sqlValue = sqlValueWithCodec(resolvedInput, inputCodec),
-        fragment = resolve6(sqlIdentifier, sqlValue, value, $where, {
-          fieldName: parentFieldName ?? null,
-          operatorName: "in"
-        });
-      $where.where(fragment);
-    },
-    notIn($where, value) {
-      if (!$where.extensions?.pgFilterAttribute) throw Error("Planning error: expected 'pgFilterAttribute' to be present on the $where plan's extensions; your extensions to `postgraphile-plugin-connection-filter` does not implement the required interfaces.");
-      if (value === void 0) return;
-      const {
-          fieldName: parentFieldName,
-          attributeName,
-          attribute,
-          codec,
-          expression
-        } = $where.extensions.pgFilterAttribute,
-        sourceAlias = attribute ? attribute.expression ? attribute.expression($where.alias) : sql`${$where.alias}.${sql.identifier(attributeName)}` : expression ? expression : $where.alias,
-        sourceCodec = codec ?? attribute.codec,
-        [sqlIdentifier, identifierCodec] = resolveSqlIdentifier ? resolveSqlIdentifier(sourceAlias, sourceCodec) : [sourceAlias, sourceCodec];
-      if (true && value === null) return;
-      if (!true && value === null) throw Object.assign(Error("Null literals are forbidden in filter argument input."), {});
-      const resolvedInput = value,
-        inputCodec = resolveInputCodec3 ? resolveInputCodec3(codec ?? attribute.codec) : codec ?? attribute.codec,
-        sqlValue = sqlValueWithCodec(resolvedInput, inputCodec),
-        fragment = resolve7(sqlIdentifier, sqlValue, value, $where, {
-          fieldName: parentFieldName ?? null,
-          operatorName: "notIn"
-        });
-      $where.where(fragment);
-    },
-    lessThan($where, value) {
-      if (!$where.extensions?.pgFilterAttribute) throw Error("Planning error: expected 'pgFilterAttribute' to be present on the $where plan's extensions; your extensions to `postgraphile-plugin-connection-filter` does not implement the required interfaces.");
-      if (value === void 0) return;
-      const {
-          fieldName: parentFieldName,
-          attributeName,
-          attribute,
-          codec,
-          expression
-        } = $where.extensions.pgFilterAttribute,
-        sourceAlias = attribute ? attribute.expression ? attribute.expression($where.alias) : sql`${$where.alias}.${sql.identifier(attributeName)}` : expression ? expression : $where.alias,
-        sourceCodec = codec ?? attribute.codec,
-        [sqlIdentifier, identifierCodec] = resolveSqlIdentifier ? resolveSqlIdentifier(sourceAlias, sourceCodec) : [sourceAlias, sourceCodec];
-      if (true && value === null) return;
-      if (!true && value === null) throw Object.assign(Error("Null literals are forbidden in filter argument input."), {});
-      const resolvedInput = value,
-        inputCodec = resolveInputCodec2 ? resolveInputCodec2(codec ?? attribute.codec) : codec ?? attribute.codec,
-        sqlValue = sqlValueWithCodec(resolvedInput, inputCodec),
-        fragment = resolve8(sqlIdentifier, sqlValue, value, $where, {
-          fieldName: parentFieldName ?? null,
-          operatorName: "lessThan"
-        });
-      $where.where(fragment);
-    },
-    lessThanOrEqualTo($where, value) {
-      if (!$where.extensions?.pgFilterAttribute) throw Error("Planning error: expected 'pgFilterAttribute' to be present on the $where plan's extensions; your extensions to `postgraphile-plugin-connection-filter` does not implement the required interfaces.");
-      if (value === void 0) return;
-      const {
-          fieldName: parentFieldName,
-          attributeName,
-          attribute,
-          codec,
-          expression
-        } = $where.extensions.pgFilterAttribute,
-        sourceAlias = attribute ? attribute.expression ? attribute.expression($where.alias) : sql`${$where.alias}.${sql.identifier(attributeName)}` : expression ? expression : $where.alias,
-        sourceCodec = codec ?? attribute.codec,
-        [sqlIdentifier, identifierCodec] = resolveSqlIdentifier ? resolveSqlIdentifier(sourceAlias, sourceCodec) : [sourceAlias, sourceCodec];
-      if (true && value === null) return;
-      if (!true && value === null) throw Object.assign(Error("Null literals are forbidden in filter argument input."), {});
-      const resolvedInput = value,
-        inputCodec = resolveInputCodec2 ? resolveInputCodec2(codec ?? attribute.codec) : codec ?? attribute.codec,
-        sqlValue = sqlValueWithCodec(resolvedInput, inputCodec),
-        fragment = resolve9(sqlIdentifier, sqlValue, value, $where, {
-          fieldName: parentFieldName ?? null,
-          operatorName: "lessThanOrEqualTo"
-        });
-      $where.where(fragment);
-    },
-    greaterThan($where, value) {
-      if (!$where.extensions?.pgFilterAttribute) throw Error("Planning error: expected 'pgFilterAttribute' to be present on the $where plan's extensions; your extensions to `postgraphile-plugin-connection-filter` does not implement the required interfaces.");
-      if (value === void 0) return;
-      const {
-          fieldName: parentFieldName,
-          attributeName,
-          attribute,
-          codec,
-          expression
-        } = $where.extensions.pgFilterAttribute,
-        sourceAlias = attribute ? attribute.expression ? attribute.expression($where.alias) : sql`${$where.alias}.${sql.identifier(attributeName)}` : expression ? expression : $where.alias,
-        sourceCodec = codec ?? attribute.codec,
-        [sqlIdentifier, identifierCodec] = resolveSqlIdentifier ? resolveSqlIdentifier(sourceAlias, sourceCodec) : [sourceAlias, sourceCodec];
-      if (true && value === null) return;
-      if (!true && value === null) throw Object.assign(Error("Null literals are forbidden in filter argument input."), {});
-      const resolvedInput = value,
-        inputCodec = resolveInputCodec2 ? resolveInputCodec2(codec ?? attribute.codec) : codec ?? attribute.codec,
-        sqlValue = sqlValueWithCodec(resolvedInput, inputCodec),
-        fragment = resolve10(sqlIdentifier, sqlValue, value, $where, {
-          fieldName: parentFieldName ?? null,
-          operatorName: "greaterThan"
-        });
-      $where.where(fragment);
-    },
-    greaterThanOrEqualTo($where, value) {
-      if (!$where.extensions?.pgFilterAttribute) throw Error("Planning error: expected 'pgFilterAttribute' to be present on the $where plan's extensions; your extensions to `postgraphile-plugin-connection-filter` does not implement the required interfaces.");
-      if (value === void 0) return;
-      const {
-          fieldName: parentFieldName,
-          attributeName,
-          attribute,
-          codec,
-          expression
-        } = $where.extensions.pgFilterAttribute,
-        sourceAlias = attribute ? attribute.expression ? attribute.expression($where.alias) : sql`${$where.alias}.${sql.identifier(attributeName)}` : expression ? expression : $where.alias,
-        sourceCodec = codec ?? attribute.codec,
-        [sqlIdentifier, identifierCodec] = resolveSqlIdentifier ? resolveSqlIdentifier(sourceAlias, sourceCodec) : [sourceAlias, sourceCodec];
-      if (true && value === null) return;
-      if (!true && value === null) throw Object.assign(Error("Null literals are forbidden in filter argument input."), {});
-      const resolvedInput = value,
-        inputCodec = resolveInputCodec2 ? resolveInputCodec2(codec ?? attribute.codec) : codec ?? attribute.codec,
-        sqlValue = sqlValueWithCodec(resolvedInput, inputCodec),
-        fragment = resolve11(sqlIdentifier, sqlValue, value, $where, {
-          fieldName: parentFieldName ?? null,
-          operatorName: "greaterThanOrEqualTo"
-        });
-      $where.where(fragment);
-    }
-  },
-  UserFilter: {
-    rowId(queryBuilder, value) {
-      if (value === void 0) return;
-      if (!true && isEmpty(value)) throw Object.assign(Error("Empty objects are forbidden in filter argument input."), {});
-      if (!true && value === null) throw Object.assign(Error("Null literals are forbidden in filter argument input."), {});
-      const condition = new PgCondition(queryBuilder);
-      condition.extensions.pgFilterAttribute = colSpec3;
-      return condition;
-    },
-    identityProviderId(queryBuilder, value) {
-      if (value === void 0) return;
-      if (!true && isEmpty(value)) throw Object.assign(Error("Empty objects are forbidden in filter argument input."), {});
-      if (!true && value === null) throw Object.assign(Error("Null literals are forbidden in filter argument input."), {});
-      const condition = new PgCondition(queryBuilder);
-      condition.extensions.pgFilterAttribute = colSpec4;
-      return condition;
-    },
-    authoredPosts($where, value) {
-      assertAllowed6(value, "object");
-      const $rel = $where.andPlan();
-      $rel.extensions.pgFilterRelation = {
-        tableExpression: postIdentifier,
-        alias: pgResource_postPgResource.name,
-        localAttributes: registryConfig.pgRelations.user.postsByTheirAuthorId.localAttributes,
-        remoteAttributes: registryConfig.pgRelations.user.postsByTheirAuthorId.remoteAttributes
-      };
-      return $rel;
-    },
-    authoredPostsExist($where, value) {
-      assertAllowed6(value, "scalar");
-      if (value == null) return;
-      const $subQuery = $where.existsPlan({
-        tableExpression: postIdentifier,
-        alias: pgResource_postPgResource.name,
-        equals: value
-      });
-      registryConfig.pgRelations.user.postsByTheirAuthorId.localAttributes.forEach((localAttribute, i) => {
-        const remoteAttribute = registryConfig.pgRelations.user.postsByTheirAuthorId.remoteAttributes[i];
-        $subQuery.where(sql`${$where.alias}.${sql.identifier(localAttribute)} = ${$subQuery.alias}.${sql.identifier(remoteAttribute)}`);
-      });
-    },
-    and($where, value) {
-      assertAllowed7(value, "list");
-      if (value == null) return;
-      return $where.andPlan();
-    },
-    or($where, value) {
-      assertAllowed7(value, "list");
-      if (value == null) return;
-      const $or = $where.orPlan();
-      return () => $or.andPlan();
-    },
-    not($where, value) {
-      assertAllowed7(value, "object");
-      if (value == null) return;
-      return $where.notPlan().andPlan();
-    }
-  },
-  UserToManyPostFilter: {
-    every($where, value) {
-      assertAllowed8(value, "object");
-      if (value == null) return;
-      if (!$where.extensions.pgFilterRelation) throw Error("Invalid use of filter, 'pgFilterRelation' expected");
-      const {
-          localAttributes,
-          remoteAttributes,
-          tableExpression,
-          alias
-        } = $where.extensions.pgFilterRelation,
-        $subQuery = $where.notPlan().existsPlan({
-          tableExpression,
-          alias
-        });
-      localAttributes.forEach((localAttribute, i) => {
-        const remoteAttribute = remoteAttributes[i];
-        $subQuery.where(sql`${$where.alias}.${sql.identifier(localAttribute)} = ${$subQuery.alias}.${sql.identifier(remoteAttribute)}`);
-      });
-      return $subQuery.notPlan().andPlan();
-    },
-    some($where, value) {
-      assertAllowed8(value, "object");
-      if (value == null) return;
-      if (!$where.extensions.pgFilterRelation) throw Error("Invalid use of filter, 'pgFilterRelation' expected");
-      const {
-          localAttributes,
-          remoteAttributes,
-          tableExpression,
-          alias
-        } = $where.extensions.pgFilterRelation,
-        $subQuery = $where.existsPlan({
-          tableExpression,
-          alias
-        });
-      localAttributes.forEach((localAttribute, i) => {
-        const remoteAttribute = remoteAttributes[i];
-        $subQuery.where(sql`${$where.alias}.${sql.identifier(localAttribute)} = ${$subQuery.alias}.${sql.identifier(remoteAttribute)}`);
-      });
-      return $subQuery;
-    },
-    none($where, value) {
-      assertAllowed8(value, "object");
-      if (value == null) return;
-      if (!$where.extensions.pgFilterRelation) throw Error("Invalid use of filter, 'pgFilterRelation' expected");
-      const {
-          localAttributes,
-          remoteAttributes,
-          tableExpression,
-          alias
-        } = $where.extensions.pgFilterRelation,
-        $subQuery = $where.notPlan().existsPlan({
-          tableExpression,
-          alias
-        });
-      localAttributes.forEach((localAttribute, i) => {
-        const remoteAttribute = remoteAttributes[i];
-        $subQuery.where(sql`${$where.alias}.${sql.identifier(localAttribute)} = ${$subQuery.alias}.${sql.identifier(remoteAttribute)}`);
-      });
-      return $subQuery;
-    }
-  },
+  }
+};
+export const enums = {
   PostOrderBy: {
-    PRIMARY_KEY_ASC(queryBuilder) {
-      postUniques[0].attributes.forEach(attributeName => {
+    values: {
+      AUTHOR_ID_ASC(queryBuilder) {
         queryBuilder.orderBy({
-          attribute: attributeName,
+          attribute: "author_id",
           direction: "ASC"
         });
-      });
-      queryBuilder.setOrderIsUnique();
-    },
-    PRIMARY_KEY_DESC(queryBuilder) {
-      postUniques[0].attributes.forEach(attributeName => {
+      },
+      AUTHOR_ID_DESC(queryBuilder) {
         queryBuilder.orderBy({
-          attribute: attributeName,
+          attribute: "author_id",
           direction: "DESC"
         });
-      });
-      queryBuilder.setOrderIsUnique();
-    },
-    ROW_ID_ASC(queryBuilder) {
-      queryBuilder.orderBy({
-        attribute: "id",
-        direction: "ASC"
-      });
-      queryBuilder.setOrderIsUnique();
-    },
-    ROW_ID_DESC(queryBuilder) {
-      queryBuilder.orderBy({
-        attribute: "id",
-        direction: "DESC"
-      });
-      queryBuilder.setOrderIsUnique();
-    },
-    AUTHOR_ID_ASC(queryBuilder) {
-      queryBuilder.orderBy({
-        attribute: "author_id",
-        direction: "ASC"
-      });
-    },
-    AUTHOR_ID_DESC(queryBuilder) {
-      queryBuilder.orderBy({
-        attribute: "author_id",
-        direction: "DESC"
-      });
-    }
-  },
-  UserConnection: {
-    __assertStep: ConnectionStep,
-    totalCount($connection) {
-      return $connection.cloneSubplanWithoutPagination("aggregate").singleAsRecord().select(sql`count(*)`, TYPES.bigint, !1);
-    }
-  },
-  UserEdge: {
-    __assertStep: assertEdgeCapableStep,
-    cursor($edge) {
-      return $edge.cursor();
-    },
-    node($edge) {
-      return $edge.node();
-    }
-  },
-  UserCondition: {
-    rowId($condition, val) {
-      $condition.where({
-        type: "attribute",
-        attribute: "id",
-        callback(expression) {
-          return val === null ? sql`${expression} is null` : sql`${expression} = ${sqlValueWithCodec(val, TYPES.uuid)}`;
-        }
-      });
-    },
-    identityProviderId($condition, val) {
-      $condition.where({
-        type: "attribute",
-        attribute: "identity_provider_id",
-        callback(expression) {
-          return val === null ? sql`${expression} is null` : sql`${expression} = ${sqlValueWithCodec(val, TYPES.uuid)}`;
-        }
-      });
+      },
+      PRIMARY_KEY_ASC(queryBuilder) {
+        postUniques[0].attributes.forEach(attributeName => {
+          queryBuilder.orderBy({
+            attribute: attributeName,
+            direction: "ASC"
+          });
+        });
+        queryBuilder.setOrderIsUnique();
+      },
+      PRIMARY_KEY_DESC(queryBuilder) {
+        postUniques[0].attributes.forEach(attributeName => {
+          queryBuilder.orderBy({
+            attribute: attributeName,
+            direction: "DESC"
+          });
+        });
+        queryBuilder.setOrderIsUnique();
+      },
+      ROW_ID_ASC(queryBuilder) {
+        queryBuilder.orderBy({
+          attribute: "id",
+          direction: "ASC"
+        });
+        queryBuilder.setOrderIsUnique();
+      },
+      ROW_ID_DESC(queryBuilder) {
+        queryBuilder.orderBy({
+          attribute: "id",
+          direction: "DESC"
+        });
+        queryBuilder.setOrderIsUnique();
+      }
     }
   },
   UserOrderBy: {
-    PRIMARY_KEY_ASC(queryBuilder) {
-      userUniques[0].attributes.forEach(attributeName => {
+    values: {
+      IDENTITY_PROVIDER_ID_ASC(queryBuilder) {
         queryBuilder.orderBy({
-          attribute: attributeName,
+          attribute: "identity_provider_id",
           direction: "ASC"
         });
-      });
-      queryBuilder.setOrderIsUnique();
-    },
-    PRIMARY_KEY_DESC(queryBuilder) {
-      userUniques[0].attributes.forEach(attributeName => {
+        queryBuilder.setOrderIsUnique();
+      },
+      IDENTITY_PROVIDER_ID_DESC(queryBuilder) {
         queryBuilder.orderBy({
-          attribute: attributeName,
+          attribute: "identity_provider_id",
           direction: "DESC"
         });
-      });
-      queryBuilder.setOrderIsUnique();
-    },
-    ROW_ID_ASC(queryBuilder) {
-      queryBuilder.orderBy({
-        attribute: "id",
-        direction: "ASC"
-      });
-      queryBuilder.setOrderIsUnique();
-    },
-    ROW_ID_DESC(queryBuilder) {
-      queryBuilder.orderBy({
-        attribute: "id",
-        direction: "DESC"
-      });
-      queryBuilder.setOrderIsUnique();
-    },
-    IDENTITY_PROVIDER_ID_ASC(queryBuilder) {
-      queryBuilder.orderBy({
-        attribute: "identity_provider_id",
-        direction: "ASC"
-      });
-      queryBuilder.setOrderIsUnique();
-    },
-    IDENTITY_PROVIDER_ID_DESC(queryBuilder) {
-      queryBuilder.orderBy({
-        attribute: "identity_provider_id",
-        direction: "DESC"
-      });
-      queryBuilder.setOrderIsUnique();
-    }
-  },
-  Mutation: {
-    __assertStep: __ValueStep,
-    createUser: {
-      plan(_, args) {
-        const $insert = pgInsertSingle(pgResource_userPgResource, Object.create(null));
-        args.apply($insert);
-        return object({
-          result: $insert
-        });
+        queryBuilder.setOrderIsUnique();
       },
-      args: {
-        input(_, $object) {
-          return $object;
-        }
-      }
-    },
-    createPost: {
-      plan(_, args) {
-        const $insert = pgInsertSingle(pgResource_postPgResource, Object.create(null));
-        args.apply($insert);
-        return object({
-          result: $insert
+      PRIMARY_KEY_ASC(queryBuilder) {
+        userUniques[0].attributes.forEach(attributeName => {
+          queryBuilder.orderBy({
+            attribute: attributeName,
+            direction: "ASC"
+          });
         });
+        queryBuilder.setOrderIsUnique();
       },
-      args: {
-        input(_, $object) {
-          return $object;
-        }
-      }
-    },
-    updateUserById: {
-      plan(_$root, args) {
-        const $update = pgUpdateSingle(pgResource_userPgResource, specFromArgs_User(args));
-        args.apply($update);
-        return object({
-          result: $update
+      PRIMARY_KEY_DESC(queryBuilder) {
+        userUniques[0].attributes.forEach(attributeName => {
+          queryBuilder.orderBy({
+            attribute: attributeName,
+            direction: "DESC"
+          });
         });
+        queryBuilder.setOrderIsUnique();
       },
-      args: {
-        input(_, $object) {
-          return $object;
-        }
-      }
-    },
-    updateUser: {
-      plan(_$root, args) {
-        const $update = pgUpdateSingle(pgResource_userPgResource, {
-          id: args.getRaw(['input', "rowId"])
+      ROW_ID_ASC(queryBuilder) {
+        queryBuilder.orderBy({
+          attribute: "id",
+          direction: "ASC"
         });
-        args.apply($update);
-        return object({
-          result: $update
-        });
+        queryBuilder.setOrderIsUnique();
       },
-      args: {
-        input(_, $object) {
-          return $object;
-        }
+      ROW_ID_DESC(queryBuilder) {
+        queryBuilder.orderBy({
+          attribute: "id",
+          direction: "DESC"
+        });
+        queryBuilder.setOrderIsUnique();
       }
-    },
-    updateUserByIdentityProviderId: {
-      plan(_$root, args) {
-        const $update = pgUpdateSingle(pgResource_userPgResource, {
-          identity_provider_id: args.getRaw(['input', "identityProviderId"])
-        });
-        args.apply($update);
-        return object({
-          result: $update
-        });
-      },
-      args: {
-        input(_, $object) {
-          return $object;
-        }
-      }
-    },
-    updatePostById: {
-      plan(_$root, args) {
-        const $update = pgUpdateSingle(pgResource_postPgResource, specFromArgs_Post(args));
-        args.apply($update);
-        return object({
-          result: $update
-        });
-      },
-      args: {
-        input(_, $object) {
-          return $object;
-        }
-      }
-    },
-    updatePost: {
-      plan(_$root, args) {
-        const $update = pgUpdateSingle(pgResource_postPgResource, {
-          id: args.getRaw(['input', "rowId"])
-        });
-        args.apply($update);
-        return object({
-          result: $update
-        });
-      },
-      args: {
-        input(_, $object) {
-          return $object;
-        }
-      }
-    },
-    deleteUserById: {
-      plan(_$root, args) {
-        const $delete = pgDeleteSingle(pgResource_userPgResource, specFromArgs_User2(args));
-        args.apply($delete);
-        return object({
-          result: $delete
-        });
-      },
-      args: {
-        input(_, $object) {
-          return $object;
-        }
-      }
-    },
-    deleteUser: {
-      plan(_$root, args) {
-        const $delete = pgDeleteSingle(pgResource_userPgResource, {
-          id: args.getRaw(['input', "rowId"])
-        });
-        args.apply($delete);
-        return object({
-          result: $delete
-        });
-      },
-      args: {
-        input(_, $object) {
-          return $object;
-        }
-      }
-    },
-    deleteUserByIdentityProviderId: {
-      plan(_$root, args) {
-        const $delete = pgDeleteSingle(pgResource_userPgResource, {
-          identity_provider_id: args.getRaw(['input', "identityProviderId"])
-        });
-        args.apply($delete);
-        return object({
-          result: $delete
-        });
-      },
-      args: {
-        input(_, $object) {
-          return $object;
-        }
-      }
-    },
-    deletePostById: {
-      plan(_$root, args) {
-        const $delete = pgDeleteSingle(pgResource_postPgResource, specFromArgs_Post2(args));
-        args.apply($delete);
-        return object({
-          result: $delete
-        });
-      },
-      args: {
-        input(_, $object) {
-          return $object;
-        }
-      }
-    },
-    deletePost: {
-      plan(_$root, args) {
-        const $delete = pgDeleteSingle(pgResource_postPgResource, {
-          id: args.getRaw(['input', "rowId"])
-        });
-        args.apply($delete);
-        return object({
-          result: $delete
-        });
-      },
-      args: {
-        input(_, $object) {
-          return $object;
-        }
-      }
-    }
-  },
-  CreateUserPayload: {
-    __assertStep: assertExecutableStep,
-    clientMutationId($mutation) {
-      return $mutation.getStepForKey("result").getMeta("clientMutationId");
-    },
-    user($object) {
-      return $object.get("result");
-    },
-    query() {
-      return rootValue();
-    },
-    userEdge($mutation, fieldArgs) {
-      const $result = $mutation.getStepForKey("result", !0);
-      if (!$result) return constant(null);
-      const $select = (() => {
-        if ($result instanceof PgDeleteSingleStep) return pgSelectFromRecord($result.resource, $result.record());else {
-          const spec = userUniques[0].attributes.reduce((memo, attributeName) => {
-            memo[attributeName] = $result.get(attributeName);
-            return memo;
-          }, Object.create(null));
-          return pgResource_userPgResource.find(spec);
-        }
-      })();
-      fieldArgs.apply($select, "orderBy");
-      const $connection = connection($select),
-        $single = $select.row(first($select));
-      return new EdgeStep($connection, $single);
-    }
-  },
-  CreateUserInput: {
-    clientMutationId(qb, val) {
-      qb.setMeta("clientMutationId", val);
-    },
-    user(qb, arg) {
-      if (arg != null) return qb.setBuilder();
-    }
-  },
-  UserInput: {
-    __baked: createObjectAndApplyChildren,
-    rowId(obj, val, {
-      field,
-      schema
-    }) {
-      obj.set("id", bakedInputRuntime(schema, field.type, val));
-    },
-    identityProviderId(obj, val, {
-      field,
-      schema
-    }) {
-      obj.set("identity_provider_id", bakedInputRuntime(schema, field.type, val));
-    },
-    createdAt(obj, val, {
-      field,
-      schema
-    }) {
-      obj.set("created_at", bakedInputRuntime(schema, field.type, val));
-    },
-    updatedAt(obj, val, {
-      field,
-      schema
-    }) {
-      obj.set("updated_at", bakedInputRuntime(schema, field.type, val));
-    }
-  },
-  CreatePostPayload: {
-    __assertStep: assertExecutableStep,
-    clientMutationId($mutation) {
-      return $mutation.getStepForKey("result").getMeta("clientMutationId");
-    },
-    post($object) {
-      return $object.get("result");
-    },
-    query() {
-      return rootValue();
-    },
-    postEdge($mutation, fieldArgs) {
-      const $result = $mutation.getStepForKey("result", !0);
-      if (!$result) return constant(null);
-      const $select = (() => {
-        if ($result instanceof PgDeleteSingleStep) return pgSelectFromRecord($result.resource, $result.record());else {
-          const spec = postUniques[0].attributes.reduce((memo, attributeName) => {
-            memo[attributeName] = $result.get(attributeName);
-            return memo;
-          }, Object.create(null));
-          return pgResource_postPgResource.find(spec);
-        }
-      })();
-      fieldArgs.apply($select, "orderBy");
-      const $connection = connection($select),
-        $single = $select.row(first($select));
-      return new EdgeStep($connection, $single);
-    }
-  },
-  CreatePostInput: {
-    clientMutationId(qb, val) {
-      qb.setMeta("clientMutationId", val);
-    },
-    post(qb, arg) {
-      if (arg != null) return qb.setBuilder();
-    }
-  },
-  PostInput: {
-    __baked: createObjectAndApplyChildren,
-    rowId(obj, val, {
-      field,
-      schema
-    }) {
-      obj.set("id", bakedInputRuntime(schema, field.type, val));
-    },
-    title(obj, val, {
-      field,
-      schema
-    }) {
-      obj.set("title", bakedInputRuntime(schema, field.type, val));
-    },
-    description(obj, val, {
-      field,
-      schema
-    }) {
-      obj.set("description", bakedInputRuntime(schema, field.type, val));
-    },
-    authorId(obj, val, {
-      field,
-      schema
-    }) {
-      obj.set("author_id", bakedInputRuntime(schema, field.type, val));
-    },
-    createdAt(obj, val, {
-      field,
-      schema
-    }) {
-      obj.set("created_at", bakedInputRuntime(schema, field.type, val));
-    },
-    updatedAt(obj, val, {
-      field,
-      schema
-    }) {
-      obj.set("updated_at", bakedInputRuntime(schema, field.type, val));
-    }
-  },
-  UpdateUserPayload: {
-    __assertStep: ObjectStep,
-    clientMutationId($mutation) {
-      return $mutation.getStepForKey("result").getMeta("clientMutationId");
-    },
-    user($object) {
-      return $object.get("result");
-    },
-    query() {
-      return rootValue();
-    },
-    userEdge($mutation, fieldArgs) {
-      const $result = $mutation.getStepForKey("result", !0);
-      if (!$result) return constant(null);
-      const $select = (() => {
-        if ($result instanceof PgDeleteSingleStep) return pgSelectFromRecord($result.resource, $result.record());else {
-          const spec = userUniques[0].attributes.reduce((memo, attributeName) => {
-            memo[attributeName] = $result.get(attributeName);
-            return memo;
-          }, Object.create(null));
-          return pgResource_userPgResource.find(spec);
-        }
-      })();
-      fieldArgs.apply($select, "orderBy");
-      const $connection = connection($select),
-        $single = $select.row(first($select));
-      return new EdgeStep($connection, $single);
-    }
-  },
-  UpdateUserByIdInput: {
-    clientMutationId(qb, val) {
-      qb.setMeta("clientMutationId", val);
-    },
-    patch(qb, arg) {
-      if (arg != null) return qb.setBuilder();
-    }
-  },
-  UserPatch: {
-    __baked: createObjectAndApplyChildren,
-    rowId(obj, val, {
-      field,
-      schema
-    }) {
-      obj.set("id", bakedInputRuntime(schema, field.type, val));
-    },
-    identityProviderId(obj, val, {
-      field,
-      schema
-    }) {
-      obj.set("identity_provider_id", bakedInputRuntime(schema, field.type, val));
-    },
-    createdAt(obj, val, {
-      field,
-      schema
-    }) {
-      obj.set("created_at", bakedInputRuntime(schema, field.type, val));
-    },
-    updatedAt(obj, val, {
-      field,
-      schema
-    }) {
-      obj.set("updated_at", bakedInputRuntime(schema, field.type, val));
-    }
-  },
-  UpdateUserInput: {
-    clientMutationId(qb, val) {
-      qb.setMeta("clientMutationId", val);
-    },
-    patch(qb, arg) {
-      if (arg != null) return qb.setBuilder();
-    }
-  },
-  UpdateUserByIdentityProviderIdInput: {
-    clientMutationId(qb, val) {
-      qb.setMeta("clientMutationId", val);
-    },
-    patch(qb, arg) {
-      if (arg != null) return qb.setBuilder();
-    }
-  },
-  UpdatePostPayload: {
-    __assertStep: ObjectStep,
-    clientMutationId($mutation) {
-      return $mutation.getStepForKey("result").getMeta("clientMutationId");
-    },
-    post($object) {
-      return $object.get("result");
-    },
-    query() {
-      return rootValue();
-    },
-    postEdge($mutation, fieldArgs) {
-      const $result = $mutation.getStepForKey("result", !0);
-      if (!$result) return constant(null);
-      const $select = (() => {
-        if ($result instanceof PgDeleteSingleStep) return pgSelectFromRecord($result.resource, $result.record());else {
-          const spec = postUniques[0].attributes.reduce((memo, attributeName) => {
-            memo[attributeName] = $result.get(attributeName);
-            return memo;
-          }, Object.create(null));
-          return pgResource_postPgResource.find(spec);
-        }
-      })();
-      fieldArgs.apply($select, "orderBy");
-      const $connection = connection($select),
-        $single = $select.row(first($select));
-      return new EdgeStep($connection, $single);
-    }
-  },
-  UpdatePostByIdInput: {
-    clientMutationId(qb, val) {
-      qb.setMeta("clientMutationId", val);
-    },
-    patch(qb, arg) {
-      if (arg != null) return qb.setBuilder();
-    }
-  },
-  PostPatch: {
-    __baked: createObjectAndApplyChildren,
-    rowId(obj, val, {
-      field,
-      schema
-    }) {
-      obj.set("id", bakedInputRuntime(schema, field.type, val));
-    },
-    title(obj, val, {
-      field,
-      schema
-    }) {
-      obj.set("title", bakedInputRuntime(schema, field.type, val));
-    },
-    description(obj, val, {
-      field,
-      schema
-    }) {
-      obj.set("description", bakedInputRuntime(schema, field.type, val));
-    },
-    authorId(obj, val, {
-      field,
-      schema
-    }) {
-      obj.set("author_id", bakedInputRuntime(schema, field.type, val));
-    },
-    createdAt(obj, val, {
-      field,
-      schema
-    }) {
-      obj.set("created_at", bakedInputRuntime(schema, field.type, val));
-    },
-    updatedAt(obj, val, {
-      field,
-      schema
-    }) {
-      obj.set("updated_at", bakedInputRuntime(schema, field.type, val));
-    }
-  },
-  UpdatePostInput: {
-    clientMutationId(qb, val) {
-      qb.setMeta("clientMutationId", val);
-    },
-    patch(qb, arg) {
-      if (arg != null) return qb.setBuilder();
-    }
-  },
-  DeleteUserPayload: {
-    __assertStep: ObjectStep,
-    clientMutationId($mutation) {
-      return $mutation.getStepForKey("result").getMeta("clientMutationId");
-    },
-    user($object) {
-      return $object.get("result");
-    },
-    deletedUserId($object) {
-      const $record = $object.getStepForKey("result"),
-        specifier = nodeIdHandlerByTypeName.User.plan($record);
-      return lambda(specifier, nodeIdCodecs_base64JSON_base64JSON.encode);
-    },
-    query() {
-      return rootValue();
-    },
-    userEdge($mutation, fieldArgs) {
-      const $result = $mutation.getStepForKey("result", !0);
-      if (!$result) return constant(null);
-      const $select = (() => {
-        if ($result instanceof PgDeleteSingleStep) return pgSelectFromRecord($result.resource, $result.record());else {
-          const spec = userUniques[0].attributes.reduce((memo, attributeName) => {
-            memo[attributeName] = $result.get(attributeName);
-            return memo;
-          }, Object.create(null));
-          return pgResource_userPgResource.find(spec);
-        }
-      })();
-      fieldArgs.apply($select, "orderBy");
-      const $connection = connection($select),
-        $single = $select.row(first($select));
-      return new EdgeStep($connection, $single);
-    }
-  },
-  DeleteUserByIdInput: {
-    clientMutationId(qb, val) {
-      qb.setMeta("clientMutationId", val);
-    }
-  },
-  DeleteUserInput: {
-    clientMutationId(qb, val) {
-      qb.setMeta("clientMutationId", val);
-    }
-  },
-  DeleteUserByIdentityProviderIdInput: {
-    clientMutationId(qb, val) {
-      qb.setMeta("clientMutationId", val);
-    }
-  },
-  DeletePostPayload: {
-    __assertStep: ObjectStep,
-    clientMutationId($mutation) {
-      return $mutation.getStepForKey("result").getMeta("clientMutationId");
-    },
-    post($object) {
-      return $object.get("result");
-    },
-    deletedPostId($object) {
-      const $record = $object.getStepForKey("result"),
-        specifier = nodeIdHandlerByTypeName.Post.plan($record);
-      return lambda(specifier, nodeIdCodecs_base64JSON_base64JSON.encode);
-    },
-    query() {
-      return rootValue();
-    },
-    postEdge($mutation, fieldArgs) {
-      const $result = $mutation.getStepForKey("result", !0);
-      if (!$result) return constant(null);
-      const $select = (() => {
-        if ($result instanceof PgDeleteSingleStep) return pgSelectFromRecord($result.resource, $result.record());else {
-          const spec = postUniques[0].attributes.reduce((memo, attributeName) => {
-            memo[attributeName] = $result.get(attributeName);
-            return memo;
-          }, Object.create(null));
-          return pgResource_postPgResource.find(spec);
-        }
-      })();
-      fieldArgs.apply($select, "orderBy");
-      const $connection = connection($select),
-        $single = $select.row(first($select));
-      return new EdgeStep($connection, $single);
-    }
-  },
-  DeletePostByIdInput: {
-    clientMutationId(qb, val) {
-      qb.setMeta("clientMutationId", val);
-    }
-  },
-  DeletePostInput: {
-    clientMutationId(qb, val) {
-      qb.setMeta("clientMutationId", val);
     }
   }
 };
 export const schema = makeGrafastSchema({
   typeDefs: typeDefs,
-  plans: plans
+  objects: objects,
+  interfaces: interfaces,
+  inputObjects: inputObjects,
+  scalars: scalars,
+  enums: enums
 });
