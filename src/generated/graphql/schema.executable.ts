@@ -1,6 +1,6 @@
 /* eslint-disable graphile-export/export-instances, graphile-export/export-methods, graphile-export/export-plans, graphile-export/exhaustive-deps */
-import { PgCondition, PgDeleteSingleStep, PgExecutor, TYPES, assertPgClassSingleStep, listOfCodec, makeRegistry, pgInsertSingle, pgSelectFromRecord, recordCodec, sqlValueWithCodec } from "@dataplan/pg";
-import { ConnectionStep, EdgeStep, __ValueStep, access, assertExecutableStep, connection, constant, context, first, get as get2, inhibitOnNull, inspect, lambda, list, makeDecodeNodeId, makeGrafastSchema, object, rootValue } from "grafast";
+import { PgCondition, PgDeleteSingleStep, PgExecutor, TYPES, assertPgClassSingleStep, listOfCodec, makeRegistry, pgDeleteSingle, pgInsertSingle, pgSelectFromRecord, pgUpdateSingle, recordCodec, sqlValueWithCodec } from "@dataplan/pg";
+import { ConnectionStep, EdgeStep, ObjectStep, __ValueStep, access, assertExecutableStep, bakedInputRuntime, connection, constant, context, createObjectAndApplyChildren, first, get as get2, inhibitOnNull, inspect, lambda, list, makeDecodeNodeId, makeGrafastSchema, object, rootValue, specFromNodeId } from "grafast";
 import { GraphQLError, Kind } from "graphql";
 import { sql } from "pg-sql2";
 const nodeIdHandler_Query = {
@@ -103,7 +103,9 @@ const spec_post = {
       notNull: false,
       hasDefault: false,
       extensions: {
-        tags: {},
+        tags: {
+          behavior: "+insert +update +delete"
+        },
         canSelect: true,
         canInsert: true,
         canUpdate: true,
@@ -116,7 +118,9 @@ const spec_post = {
       notNull: false,
       hasDefault: false,
       extensions: {
-        tags: {},
+        tags: {
+          behavior: "+insert +update +delete"
+        },
         canSelect: true,
         canInsert: true,
         canUpdate: true,
@@ -129,7 +133,9 @@ const spec_post = {
       notNull: true,
       hasDefault: false,
       extensions: {
-        tags: {},
+        tags: {
+          behavior: "+insert"
+        },
         canSelect: true,
         canInsert: true,
         canUpdate: true
@@ -154,7 +160,9 @@ const spec_post = {
       notNull: false,
       hasDefault: true,
       extensions: {
-        tags: {},
+        tags: {
+          behavior: "+update"
+        },
         canSelect: true,
         canInsert: true,
         canUpdate: true,
@@ -172,7 +180,8 @@ const spec_post = {
       name: "post"
     },
     tags: {
-      __proto__: null
+      __proto__: null,
+      behavior: "+insert +update +delete"
     }
   },
   executor: executor
@@ -245,8 +254,7 @@ const spec_user = {
       name: "user"
     },
     tags: {
-      __proto__: null,
-      behavior: "+insert"
+      __proto__: null
     }
   },
   executor: executor
@@ -291,9 +299,7 @@ const registryConfig_pgResources_user_user = {
     isInsertable: true,
     isUpdatable: true,
     isDeletable: true,
-    tags: {
-      behavior: "+insert"
-    },
+    tags: {},
     canSelect: true,
     canInsert: true,
     canUpdate: true,
@@ -329,7 +335,9 @@ const registryConfig_pgResources_post_post = {
     isInsertable: true,
     isUpdatable: true,
     isDeletable: true,
-    tags: {},
+    tags: {
+      behavior: "+insert +update +delete"
+    },
     canSelect: true,
     canInsert: true,
     canUpdate: true,
@@ -653,6 +661,14 @@ function assertAllowed8(value, mode) {
   }
   if (!true && value === null) throw Object.assign(Error("Null literals are forbidden in filter argument input."), {});
 }
+const specFromArgs_Post = args => {
+  const $nodeId = args.getRaw(["input", "id"]);
+  return specFromNodeId(nodeIdHandler_Post, $nodeId);
+};
+const specFromArgs_Post2 = args => {
+  const $nodeId = args.getRaw(["input", "id"]);
+  return specFromNodeId(nodeIdHandler_Post, $nodeId);
+};
 const getPgSelectSingleFromMutationResult = (resource, pkAttributes, $mutation) => {
   const $result = $mutation.getStepForKey("result", !0);
   if (!$result) return null;
@@ -1092,45 +1108,199 @@ enum UserOrderBy {
 The root mutation type which contains root level fields which mutate data.
 """
 type Mutation {
-  """Creates a single \`User\`."""
-  createUser(
+  """Creates a single \`Post\`."""
+  createPost(
     """
     The exclusive input argument for this mutation. An object type, make sure to see documentation for this object’s fields.
     """
-    input: CreateUserInput!
-  ): CreateUserPayload
+    input: CreatePostInput!
+  ): CreatePostPayload
+
+  """Updates a single \`Post\` using its globally unique id and a patch."""
+  updatePostById(
+    """
+    The exclusive input argument for this mutation. An object type, make sure to see documentation for this object’s fields.
+    """
+    input: UpdatePostByIdInput!
+  ): UpdatePostPayload
+
+  """Updates a single \`Post\` using a unique key and a patch."""
+  updatePost(
+    """
+    The exclusive input argument for this mutation. An object type, make sure to see documentation for this object’s fields.
+    """
+    input: UpdatePostInput!
+  ): UpdatePostPayload
+
+  """Deletes a single \`Post\` using its globally unique id."""
+  deletePostById(
+    """
+    The exclusive input argument for this mutation. An object type, make sure to see documentation for this object’s fields.
+    """
+    input: DeletePostByIdInput!
+  ): DeletePostPayload
+
+  """Deletes a single \`Post\` using a unique key."""
+  deletePost(
+    """
+    The exclusive input argument for this mutation. An object type, make sure to see documentation for this object’s fields.
+    """
+    input: DeletePostInput!
+  ): DeletePostPayload
 }
 
-"""The output of our create \`User\` mutation."""
-type CreateUserPayload {
+"""The output of our create \`Post\` mutation."""
+type CreatePostPayload {
   """
   The exact same \`clientMutationId\` that was provided in the mutation input,
   unchanged and unused. May be used by a client to track mutations.
   """
   clientMutationId: String
 
-  """The \`User\` that was created by this mutation."""
-  user: User
+  """The \`Post\` that was created by this mutation."""
+  post: Post
 
   """
   Our root query field type. Allows us to run any query from our mutation payload.
   """
   query: Query
 
-  """An edge for our \`User\`. May be used by Relay 1."""
-  userEdge(
-    """The method to use when ordering \`User\`."""
-    orderBy: [UserOrderBy!]! = [PRIMARY_KEY_ASC]
-  ): UserEdge
+  """An edge for our \`Post\`. May be used by Relay 1."""
+  postEdge(
+    """The method to use when ordering \`Post\`."""
+    orderBy: [PostOrderBy!]! = [PRIMARY_KEY_ASC]
+  ): PostEdge
 }
 
-"""All input for the create \`User\` mutation."""
-input CreateUserInput {
+"""All input for the create \`Post\` mutation."""
+input CreatePostInput {
   """
   An arbitrary string value with no semantic meaning. Will be included in the
   payload verbatim. May be used to track mutations by the client.
   """
   clientMutationId: String
+
+  """The \`Post\` to be created by this mutation."""
+  post: PostInput!
+}
+
+"""An input for mutations affecting \`Post\`"""
+input PostInput {
+  title: String
+  description: String
+  authorId: UUID!
+}
+
+"""The output of our update \`Post\` mutation."""
+type UpdatePostPayload {
+  """
+  The exact same \`clientMutationId\` that was provided in the mutation input,
+  unchanged and unused. May be used by a client to track mutations.
+  """
+  clientMutationId: String
+
+  """The \`Post\` that was updated by this mutation."""
+  post: Post
+
+  """
+  Our root query field type. Allows us to run any query from our mutation payload.
+  """
+  query: Query
+
+  """An edge for our \`Post\`. May be used by Relay 1."""
+  postEdge(
+    """The method to use when ordering \`Post\`."""
+    orderBy: [PostOrderBy!]! = [PRIMARY_KEY_ASC]
+  ): PostEdge
+}
+
+"""All input for the \`updatePostById\` mutation."""
+input UpdatePostByIdInput {
+  """
+  An arbitrary string value with no semantic meaning. Will be included in the
+  payload verbatim. May be used to track mutations by the client.
+  """
+  clientMutationId: String
+
+  """
+  The globally unique \`ID\` which will identify a single \`Post\` to be updated.
+  """
+  id: ID!
+
+  """
+  An object where the defined keys will be set on the \`Post\` being updated.
+  """
+  patch: PostPatch!
+}
+
+"""Represents an update to a \`Post\`. Fields that are set will be updated."""
+input PostPatch {
+  title: String
+  description: String
+  updatedAt: Datetime
+}
+
+"""All input for the \`updatePost\` mutation."""
+input UpdatePostInput {
+  """
+  An arbitrary string value with no semantic meaning. Will be included in the
+  payload verbatim. May be used to track mutations by the client.
+  """
+  clientMutationId: String
+  rowId: UUID!
+
+  """
+  An object where the defined keys will be set on the \`Post\` being updated.
+  """
+  patch: PostPatch!
+}
+
+"""The output of our delete \`Post\` mutation."""
+type DeletePostPayload {
+  """
+  The exact same \`clientMutationId\` that was provided in the mutation input,
+  unchanged and unused. May be used by a client to track mutations.
+  """
+  clientMutationId: String
+
+  """The \`Post\` that was deleted by this mutation."""
+  post: Post
+  deletedPostId: ID
+
+  """
+  Our root query field type. Allows us to run any query from our mutation payload.
+  """
+  query: Query
+
+  """An edge for our \`Post\`. May be used by Relay 1."""
+  postEdge(
+    """The method to use when ordering \`Post\`."""
+    orderBy: [PostOrderBy!]! = [PRIMARY_KEY_ASC]
+  ): PostEdge
+}
+
+"""All input for the \`deletePostById\` mutation."""
+input DeletePostByIdInput {
+  """
+  An arbitrary string value with no semantic meaning. Will be included in the
+  payload verbatim. May be used to track mutations by the client.
+  """
+  clientMutationId: String
+
+  """
+  The globally unique \`ID\` which will identify a single \`Post\` to be deleted.
+  """
+  id: ID!
+}
+
+"""All input for the \`deletePost\` mutation."""
+input DeletePostInput {
+  """
+  An arbitrary string value with no semantic meaning. Will be included in the
+  payload verbatim. May be used to track mutations by the client.
+  """
+  clientMutationId: String
+  rowId: UUID!
 }`;
 export const objects = {
   Query: {
@@ -1260,9 +1430,9 @@ export const objects = {
   Mutation: {
     assertStep: __ValueStep,
     plans: {
-      createUser: {
+      createPost: {
         plan(_, args) {
-          const $insert = pgInsertSingle(resource_userPgResource, Object.create(null));
+          const $insert = pgInsertSingle(resource_postPgResource, Object.create(null));
           args.apply($insert);
           return object({
             result: $insert
@@ -1273,23 +1443,105 @@ export const objects = {
             return $object;
           }
         }
+      },
+      deletePost: {
+        plan(_$root, args) {
+          const $delete = pgDeleteSingle(resource_postPgResource, {
+            id: args.getRaw(['input', "rowId"])
+          });
+          args.apply($delete);
+          return object({
+            result: $delete
+          });
+        },
+        args: {
+          input(_, $object) {
+            return $object;
+          }
+        }
+      },
+      deletePostById: {
+        plan(_$root, args) {
+          const $delete = pgDeleteSingle(resource_postPgResource, specFromArgs_Post2(args));
+          args.apply($delete);
+          return object({
+            result: $delete
+          });
+        },
+        args: {
+          input(_, $object) {
+            return $object;
+          }
+        }
+      },
+      updatePost: {
+        plan(_$root, args) {
+          const $update = pgUpdateSingle(resource_postPgResource, {
+            id: args.getRaw(['input', "rowId"])
+          });
+          args.apply($update);
+          return object({
+            result: $update
+          });
+        },
+        args: {
+          input(_, $object) {
+            return $object;
+          }
+        }
+      },
+      updatePostById: {
+        plan(_$root, args) {
+          const $update = pgUpdateSingle(resource_postPgResource, specFromArgs_Post(args));
+          args.apply($update);
+          return object({
+            result: $update
+          });
+        },
+        args: {
+          input(_, $object) {
+            return $object;
+          }
+        }
       }
     }
   },
-  CreateUserPayload: {
+  CreatePostPayload: {
     assertStep: assertExecutableStep,
     plans: {
       clientMutationId($mutation) {
         return $mutation.getStepForKey("result").getMeta("clientMutationId");
       },
-      query() {
-        return rootValue();
-      },
-      user($object) {
+      post($object) {
         return $object.get("result");
       },
-      userEdge($mutation, fieldArgs) {
-        return pgMutationPayloadEdge(resource_userPgResource, userUniques[0].attributes, $mutation, fieldArgs);
+      postEdge($mutation, fieldArgs) {
+        return pgMutationPayloadEdge(resource_postPgResource, postUniques[0].attributes, $mutation, fieldArgs);
+      },
+      query() {
+        return rootValue();
+      }
+    }
+  },
+  DeletePostPayload: {
+    assertStep: ObjectStep,
+    plans: {
+      clientMutationId($mutation) {
+        return $mutation.getStepForKey("result").getMeta("clientMutationId");
+      },
+      deletedPostId($object) {
+        const $record = $object.getStepForKey("result"),
+          specifier = nodeIdHandler_Post.plan($record);
+        return lambda(specifier, nodeIdCodecs_base64JSON_base64JSON.encode);
+      },
+      post($object) {
+        return $object.get("result");
+      },
+      postEdge($mutation, fieldArgs) {
+        return pgMutationPayloadEdge(resource_postPgResource, postUniques[0].attributes, $mutation, fieldArgs);
+      },
+      query() {
+        return rootValue();
       }
     }
   },
@@ -1329,6 +1581,23 @@ export const objects = {
     plans: {
       totalCount($connection) {
         return $connection.cloneSubplanWithoutPagination("aggregate").singleAsRecord().select(sql`count(*)`, TYPES.bigint, !1);
+      }
+    }
+  },
+  UpdatePostPayload: {
+    assertStep: ObjectStep,
+    plans: {
+      clientMutationId($mutation) {
+        return $mutation.getStepForKey("result").getMeta("clientMutationId");
+      },
+      post($object) {
+        return $object.get("result");
+      },
+      postEdge($mutation, fieldArgs) {
+        return pgMutationPayloadEdge(resource_postPgResource, postUniques[0].attributes, $mutation, fieldArgs);
+      },
+      query() {
+        return rootValue();
       }
     }
   },
@@ -1424,7 +1693,24 @@ export const interfaces = {
   }
 };
 export const inputObjects = {
-  CreateUserInput: {
+  CreatePostInput: {
+    plans: {
+      clientMutationId(qb, val) {
+        qb.setMeta("clientMutationId", val);
+      },
+      post(qb, arg) {
+        if (arg != null) return qb.setBuilder();
+      }
+    }
+  },
+  DeletePostByIdInput: {
+    plans: {
+      clientMutationId(qb, val) {
+        qb.setMeta("clientMutationId", val);
+      }
+    }
+  },
+  DeletePostInput: {
     plans: {
       clientMutationId(qb, val) {
         qb.setMeta("clientMutationId", val);
@@ -1499,6 +1785,72 @@ export const inputObjects = {
         const condition = new PgCondition(queryBuilder);
         condition.extensions.pgFilterAttribute = colSpec;
         return condition;
+      }
+    }
+  },
+  PostInput: {
+    baked: createObjectAndApplyChildren,
+    plans: {
+      authorId(obj, val, {
+        field,
+        schema
+      }) {
+        obj.set("author_id", bakedInputRuntime(schema, field.type, val));
+      },
+      description(obj, val, {
+        field,
+        schema
+      }) {
+        obj.set("description", bakedInputRuntime(schema, field.type, val));
+      },
+      title(obj, val, {
+        field,
+        schema
+      }) {
+        obj.set("title", bakedInputRuntime(schema, field.type, val));
+      }
+    }
+  },
+  PostPatch: {
+    baked: createObjectAndApplyChildren,
+    plans: {
+      description(obj, val, {
+        field,
+        schema
+      }) {
+        obj.set("description", bakedInputRuntime(schema, field.type, val));
+      },
+      title(obj, val, {
+        field,
+        schema
+      }) {
+        obj.set("title", bakedInputRuntime(schema, field.type, val));
+      },
+      updatedAt(obj, val, {
+        field,
+        schema
+      }) {
+        obj.set("updated_at", bakedInputRuntime(schema, field.type, val));
+      }
+    }
+  },
+  UpdatePostByIdInput: {
+    plans: {
+      clientMutationId(qb, val) {
+        qb.setMeta("clientMutationId", val);
+      },
+      patch(qb, arg) {
+        if (arg != null) return qb.setBuilder();
+      }
+    }
+  },
+  UpdatePostInput: {
+    plans: {
+      clientMutationId(qb, val) {
+        qb.setMeta("clientMutationId", val);
+      },
+      patch(qb, arg) {
+        if (arg != null) return qb.setBuilder();
       }
     }
   },

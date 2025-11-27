@@ -7,9 +7,31 @@ export const SmartTagsPlugin = jsonPgSmartTags({
   version: 1,
   config: {
     class: {
-      user: {
+      post: {
         tags: {
-          behavior: "+insert",
+          behavior: "+insert +update +delete",
+        },
+        attribute: {
+          title: {
+            tags: {
+              behavior: "+insert +update +delete",
+            },
+          },
+          description: {
+            tags: {
+              behavior: "+insert +update +delete",
+            },
+          },
+          author_id: {
+            tags: {
+              behavior: "+insert",
+            },
+          },
+          updated_at: {
+            tags: {
+              behavior: "+update",
+            },
+          },
         },
       },
     },
