@@ -9,8 +9,9 @@
     "dev": "NODE_ENV=development GRAPHILE_ENV=development bun run --watch src/server.ts",
     "build": "bun build --target node --outdir build src/server.ts",
     "start": "NODE_ENV=production GRAPHILE_ENV=production bun db:migrate && NODE_ENV=production GRAPHILE_ENV=production bun run build/server.js",
-    "lint": "biome lint src",
-    "format": "biome format --write src",
+    "check": "biome check",
+    "lint": "biome lint",
+    "format": "biome format --write",
     "db:setup": "bun src/scripts/db/setupDatabase.ts",
     "db:check": "bun --env-file .env.local drizzle-kit check --config src/lib/config/drizzle.config.ts",
     "db:generate": "bun --env-file .env.local drizzle-kit generate --config src/lib/config/drizzle.config.ts",
@@ -24,11 +25,8 @@
     "graphile:generate": "NODE_ENV=development GRAPHILE_ENV=development bun run --env-file .env.local src/scripts/generateGraphqlSchema.ts",
     "prepare": "husky"
   },
-  "trustedDependencies": [
-    "@biomejs/biome"
-  ],
   "devDependencies": {
-    "@biomejs/biome": "^1.9.4",
+    "@biomejs/biome": "2.3.7",
     "@types/bun": "^1.2.13",
     "drizzle-kit": "^0.31.1",
     "drizzle-seed": "^0.3.1",
@@ -54,5 +52,8 @@
     "pg": "^8.16.0",
     "postgraphile": "^5.0.0-rc.3",
     "postgraphile-plugin-connection-filter": "^3.0.0-rc.1"
-  }
+  },
+  "trustedDependencies": [
+    "@biomejs/biome"
+  ]
 }

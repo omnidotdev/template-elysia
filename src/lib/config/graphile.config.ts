@@ -1,7 +1,7 @@
 import { PgSimplifyInflectionPreset } from "@graphile/simplify-inflection";
-import { PostGraphileConnectionFilterPreset } from "postgraphile-plugin-connection-filter";
 import { makePgService } from "postgraphile/adaptors/pg";
 import { PostGraphileAmberPreset } from "postgraphile/presets/amber";
+import { PostGraphileConnectionFilterPreset } from "postgraphile-plugin-connection-filter";
 
 import { PrimaryKeyMutationsOnlyPlugin } from "lib/postgraphile/plugins/PrimaryKeyMutationsOnly.plugin";
 import { SmartTagsPlugin } from "lib/postgraphile/plugins/SmartTags.plugin";
