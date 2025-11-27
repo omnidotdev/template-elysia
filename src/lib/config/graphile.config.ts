@@ -17,6 +17,7 @@ const graphilePreset: GraphileConfig.Preset = {
     PostGraphileConnectionFilterPreset,
   ],
   plugins: [PrimaryKeyMutationsOnlyPlugin, SmartTagsPlugin],
+  disablePlugins: ["PgIndexBehaviorsPlugin", "NodePlugin"],
   schema: {
     // NB: restrict mutations by default. Opt-in to certain behaviors through the `SmartTagsPlugin`
     defaultBehavior: "-insert -update -delete",
