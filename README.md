@@ -1,6 +1,6 @@
 # 🦊 Elysia Template
 
-This is a template repository for a GraphQL-API-enhanced server powered by [Elysia](https://elysiajs.com/).
+This is a template repository for a GraphQL-API-enhanced server powered by [Elysia](https://elysiajs.com).
 
 ## Features
 
