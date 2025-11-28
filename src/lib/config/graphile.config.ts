@@ -20,7 +20,7 @@ const graphilePreset: GraphileConfig.Preset = {
   disablePlugins: ["PgIndexBehaviorsPlugin", "NodePlugin"],
   schema: {
     // NB: restrict mutations by default. Opt-in to certain behaviors through the `SmartTagsPlugin`
-    defaultBehavior: "-insert -update -delete",
+    defaultBehavior: "-resource:insert -resource:update -resource:delete",
     pgForbidSetofFunctionsToReturnNull: true,
     // See https://github.com/graphile-contrib/postgraphile-plugin-connection-filter?tab=readme-ov-file#handling-null-and-empty-objects
     connectionFilterAllowNullInput: true,

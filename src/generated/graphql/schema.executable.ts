@@ -37,9 +37,7 @@ const spec_post = {
       notNull: false,
       hasDefault: false,
       extensions: {
-        tags: {
-          behavior: "+insert +update +delete"
-        },
+        tags: {},
         canSelect: true,
         canInsert: true,
         canUpdate: true
@@ -51,9 +49,7 @@ const spec_post = {
       notNull: false,
       hasDefault: false,
       extensions: {
-        tags: {
-          behavior: "+insert +update +delete"
-        },
+        tags: {},
         canSelect: true,
         canInsert: true,
         canUpdate: true
@@ -65,9 +61,7 @@ const spec_post = {
       notNull: true,
       hasDefault: false,
       extensions: {
-        tags: {
-          behavior: "+insert"
-        },
+        tags: {},
         canSelect: true,
         canInsert: true,
         canUpdate: true
@@ -91,9 +85,7 @@ const spec_post = {
       notNull: false,
       hasDefault: true,
       extensions: {
-        tags: {
-          behavior: "+update"
-        },
+        tags: {},
         canSelect: true,
         canInsert: true,
         canUpdate: true
@@ -1590,9 +1582,12 @@ input CreatePostInput {
 
 """An input for mutations affecting \`Post\`"""
 input PostInput {
+  rowId: UUID
   title: String
   description: String
   authorId: UUID!
+  createdAt: Datetime
+  updatedAt: Datetime
 }
 
 """The output of our update \`Post\` mutation."""
@@ -1635,8 +1630,11 @@ input UpdatePostInput {
 
 """Represents an update to a \`Post\`. Fields that are set will be updated."""
 input PostPatch {
+  rowId: UUID
   title: String
   description: String
+  authorId: UUID
+  createdAt: Datetime
   updatedAt: Datetime
 }
 
@@ -2426,28 +2424,64 @@ export const inputObjects = {
       }) {
         obj.set("author_id", bakedInputRuntime(schema, field.type, val));
       },
+      createdAt(obj, val, {
+        field,
+        schema
+      }) {
+        obj.set("created_at", bakedInputRuntime(schema, field.type, val));
+      },
       description(obj, val, {
         field,
         schema
       }) {
         obj.set("description", bakedInputRuntime(schema, field.type, val));
       },
+      rowId(obj, val, {
+        field,
+        schema
+      }) {
+        obj.set("id", bakedInputRuntime(schema, field.type, val));
+      },
       title(obj, val, {
         field,
         schema
       }) {
         obj.set("title", bakedInputRuntime(schema, field.type, val));
+      },
+      updatedAt(obj, val, {
+        field,
+        schema
+      }) {
+        obj.set("updated_at", bakedInputRuntime(schema, field.type, val));
       }
     }
   },
   PostPatch: {
     baked: createObjectAndApplyChildren,
     plans: {
+      authorId(obj, val, {
+        field,
+        schema
+      }) {
+        obj.set("author_id", bakedInputRuntime(schema, field.type, val));
+      },
+      createdAt(obj, val, {
+        field,
+        schema
+      }) {
+        obj.set("created_at", bakedInputRuntime(schema, field.type, val));
+      },
       description(obj, val, {
         field,
         schema
       }) {
         obj.set("description", bakedInputRuntime(schema, field.type, val));
+      },
+      rowId(obj, val, {
+        field,
+        schema
+      }) {
+        obj.set("id", bakedInputRuntime(schema, field.type, val));
       },
       title(obj, val, {
         field,

@@ -11,28 +11,6 @@ export const SmartTagsPlugin = jsonPgSmartTags({
         tags: {
           behavior: "+insert +update +delete",
         },
-        attribute: {
-          title: {
-            tags: {
-              behavior: "+insert +update +delete",
-            },
-          },
-          description: {
-            tags: {
-              behavior: "+insert +update +delete",
-            },
-          },
-          author_id: {
-            tags: {
-              behavior: "+insert",
-            },
-          },
-          updated_at: {
-            tags: {
-              behavior: "+update",
-            },
-          },
-        },
       },
     },
   },
