@@ -3,7 +3,7 @@
   "vcs": {
     "enabled": true,
     "clientKind": "git",
-    "useIgnoreFile": true,
+    "useIgnoreFile": true
   },
   "assist": {
     "actions": {
@@ -21,27 +21,27 @@
                   ":PACKAGE:",
                   ":PACKAGE_WITH_PROTOCOL:",
                   "!lib/**",
-                  "!routes/**",
-                ],
+                  "!routes/**"
+                ]
               },
               ":BLANK_LINE:",
               { "type": false, "source": ["**"] },
               ":BLANK_LINE:",
-              { "type": true },
-            ],
-          },
-        },
-      },
-    },
+              { "type": true }
+            ]
+          }
+        }
+      }
+    }
   },
   "files": {
     "ignoreUnknown": false,
-    "includes": ["**", "!!src/generated", "!!src/lib/db/drizzle"],
+    "includes": ["**", "!!src/generated", "!!src/lib/db/drizzle"]
   },
   "formatter": {
     "indentStyle": "space",
     "lineWidth": 80,
-    "indentWidth": 2,
+    "indentWidth": 2
   },
   "linter": {
     "rules": {
@@ -49,23 +49,23 @@
         "noUnusedImports": { "fix": "safe", "level": "error" },
         "noUnusedVariables": {
           "options": {
-            "ignoreRestSiblings": true,
-          },
-        },
+            "ignoreRestSiblings": true
+          }
+        }
       },
       "style": {
         "noNonNullAssertion": "off",
         "useImportType": {
           "level": "error",
-          "options": { "style": "separatedType" },
-        },
+          "options": { "style": "separatedType" }
+        }
       },
       "suspicious": {
         "noConsole": {
           "level": "error",
-          "options": { "allow": ["error", "warn"] },
-        },
-      },
-    },
-  },
+          "options": { "allow": ["error", "warn"] }
+        }
+      }
+    }
+  }
 }
