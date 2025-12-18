@@ -5,9 +5,9 @@ import { useParserCache } from "@envelop/parser-cache";
 import { useValidationCache } from "@envelop/validation-cache";
 import { useDisableIntrospection } from "@graphql-yoga/plugin-disable-introspection";
 import { Elysia } from "elysia";
+import { schema } from "generated/graphql/schema.executable";
 import { useGrafast } from "grafast/envelop";
 
-import { schema } from "generated/graphql/schema.executable";
 import appConfig from "lib/config/app.config";
 import {
   CORS_ALLOWED_ORIGINS,
@@ -62,12 +62,12 @@ const app = new Elysia({
   )
   .listen(PORT);
 
-// biome-ignore lint/suspicious/noConsoleLog: root logging
+// biome-ignore lint/suspicious/noConsole: root logging
 console.log(
   `🦊 ${appConfig.name} Elysia server running at ${app.server?.url.toString().slice(0, -1)}`,
 );
 
-// biome-ignore lint/suspicious/noConsoleLog: root logging
+// biome-ignore lint/suspicious/noConsole: root logging
 console.log(
   `🧘 ${appConfig.name} GraphQL Yoga API running at ${app.server?.url}graphql`,
 );
