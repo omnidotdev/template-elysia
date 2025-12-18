@@ -16,7 +16,7 @@ import {
   isProdEnv,
 } from "lib/config/env.config";
 import createGraphqlContext from "lib/graphql/createGraphqlContext";
-import { armorPlugins, useAuth } from "lib/graphql/plugins";
+import { armorPlugin, authenticationPlugin } from "lib/graphql/plugins";
 
 /**
  * Elysia server.
@@ -45,8 +45,8 @@ const app = new Elysia({
       schema,
       context: createGraphqlContext,
       plugins: [
-        ...armorPlugins,
-        useAuth(),
+        ...armorPlugin,
+        authenticationPlugin,
         // disable GraphQL schema introspection in production to mitigate reverse engineering
         isProdEnv && useDisableIntrospection(),
         useOpenTelemetry({
