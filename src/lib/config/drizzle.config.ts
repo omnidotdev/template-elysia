@@ -7,7 +7,7 @@ import { defineConfig } from "drizzle-kit";
 const drizzleConfig = defineConfig({
   dialect: "postgresql",
   schema: "src/lib/db/schema",
-  out: "src/lib/db/drizzle",
+  out: "src/generated/drizzle",
   casing: "snake_case",
   dbCredentials: {
     url: process.env.DATABASE_URL!,
