@@ -4,10 +4,12 @@
 
 import { $ } from "bun";
 
-import { DATABASE_NAME } from "lib/config/env.config";
+import { DATABASE_URL } from "lib/config/env.config";
+
+const databaseName = DATABASE_URL?.split("/").pop()?.split("?")[0];
 
 // biome-ignore lint/suspicious/noConsole: script logging
-console.log(`Creating ${DATABASE_NAME} database...`);
-await $`createdb -U postgres ${DATABASE_NAME}`;
+console.log(`Creating ${databaseName} database...`);
+await $`createdb -U postgres ${databaseName}`;
 // biome-ignore lint/suspicious/noConsole: script logging
 console.log("Database created");
