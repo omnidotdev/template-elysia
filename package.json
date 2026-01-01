@@ -52,7 +52,7 @@
     "graphql-yoga": "^5.13.4",
     "jose": "^6.0.11",
     "pg": "^8.16.0",
-    "postgraphile": "5.0.0-beta.40",
+    "postgraphile": "5.0.0-rc.3",
     "postgraphile-plugin-connection-filter": "3.0.0-beta.8"
   }
 }
