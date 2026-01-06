@@ -16,10 +16,10 @@ const knipConfig: KnipConfig = {
   ],
   ignoreDependencies: [
     "drizzle-kit",
-    // TODO remove once testcontainers Bun race condition is fixed
-    // @see https://github.com/testcontainers/testcontainers-node/issues/974
+    // TODO switch to testcontainers (unstable behavior with Bun/Docker), then remove below
     "@testcontainers/postgresql",
     "testcontainers",
+    "@faker-js/faker",
   ],
   tags: ["-knipignore"],
 };
