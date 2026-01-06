@@ -1,2 +1,2 @@
 bun knip
-bun check --staged --no-errors-on-unmatched
+bun biome check --write --staged --no-errors-on-unmatched src
