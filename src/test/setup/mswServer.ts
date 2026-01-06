@@ -1,7 +1,6 @@
+import { AUTH_BASE_URL } from "lib/config/env.config";
 import { HttpResponse, http } from "msw";
 import { setupServer } from "msw/node";
-
-import { AUTH_BASE_URL } from "lib/config/env.config";
 
 export const TEST_USER_ID = "e5d5d4ce-1ee4-42c0-b223-7ad2173a4616";
 
