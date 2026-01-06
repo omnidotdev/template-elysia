@@ -59,9 +59,8 @@ const resolveUser: ResolveUserFn<SelectUser, GraphQLContext> = async (ctx) => {
       .returning();
 
     return user;
-  } catch (err) {
-    console.error(err);
-
+  } catch {
+    // TODO add structured logging for auth failures (debug for missing token, warn for invalid token, error for network failures)
     return null;
   }
 };
