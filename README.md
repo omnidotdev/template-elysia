@@ -35,6 +35,9 @@ This is a template repository for a GraphQL-API-enhanced server powered by [Elys
   - Environment-specific configurations
   - Optimized build process
   - OpenTelemetry integration for observability
+  - Health check endpoints (`/health`, `/ready`) for container orchestration
+  - Graceful shutdown handling (SIGTERM/SIGINT)
+  - Security headers, rate limiting, and TLS/HTTPS
 
 ## Local Development
 
@@ -64,6 +67,14 @@ Run the dev server:
 
 ```sh
 bun dev
+```
+
+## Testing
+
+```sh
+bun test
+bun test:watch # watch mode
+bun test:coverage # test with coverage
 ```
 
 ## License
