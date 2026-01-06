@@ -73,8 +73,12 @@ bun dev
 
 ```sh
 bun test
-bun test:watch # watch mode
-bun test:coverage # test with coverage
+
+# or in watch mode
+bun test:watch
+
+# or test with coverage reporting
+bun test:coverage
 ```
 
 ## License
