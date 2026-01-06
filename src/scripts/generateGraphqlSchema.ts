@@ -1,4 +1,5 @@
 import { existsSync, mkdirSync } from "node:fs";
+
 import { exportSchema } from "graphile-export";
 import { makeSchema } from "postgraphile";
 import { replaceInFile } from "replace-in-file";
