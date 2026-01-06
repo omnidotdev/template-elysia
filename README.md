@@ -13,7 +13,7 @@ This is a template repository for a GraphQL-API-enhanced server powered by [Elys
   - No [N+1 problem](https://hygraph.com/blog/graphql-n-1-problem)
 - 🔒 **Security**:
   - [GraphQL Armor](https://escape.tech/graphql-armor) for securing GraphQL endpoints with operation complexity limits, depth limits, and more
-  - Schema-wide perimiter authentication support via [`useGenericAuth`](https://the-guild.dev/graphql/envelop/plugins/use-generic-auth)
+  - Schema-wide perimeter authentication support via [`useGenericAuth`](https://the-guild.dev/graphql/envelop/plugins/use-generic-auth)
   - CORS with configurable allowed origins
   - TLS/HTTPS support out of the box
   - GraphQL schema introspection disabled in production environments
@@ -35,6 +35,9 @@ This is a template repository for a GraphQL-API-enhanced server powered by [Elys
   - Environment-specific configurations
   - Optimized build process
   - OpenTelemetry integration for observability
+  - Health check endpoints (`/health`, `/ready`) for container orchestration
+  - Graceful shutdown handling (SIGTERM/SIGINT)
+  - Security headers, rate limiting, and TLS/HTTPS
 
 ## Local Development
 
@@ -63,7 +66,15 @@ bun db:migrate
 Run the dev server:
 
 ```sh
-bun run dev
+bun dev
+```
+
+## Testing
+
+```sh
+bun test
+bun test:watch # watch mode
+bun test:coverage # test with coverage
 ```
 
 ## License

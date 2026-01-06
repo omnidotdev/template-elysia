@@ -1,35 +1,77 @@
 {
-  "$schema": "https://biomejs.dev/schemas/1.9.4/schema.json",
+  "$schema": "https://biomejs.dev/schemas/2.3.11/schema.json",
   "vcs": {
-    "enabled": false,
+    "enabled": true,
     "clientKind": "git",
-    "useIgnoreFile": false
+    "useIgnoreFile": true
+  },
+  "assist": {
+    "actions": {
+      "source": {
+        "organizeImports": {
+          "level": "on",
+          "options": {
+            "identifierOrder": "lexicographic",
+            "groups": [
+              { "type": false, "source": [":BUN:", ":NODE:"] },
+              ":BLANK_LINE:",
+              {
+                "type": false,
+                "source": [
+                  ":PACKAGE:",
+                  ":PACKAGE_WITH_PROTOCOL:",
+                  "!lib/**",
+                  "!routes/**"
+                ]
+              },
+              ":BLANK_LINE:",
+              { "type": false, "source": ["**"] },
+              ":BLANK_LINE:",
+              { "type": true }
+            ]
+          }
+        }
+      }
+    }
   },
   "files": {
     "ignoreUnknown": false,
-    "ignore": ["src/generated/**", "src/lib/db/drizzle/**"]
+    "includes": [
+      "**",
+      "!!src/generated",
+      "!!src/lib/db/drizzle",
+      "!!src/test",
+      "!!src/__tests__"
+    ]
   },
   "formatter": {
-    "enabled": true,
     "indentStyle": "space",
     "lineWidth": 80,
     "indentWidth": 2
   },
-  "organizeImports": {
-    "enabled": true
-  },
   "linter": {
-    "enabled": true,
     "rules": {
-      "recommended": true,
       "correctness": {
-        "noUnusedImports": "error"
+        "noUnusedImports": { "fix": "safe", "level": "error" },
+        "noUnusedVariables": {
+          "level": "error",
+          "options": {
+            "ignoreRestSiblings": true
+          }
+        }
       },
       "style": {
-        "noNonNullAssertion": "off"
+        "noNonNullAssertion": "off",
+        "useImportType": {
+          "level": "error",
+          "options": { "style": "separatedType" }
+        }
       },
       "suspicious": {
-        "noConsoleLog": "error"
+        "noConsole": {
+          "level": "error",
+          "options": { "allow": ["error", "warn"] }
+        }
       }
     }
   }

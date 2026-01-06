@@ -1,12 +1,12 @@
 import { useGenericAuth } from "@envelop/generic-auth";
-import type * as jose from "jose";
 
 import { AUTH_BASE_URL } from "lib/config/env.config";
 import { userTable } from "lib/db/schema";
-import type { GraphQLContext } from "lib/graphql/createGraphqlContext";
 
 import type { ResolveUserFn } from "@envelop/generic-auth";
+import type * as jose from "jose";
 import type { InsertUser, SelectUser } from "lib/db/schema";
+import type { GraphQLContext } from "lib/graphql/createGraphqlContext";
 
 // TODO research best practices for all of this file (token validation, caching, etc.). Validate access token (introspection endpoint)? Cache userinfo output? etc. (https://linear.app/omnidev/issue/OMNI-302/increase-security-of-useauth-plugin)
 
@@ -59,21 +59,20 @@ const resolveUser: ResolveUserFn<SelectUser, GraphQLContext> = async (ctx) => {
       .returning();
 
     return user;
-  } catch (err) {
-    console.error(err);
-
+  } catch {
+    // TODO add structured logging for auth failures (debug for missing token, warn for invalid token, error for network failures)
     return null;
   }
 };
 
 /**
  * Authentication plugin.
+ * @see https://the-guild.dev/graphql/envelop/plugins/use-generic-auth
  */
-const useAuth = () =>
-  useGenericAuth({
-    contextFieldName: "observer",
-    resolveUserFn: resolveUser,
-    mode: "protect-all",
-  });
+const authenticationPlugin = useGenericAuth({
+  contextFieldName: "observer",
+  resolveUserFn: resolveUser,
+  mode: "protect-all",
+});
 
-export default useAuth;
+export default authenticationPlugin;

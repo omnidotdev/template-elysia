@@ -27,6 +27,6 @@ const armor = new EnvelopArmor({
   },
 });
 
-const { plugins } = armor.protect();
+const { plugins: armorPlugin } = armor.protect();
 
-export default plugins;
+export default armorPlugin;

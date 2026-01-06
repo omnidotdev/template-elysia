@@ -6,9 +6,8 @@ export const {
   PORT = 4000,
   // https://stackoverflow.com/a/68578294
   HOST = "0.0.0.0",
-  DATABASE_NAME,
   DATABASE_URL,
-  AUTH_BASE_URL,
+  AUTH_BASE_URL = "https://localhost:8000",
   GRAPHQL_COMPLEXITY_MAX_COST,
   CORS_ALLOWED_ORIGINS,
 } = process.env;
