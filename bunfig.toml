@@ -1,7 +1,7 @@
 [test]
 env = ".env.test"
 timeout = 30000
-preload = [ "./__tests__/setup/globalSetup.ts" ]
+preload = ["./src/test/preload.ts"]
 coveragePathIgnorePatterns = [
   "**/generated/**",
   "__tests__/**",
