@@ -1,0 +1,60 @@
+import { entitlementProvider } from "lib/config/env.config";
+import AetherEntitlementProvider from "./aether.provider";
+import LocalEntitlementProvider from "./local.provider";
+
+import type { EntitlementProvider } from "./interface";
+
+export type {
+  Entitlement,
+  EntitlementProvider,
+  EntitlementsResponse,
+} from "./interface";
+
+/**
+ * Create the entitlement provider based on environment configuration.
+ */
+const createEntitlementProvider = (): EntitlementProvider => {
+  switch (entitlementProvider) {
+    case "local":
+      return new LocalEntitlementProvider();
+    case "aether":
+      return new AetherEntitlementProvider();
+    default:
+      console.warn(
+        `[entitlements] Unknown provider "${entitlementProvider}", using local`,
+      );
+      return new LocalEntitlementProvider();
+  }
+};
+
+/**
+ * Singleton entitlement provider instance.
+ */
+const entitlements = createEntitlementProvider();
+
+export default entitlements;
+
+/**
+ * Invalidate cached entitlements for an entity.
+ * Used by webhooks to clear stale data.
+ */
+export const invalidateEntitlementCache = (
+  entityType: string,
+  entityId: string,
+): void => {
+  // Only Aether provider has cache to invalidate
+  if (entitlementProvider === "aether") {
+    const provider = entitlements as AetherEntitlementProvider;
+    provider.invalidateCache(entityType, entityId);
+  }
+};
+
+/**
+ * Clear all cached entitlements.
+ */
+export const clearEntitlementCache = (): void => {
+  if (entitlementProvider === "aether") {
+    const provider = entitlements as AetherEntitlementProvider;
+    provider.clearCache();
+  }
+};

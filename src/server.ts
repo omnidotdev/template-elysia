@@ -18,9 +18,13 @@ import {
   isDevEnv,
   isProdEnv,
 } from "lib/config/env.config";
-import { dbPool, pgPool } from "lib/db/db";
+import { dbPool, pgPool } from "lib/db";
+import ensureDatabase from "lib/db/ensureDatabase";
 import createGraphqlContext from "lib/graphql/createGraphqlContext";
 import { armorPlugin, authenticationPlugin } from "lib/graphql/plugins";
+
+// ensure database exists before starting
+await ensureDatabase();
 
 /**
  * Elysia server.
