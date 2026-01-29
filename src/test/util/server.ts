@@ -3,7 +3,7 @@ import { schema } from "generated/graphql/schema.executable";
 import { createYoga } from "graphql-yoga";
 import { createWithPgClient } from "postgraphile/adaptors/pg";
 
-import authenticationPlugin from "lib/graphql/plugins/authentication.plugin";
+import createAuthenticationPlugin from "lib/graphql/plugins/authentication.plugin";
 
 export const makeElysiaApp = () => {
   const app = new Elysia();
@@ -27,7 +27,7 @@ export const makeYogaServer = (opts?: { headers?: Record<string, string> }) => {
 
   const yoga = createYoga({
     schema,
-    plugins: [authenticationPlugin],
+    plugins: [createAuthenticationPlugin()],
     context: async ({ request }) => ({
       request,
       db,

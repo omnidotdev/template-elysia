@@ -3,7 +3,7 @@ import { QueryClient } from "@tanstack/query-core";
 import { createRemoteJWKSet, jwtVerify } from "jose";
 import ms from "ms";
 
-import { AUTH_BASE_URL, protectRoutes } from "lib/config/env.config";
+import { AUTH_BASE_URL, PROTECT_ROUTES } from "lib/config/env.config";
 import { userTable } from "lib/db/schema";
 
 import type { ResolveUserFn } from "@envelop/generic-auth";
@@ -102,7 +102,7 @@ const resolveUser: ResolveUserFn<SelectUser, GraphQLContext> = async (ctx) => {
       ?.split("Bearer ")[1];
 
     if (!accessToken) {
-      if (!protectRoutes) return null;
+      if (PROTECT_ROUTES !== "true") return null;
 
       throw new AuthenticationError(
         "Invalid or missing access token",
@@ -138,7 +138,7 @@ const resolveUser: ResolveUserFn<SelectUser, GraphQLContext> = async (ctx) => {
     });
 
     if (!claims) {
-      if (!protectRoutes) return null;
+      if (PROTECT_ROUTES !== "true") return null;
 
       throw new AuthenticationError(
         "Invalid access token or request failed",
@@ -180,13 +180,15 @@ const resolveUser: ResolveUserFn<SelectUser, GraphQLContext> = async (ctx) => {
 };
 
 /**
- * Authentication plugin.
+ * Create authentication plugin.
+ * Factory function to ensure mode is evaluated at runtime, not module load time.
  * @see https://the-guild.dev/graphql/envelop/plugins/use-generic-auth
  */
-const authenticationPlugin = useGenericAuth({
-  contextFieldName: "observer",
-  resolveUserFn: resolveUser,
-  mode: protectRoutes ? "protect-all" : "resolve-only",
-});
+const createAuthenticationPlugin = () =>
+  useGenericAuth({
+    contextFieldName: "observer",
+    resolveUserFn: resolveUser,
+    mode: PROTECT_ROUTES === "true" ? "protect-all" : "resolve-only",
+  });
 
-export default authenticationPlugin;
+export default createAuthenticationPlugin;

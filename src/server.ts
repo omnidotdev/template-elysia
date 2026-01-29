@@ -21,7 +21,7 @@ import {
 import { dbPool, pgPool } from "lib/db";
 import ensureDatabase from "lib/db/ensureDatabase";
 import createGraphqlContext from "lib/graphql/createGraphqlContext";
-import { armorPlugin, authenticationPlugin } from "lib/graphql/plugins";
+import { armorPlugin, createAuthenticationPlugin } from "lib/graphql/plugins";
 
 // ensure database exists before starting
 await ensureDatabase();
@@ -96,7 +96,7 @@ const app = new Elysia({
       graphiql: isDevEnv,
       plugins: [
         ...armorPlugin,
-        authenticationPlugin,
+        createAuthenticationPlugin(),
         // disable GraphQL schema introspection in production to mitigate reverse engineering
         isProdEnv && useDisableIntrospection(),
         useOpenTelemetry({
