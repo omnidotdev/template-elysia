@@ -3,7 +3,7 @@ import { QueryClient } from "@tanstack/query-core";
 import { createRemoteJWKSet, jwtVerify } from "jose";
 import ms from "ms";
 
-import { AUTH_BASE_URL, PROTECT_ROUTES } from "lib/config/env.config";
+import { AUTH_BASE_URL } from "lib/config/env.config";
 import { userTable } from "lib/db/schema";
 
 import type { ResolveUserFn } from "@envelop/generic-auth";
@@ -102,7 +102,7 @@ const resolveUser: ResolveUserFn<SelectUser, GraphQLContext> = async (ctx) => {
       ?.split("Bearer ")[1];
 
     if (!accessToken) {
-      if (PROTECT_ROUTES !== "true") return null;
+      if (process.env.PROTECT_ROUTES !== "true") return null;
 
       throw new AuthenticationError(
         "Invalid or missing access token",
@@ -138,7 +138,7 @@ const resolveUser: ResolveUserFn<SelectUser, GraphQLContext> = async (ctx) => {
     });
 
     if (!claims) {
-      if (PROTECT_ROUTES !== "true") return null;
+      if (process.env.PROTECT_ROUTES !== "true") return null;
 
       throw new AuthenticationError(
         "Invalid access token or request failed",
@@ -188,7 +188,8 @@ const createAuthenticationPlugin = () =>
   useGenericAuth({
     contextFieldName: "observer",
     resolveUserFn: resolveUser,
-    mode: PROTECT_ROUTES === "true" ? "protect-all" : "resolve-only",
+    mode:
+      process.env.PROTECT_ROUTES === "true" ? "protect-all" : "resolve-only",
   });
 
 export default createAuthenticationPlugin;
