@@ -1,9 +1,7 @@
 import { afterEach, describe, expect, test } from "bun:test";
 
-import { mswServer } from "test/setup/mswServer";
+import { mswServer, TEST_TOKEN } from "test/setup/mswServer";
 import { makeYogaServer } from "test/util/server";
-
-const AUTH_TOKEN = "good-token";
 
 afterEach(() => {
   mswServer.resetHandlers();
@@ -39,7 +37,7 @@ describe("GraphQL auth via useAuth", () => {
 
   test("inserts or updates user on first authenticated request", async () => {
     const yoga = makeYogaServer({
-      headers: { authorization: `Bearer ${AUTH_TOKEN}` },
+      headers: { authorization: `Bearer ${TEST_TOKEN}` },
     });
 
     const query = /* GraphQL */ `

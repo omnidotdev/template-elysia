@@ -1,3 +1,4 @@
+import { exportJWK, generateKeyPair, SignJWT } from "jose";
 import { AUTH_BASE_URL } from "lib/config/env.config";
 import { HttpResponse, http } from "msw";
 import { setupServer } from "msw/node";
@@ -15,9 +16,48 @@ export const TEST_USER = {
 } as const;
 
 /**
+ * Test key pair for JWT signing/verification.
+ * Generated once and reused for all tests.
+ */
+const testKeyPair = await generateKeyPair("RS256");
+const testPublicJwk = await exportJWK(testKeyPair.publicKey);
+testPublicJwk.kid = "test-key-id";
+testPublicJwk.use = "sig";
+testPublicJwk.alg = "RS256";
+
+/**
+ * Generate a valid test JWT.
+ */
+export const generateTestToken = async (
+  claims: { sub: string } & Record<string, unknown> = { sub: TEST_USER_ID },
+): Promise<string> => {
+  const now = Math.floor(Date.now() / 1000);
+
+  return new SignJWT(claims)
+    .setProtectedHeader({ alg: "RS256", kid: "test-key-id" })
+    .setIssuer(AUTH_BASE_URL)
+    .setIssuedAt(now)
+    .setExpirationTime(now + 3600)
+    .sign(testKeyPair.privateKey);
+};
+
+/**
+ * Pre-generated test token for convenience.
+ */
+export const TEST_TOKEN = await generateTestToken();
+
+/**
  * Create a MSW server with mocked OIDC calls.
  */
 export const mswServer = setupServer(
+  // Mock JWKS endpoint for JWT verification
+  http.get(`${AUTH_BASE_URL}/.well-known/jwks.json`, () => {
+    return HttpResponse.json({
+      keys: [testPublicJwk],
+    });
+  }),
+
+  // Mock userinfo endpoint
   http.get(`${AUTH_BASE_URL}/oauth2/userinfo`, async ({ request }) => {
     const auth = request.headers.get("authorization") ?? "";
     const token = auth.startsWith("Bearer ") ? auth.slice(7) : "";
