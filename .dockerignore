@@ -2,7 +2,7 @@ node_modules
 .git
 .env*
 !.env.local.template
-dist
+build
 .output
 *.log
 .turbo
