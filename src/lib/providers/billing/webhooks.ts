@@ -3,9 +3,9 @@ import { createHmac, timingSafeEqual } from "node:crypto";
 import { Elysia, t } from "elysia";
 
 import { BILLING_WEBHOOK_SECRET } from "lib/config/env.config";
-import { invalidateEntitlementCache } from "./index";
+import { invalidateBillingCache } from "./index";
 
-interface EntitlementWebhookPayload {
+interface BillingWebhookPayload {
   eventType: string;
   entityType: string;
   entityId: string;
@@ -18,7 +18,7 @@ interface EntitlementWebhookPayload {
 }
 
 /**
- * Verify HMAC-SHA256 signature from the entitlements service.
+ * Verify HMAC-SHA256 signature from the billing service.
  */
 const verifySignature = (
   payload: string,
@@ -44,15 +44,15 @@ const verifySignature = (
 };
 
 /**
- * Entitlements webhook receiver.
+ * Billing webhook receiver.
  * Receives entitlement change events from the billing service.
  *
  * This handler:
  * 1. Verifies HMAC-SHA256 signature
- * 2. Invalidates local entitlements cache
+ * 2. Invalidates local billing cache
  */
-const entitlementsWebhook = new Elysia().post(
-  "/entitlements",
+const billingWebhook = new Elysia().post(
+  "/billing",
   async ({ request, headers, set }) => {
     const signature = headers["x-billing-signature"];
 
@@ -82,7 +82,7 @@ const entitlementsWebhook = new Elysia().post(
         return { error: "Missing signature" };
       }
 
-      const body = JSON.parse(rawBody) as EntitlementWebhookPayload;
+      const body = JSON.parse(rawBody) as BillingWebhookPayload;
 
       // Handle events - invalidate local cache
       switch (body.eventType) {
@@ -90,7 +90,7 @@ const entitlementsWebhook = new Elysia().post(
         case "entitlement.updated":
         case "entitlement.deleted":
           // Invalidate all cached entitlements for this entity
-          invalidateEntitlementCache(body.entityType, body.entityId);
+          invalidateBillingCache(body.entityType, body.entityId);
           break;
         default:
           break;
@@ -99,7 +99,7 @@ const entitlementsWebhook = new Elysia().post(
       set.status = 200;
       return { received: true };
     } catch (err) {
-      console.error("Error processing entitlements webhook:", err);
+      console.error("Error processing billing webhook:", err);
       set.status = 500;
       return { error: "Internal Server Error" };
     }
@@ -111,4 +111,4 @@ const entitlementsWebhook = new Elysia().post(
   },
 );
 
-export default entitlementsWebhook;
+export default billingWebhook;

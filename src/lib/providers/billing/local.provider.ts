@@ -1,6 +1,6 @@
 import type {
+  BillingProvider,
   Entitlement,
-  EntitlementProvider,
   EntitlementsResponse,
 } from "./interface";
 
@@ -38,10 +38,10 @@ const UNLIMITED_ENTITLEMENTS: EntitlementsResponse = {
 };
 
 /**
- * Local entitlement provider.
+ * Local billing provider.
  * Returns unlimited entitlements for self-hosted mode.
  */
-class LocalEntitlementProvider implements EntitlementProvider {
+class LocalBillingProvider implements BillingProvider {
   async getEntitlements(
     entityType: string,
     entityId: string,
@@ -79,4 +79,4 @@ class LocalEntitlementProvider implements EntitlementProvider {
   }
 }
 
-export default LocalEntitlementProvider;
+export default LocalBillingProvider;

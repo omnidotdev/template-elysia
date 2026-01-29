@@ -1,6 +1,6 @@
 import { BILLING_BASE_URL } from "lib/config/env.config";
 
-import type { EntitlementProvider, EntitlementsResponse } from "./interface";
+import type { BillingProvider, EntitlementsResponse } from "./interface";
 
 /** Request timeout in milliseconds */
 const REQUEST_TIMEOUT_MS = 5000;
@@ -14,10 +14,10 @@ interface CacheEntry {
 }
 
 /**
- * Aether entitlement provider.
+ * Aether billing provider.
  * Fetches entitlements from Aether billing service.
  */
-class AetherEntitlementProvider implements EntitlementProvider {
+class AetherBillingProvider implements BillingProvider {
   private cache = new Map<string, CacheEntry>();
 
   async getEntitlements(
@@ -26,7 +26,7 @@ class AetherEntitlementProvider implements EntitlementProvider {
     productId?: string,
   ): Promise<EntitlementsResponse | null> {
     if (!BILLING_BASE_URL) {
-      console.warn("[entitlements] BILLING_BASE_URL not configured");
+      console.warn("[billing] BILLING_BASE_URL not configured");
       return null;
     }
 
@@ -49,7 +49,7 @@ class AetherEntitlementProvider implements EntitlementProvider {
       });
 
       if (!response.ok) {
-        console.error(`[entitlements] Failed to fetch: ${response.status}`);
+        console.error(`[billing] Failed to fetch: ${response.status}`);
         return null;
       }
 
@@ -63,7 +63,7 @@ class AetherEntitlementProvider implements EntitlementProvider {
 
       return result;
     } catch (error) {
-      console.error("[entitlements] Error fetching:", error);
+      console.error("[billing] Error fetching:", error);
       return null;
     }
   }
@@ -146,4 +146,4 @@ class AetherEntitlementProvider implements EntitlementProvider {
   }
 }
 
-export default AetherEntitlementProvider;
+export default AetherBillingProvider;

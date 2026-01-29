@@ -1,9 +1,9 @@
 import { describe, expect, it } from "bun:test";
 
-import LocalEntitlementProvider from "./local.provider";
+import LocalBillingProvider from "./local.provider";
 
-describe("LocalEntitlementProvider", () => {
-  const provider = new LocalEntitlementProvider();
+describe("LocalBillingProvider", () => {
+  const provider = new LocalBillingProvider();
 
   it("returns unlimited entitlements", async () => {
     const result = await provider.getEntitlements("organization", "org-123");

@@ -5,12 +5,12 @@
 
 // Authorization
 export { default as authz } from "./authz";
-// Entitlements
+// Billing
 export {
-  clearEntitlementCache,
-  default as entitlements,
-  invalidateEntitlementCache,
-} from "./entitlements";
+  clearBillingCache,
+  default as billing,
+  invalidateBillingCache,
+} from "./billing";
 
 export type { AuthzProvider, AuthzTuple } from "./authz";
-export type { EntitlementProvider } from "./entitlements";
+export type { BillingProvider } from "./billing";

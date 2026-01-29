@@ -1,5 +1,5 @@
 /**
- * Entitlement types.
+ * Billing types.
  */
 export interface Entitlement {
   id: string;
@@ -20,10 +20,10 @@ export interface EntitlementsResponse {
 }
 
 /**
- * Entitlement provider interface.
+ * Billing provider interface.
  * Implementations check feature access and limits.
  */
-export interface EntitlementProvider {
+export interface BillingProvider {
   /**
    * Get all entitlements for an entity.
    * @param entityType - The entity type (e.g., "organization").

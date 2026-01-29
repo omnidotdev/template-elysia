@@ -27,7 +27,7 @@ export const {
   /** Default organization ID for self-hosted mode */
   DEFAULT_ORG_ID = "default-org",
   /** Provider overrides (default based on SELF_HOSTED) */
-  ENTITLEMENT_PROVIDER,
+  BILLING_PROVIDER,
   AUTHZ_PROVIDER,
 } = process.env;
 
@@ -49,8 +49,5 @@ const resolveProvider = (
   return isSelfHosted ? defaultSelfHosted : defaultSaas;
 };
 
-export const entitlementProvider = resolveProvider(
-  ENTITLEMENT_PROVIDER,
-  "aether",
-);
+export const billingProvider = resolveProvider(BILLING_PROVIDER, "aether");
 export const authzProvider = resolveProvider(AUTHZ_PROVIDER, "warden");
