@@ -1,3 +1,6 @@
+// Set env vars before importing modules that read them at load time
+process.env.PROTECT_ROUTES = "true";
+
 import { createTestDatabase } from "./setup/createTestDatabase";
 import { mswServer } from "./setup/mswServer";
 import {
