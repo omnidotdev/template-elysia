@@ -20,6 +20,34 @@ export interface EntitlementsResponse {
 }
 
 /**
+ * Checkout with workspace parameters.
+ * Either workspaceId (upgrade existing) or createWorkspace (new) must be provided.
+ */
+export interface CheckoutWithWorkspaceParams {
+  appId: string;
+  priceId: string;
+  successUrl: string;
+  cancelUrl: string;
+  accessToken: string;
+  /** Upgrade existing workspace */
+  workspaceId?: string;
+  /** Create new workspace */
+  createWorkspace?: {
+    name: string;
+    slug?: string;
+  };
+}
+
+/**
+ * Checkout with workspace response.
+ */
+export interface CheckoutWithWorkspaceResponse {
+  checkoutUrl: string;
+  workspaceSlug: string;
+  organizationId: string;
+}
+
+/**
  * Billing provider interface.
  * Implementations check feature access and limits.
  */
@@ -57,6 +85,14 @@ export interface BillingProvider {
     entityId: string,
     feature: string,
   ): Promise<string | null>;
+
+  /**
+   * Create a checkout session with workspace creation/selection.
+   * Routes through Aether for orchestration.
+   */
+  createCheckoutWithWorkspace(
+    params: CheckoutWithWorkspaceParams,
+  ): Promise<CheckoutWithWorkspaceResponse>;
 
   /**
    * Health check for the provider.

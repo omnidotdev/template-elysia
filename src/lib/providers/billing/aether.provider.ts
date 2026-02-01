@@ -1,6 +1,11 @@
 import { BILLING_BASE_URL } from "lib/config/env.config";
 
-import type { BillingProvider, EntitlementsResponse } from "./interface";
+import type {
+  BillingProvider,
+  CheckoutWithWorkspaceParams,
+  CheckoutWithWorkspaceResponse,
+  EntitlementsResponse,
+} from "./interface";
 
 /** Request timeout in milliseconds */
 const REQUEST_TIMEOUT_MS = 5000;
@@ -103,6 +108,42 @@ class AetherBillingProvider implements BillingProvider {
     );
 
     return entitlement?.value ?? null;
+  }
+
+  async createCheckoutWithWorkspace(
+    params: CheckoutWithWorkspaceParams,
+  ): Promise<CheckoutWithWorkspaceResponse> {
+    if (!BILLING_BASE_URL) {
+      throw new Error("BILLING_BASE_URL not configured");
+    }
+
+    const response = await fetch(`${BILLING_BASE_URL}/checkout`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${params.accessToken}`,
+      },
+      body: JSON.stringify({
+        appId: params.appId,
+        priceId: params.priceId,
+        successUrl: params.successUrl,
+        cancelUrl: params.cancelUrl,
+        ...(params.workspaceId && { workspaceId: params.workspaceId }),
+        ...(params.createWorkspace && {
+          createWorkspace: params.createWorkspace,
+        }),
+      }),
+    });
+
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({}));
+      throw new Error(
+        (error as { error?: string }).error ||
+          "Failed to create checkout session",
+      );
+    }
+
+    return response.json();
   }
 
   async healthCheck(): Promise<{ healthy: boolean; message?: string }> {

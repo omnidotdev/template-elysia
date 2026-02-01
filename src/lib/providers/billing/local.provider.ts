@@ -1,5 +1,7 @@
 import type {
   BillingProvider,
+  CheckoutWithWorkspaceParams,
+  CheckoutWithWorkspaceResponse,
   Entitlement,
   EntitlementsResponse,
 } from "./interface";
@@ -72,6 +74,12 @@ class LocalBillingProvider implements BillingProvider {
       (e) => e.featureKey === feature,
     );
     return entitlement?.value ?? "unlimited";
+  }
+
+  async createCheckoutWithWorkspace(
+    _params: CheckoutWithWorkspaceParams,
+  ): Promise<CheckoutWithWorkspaceResponse> {
+    throw new Error("Billing is not available in self-hosted mode");
   }
 
   async healthCheck(): Promise<{ healthy: boolean; message?: string }> {
