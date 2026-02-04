@@ -1,5 +1,5 @@
 /**
- * Billing types.
+ * Entitlement from billing service.
  */
 export interface Entitlement {
   id: string;
@@ -11,12 +11,78 @@ export interface Entitlement {
   validUntil: string | null;
 }
 
+/**
+ * Entitlements response from billing service.
+ */
 export interface EntitlementsResponse {
   billingAccountId: string;
   entityType: string;
   entityId: string;
   entitlementVersion: number;
   entitlements: Entitlement[];
+}
+
+/**
+ * Subscription details.
+ */
+export interface Subscription {
+  id: string;
+  status: string;
+  cancelAt: number | null;
+  currentPeriodEnd: number;
+  priceId: string;
+  product: {
+    id: string;
+    name: string;
+    description: string | null;
+    marketing_features: Array<{ name: string }>;
+  } | null;
+}
+
+/**
+ * Product information.
+ */
+export interface Product {
+  id: string;
+  name: string;
+  description: string | null;
+  marketing_features: Array<{ name: string }>;
+}
+
+/**
+ * Recurring billing details.
+ */
+export interface Recurring {
+  interval: "day" | "week" | "month" | "year";
+  interval_count: number;
+  meter?: string | null;
+  trial_period_days?: number | null;
+  usage_type?: "licensed" | "metered";
+}
+
+/**
+ * Price with expanded product.
+ */
+export interface Price {
+  id: string;
+  active: boolean;
+  currency: string;
+  unit_amount: number | null;
+  recurring: Recurring | null;
+  product: Product;
+  metadata: Record<string, string>;
+}
+
+/**
+ * Checkout session parameters.
+ */
+export interface CheckoutParams {
+  priceId: string;
+  successUrl: string;
+  customerEmail: string;
+  customerName?: string;
+  customerId?: string;
+  metadata?: Record<string, string>;
 }
 
 /**
@@ -54,37 +120,36 @@ export interface CheckoutWithWorkspaceResponse {
 export interface BillingProvider {
   /**
    * Get all entitlements for an entity.
-   * @param entityType - The entity type (e.g., "organization").
-   * @param entityId - The entity ID.
-   * @param productId - Optional product filter.
    */
   getEntitlements(
     entityType: string,
     entityId: string,
     productId?: string,
+    accessToken?: string,
   ): Promise<EntitlementsResponse | null>;
 
   /**
-   * Check if a feature is enabled for an entity.
-   * @param entityType - The entity type.
-   * @param entityId - The entity ID.
-   * @param feature - The feature key to check.
+   * Check if an entity has a specific entitlement.
+   * @returns The entitlement value or null if not found
    */
   checkEntitlement(
     entityType: string,
     entityId: string,
-    feature: string,
-  ): Promise<boolean>;
+    productId: string,
+    featureKey: string,
+    accessToken?: string,
+  ): Promise<string | null>;
 
   /**
-   * Get a specific entitlement value.
-   * @returns The value or null if not found.
+   * Get available prices for an app.
    */
-  getEntitlementValue(
-    entityType: string,
-    entityId: string,
-    feature: string,
-  ): Promise<string | null>;
+  getPrices(appName: string): Promise<Price[]>;
+
+  /**
+   * Create a checkout session for a new subscription.
+   * @deprecated Use createCheckoutWithWorkspace for new implementations
+   */
+  createCheckoutSession(params: CheckoutParams): Promise<string>;
 
   /**
    * Create a checkout session with workspace creation/selection.
@@ -93,6 +158,44 @@ export interface BillingProvider {
   createCheckoutWithWorkspace(
     params: CheckoutWithWorkspaceParams,
   ): Promise<CheckoutWithWorkspaceResponse>;
+
+  /**
+   * Get subscription details for an entity.
+   */
+  getSubscription(
+    entityType: string,
+    entityId: string,
+    accessToken: string,
+  ): Promise<Subscription | null>;
+
+  /**
+   * Get billing portal URL for an entity.
+   */
+  getBillingPortalUrl(
+    entityType: string,
+    entityId: string,
+    productId: string,
+    returnUrl: string,
+    accessToken: string,
+  ): Promise<string>;
+
+  /**
+   * Cancel a subscription.
+   */
+  cancelSubscription(
+    entityType: string,
+    entityId: string,
+    accessToken: string,
+  ): Promise<string>;
+
+  /**
+   * Renew a subscription (remove scheduled cancellation).
+   */
+  renewSubscription(
+    entityType: string,
+    entityId: string,
+    accessToken: string,
+  ): Promise<void>;
 
   /**
    * Health check for the provider.

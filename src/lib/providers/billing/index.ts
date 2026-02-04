@@ -6,8 +6,15 @@ import type { BillingProvider } from "./interface";
 
 export type {
   BillingProvider,
+  CheckoutParams,
+  CheckoutWithWorkspaceParams,
+  CheckoutWithWorkspaceResponse,
   Entitlement,
   EntitlementsResponse,
+  Price,
+  Product,
+  Recurring,
+  Subscription,
 } from "./interface";
 
 /**

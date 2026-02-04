@@ -2,9 +2,12 @@ import { BILLING_BASE_URL } from "lib/config/env.config";
 
 import type {
   BillingProvider,
+  CheckoutParams,
   CheckoutWithWorkspaceParams,
   CheckoutWithWorkspaceResponse,
   EntitlementsResponse,
+  Price,
+  Subscription,
 } from "./interface";
 
 /** Request timeout in milliseconds */
@@ -29,6 +32,7 @@ class AetherBillingProvider implements BillingProvider {
     entityType: string,
     entityId: string,
     productId?: string,
+    accessToken?: string,
   ): Promise<EntitlementsResponse | null> {
     if (!BILLING_BASE_URL) {
       console.warn("[billing] BILLING_BASE_URL not configured");
@@ -49,7 +53,11 @@ class AetherBillingProvider implements BillingProvider {
       );
       if (productId) url.searchParams.set("productId", productId);
 
+      const headers: HeadersInit = {};
+      if (accessToken) headers.Authorization = `Bearer ${accessToken}`;
+
       const response = await fetch(url.toString(), {
+        headers,
         signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS),
       });
 
@@ -76,38 +84,35 @@ class AetherBillingProvider implements BillingProvider {
   async checkEntitlement(
     entityType: string,
     entityId: string,
-    feature: string,
-  ): Promise<boolean> {
-    const entitlements = await this.getEntitlements(entityType, entityId);
-    if (!entitlements) return false;
-
-    const entitlement = entitlements.entitlements.find(
-      (e) => e.featureKey === feature,
-    );
-
-    if (!entitlement) return false;
-
-    // Check if value indicates enabled
-    return (
-      entitlement.value === "true" ||
-      entitlement.value === "unlimited" ||
-      Number.parseInt(entitlement.value ?? "0", 10) > 0
-    );
-  }
-
-  async getEntitlementValue(
-    entityType: string,
-    entityId: string,
-    feature: string,
+    productId: string,
+    featureKey: string,
+    accessToken?: string,
   ): Promise<string | null> {
-    const entitlements = await this.getEntitlements(entityType, entityId);
+    const entitlements = await this.getEntitlements(
+      entityType,
+      entityId,
+      productId,
+      accessToken,
+    );
     if (!entitlements) return null;
 
     const entitlement = entitlements.entitlements.find(
-      (e) => e.featureKey === feature,
+      (e) => e.featureKey === featureKey,
     );
 
     return entitlement?.value ?? null;
+  }
+
+  async getPrices(_appName: string): Promise<Price[]> {
+    // Backend-only template - pricing fetched client-side
+    throw new Error("getPrices not implemented for backend-only template");
+  }
+
+  async createCheckoutSession(_params: CheckoutParams): Promise<string> {
+    // Backend-only template - checkout handled via createCheckoutWithWorkspace
+    throw new Error(
+      "createCheckoutSession not implemented for backend-only template",
+    );
   }
 
   async createCheckoutWithWorkspace(
@@ -144,6 +149,119 @@ class AetherBillingProvider implements BillingProvider {
     }
 
     return response.json();
+  }
+
+  async getSubscription(
+    entityType: string,
+    entityId: string,
+    accessToken: string,
+  ): Promise<Subscription | null> {
+    if (!BILLING_BASE_URL) return null;
+
+    try {
+      const response = await fetch(
+        `${BILLING_BASE_URL}/billing-portal/subscription/${entityType}/${entityId}`,
+        {
+          headers: { Authorization: `Bearer ${accessToken}` },
+          signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS),
+        },
+      );
+
+      if (!response.ok) return null;
+
+      const { subscription } = await response.json();
+      return subscription;
+    } catch {
+      return null;
+    }
+  }
+
+  async getBillingPortalUrl(
+    entityType: string,
+    entityId: string,
+    productId: string,
+    returnUrl: string,
+    accessToken: string,
+  ): Promise<string> {
+    if (!BILLING_BASE_URL) {
+      throw new Error("BILLING_BASE_URL not configured");
+    }
+
+    const response = await fetch(
+      `${BILLING_BASE_URL}/billing-portal/${entityType}/${entityId}`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${accessToken}`,
+        },
+        body: JSON.stringify({ productId, returnUrl }),
+      },
+    );
+
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({}));
+      throw new Error(
+        (error as { error?: string }).error ||
+          "Failed to get billing portal URL",
+      );
+    }
+
+    const { url } = await response.json();
+    return url;
+  }
+
+  async cancelSubscription(
+    entityType: string,
+    entityId: string,
+    accessToken: string,
+  ): Promise<string> {
+    if (!BILLING_BASE_URL) {
+      throw new Error("BILLING_BASE_URL not configured");
+    }
+
+    const response = await fetch(
+      `${BILLING_BASE_URL}/billing-portal/subscription/${entityType}/${entityId}/cancel`,
+      {
+        method: "POST",
+        headers: { Authorization: `Bearer ${accessToken}` },
+      },
+    );
+
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({}));
+      throw new Error(
+        (error as { error?: string }).error || "Failed to cancel subscription",
+      );
+    }
+
+    const { id } = await response.json();
+    return id;
+  }
+
+  async renewSubscription(
+    entityType: string,
+    entityId: string,
+    accessToken: string,
+  ): Promise<void> {
+    if (!BILLING_BASE_URL) {
+      throw new Error("BILLING_BASE_URL not configured");
+    }
+
+    const response = await fetch(
+      `${BILLING_BASE_URL}/billing-portal/subscription/${entityType}/${entityId}/renew`,
+      {
+        method: "POST",
+        headers: { Authorization: `Bearer ${accessToken}` },
+      },
+    );
+
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({}));
+      throw new Error(
+        (error as { error?: string }).error || "Failed to renew subscription",
+      );
+    }
   }
 
   async healthCheck(): Promise<{ healthy: boolean; message?: string }> {

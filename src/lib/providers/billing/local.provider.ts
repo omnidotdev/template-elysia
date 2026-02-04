@@ -1,9 +1,12 @@
 import type {
   BillingProvider,
+  CheckoutParams,
   CheckoutWithWorkspaceParams,
   CheckoutWithWorkspaceResponse,
   Entitlement,
   EntitlementsResponse,
+  Price,
+  Subscription,
 } from "./interface";
 
 /**
@@ -34,9 +37,27 @@ const UNLIMITED_ENTITLEMENTS: EntitlementsResponse = {
   entitlements: [
     createEntitlement("tier", "enterprise", "platform"),
     createEntitlement("max_members", "unlimited", "platform"),
+    createEntitlement("max_workspaces", "unlimited", "platform"),
     createEntitlement("sso_enabled", "true", "platform"),
     createEntitlement("audit_logs", "true", "platform"),
   ],
+};
+
+/**
+ * Self-hosted subscription mock.
+ */
+const SELF_HOSTED_SUBSCRIPTION: Subscription = {
+  id: "self-hosted",
+  status: "active",
+  cancelAt: null,
+  currentPeriodEnd: Date.now() / 1000 + 365 * 24 * 60 * 60,
+  priceId: "self-hosted",
+  product: {
+    id: "self-hosted",
+    name: "Self-Hosted Enterprise",
+    description: "All features included",
+    marketing_features: [{ name: "Unlimited everything" }],
+  },
 };
 
 /**
@@ -48,6 +69,7 @@ class LocalBillingProvider implements BillingProvider {
     entityType: string,
     entityId: string,
     _productId?: string,
+    _accessToken?: string,
   ): Promise<EntitlementsResponse> {
     return {
       ...UNLIMITED_ENTITLEMENTS,
@@ -59,27 +81,62 @@ class LocalBillingProvider implements BillingProvider {
   async checkEntitlement(
     _entityType: string,
     _entityId: string,
-    _feature: string,
-  ): Promise<boolean> {
-    // All features enabled in self-hosted
-    return true;
-  }
-
-  async getEntitlementValue(
-    _entityType: string,
-    _entityId: string,
-    feature: string,
+    _productId: string,
+    featureKey: string,
+    _accessToken?: string,
   ): Promise<string | null> {
     const entitlement = UNLIMITED_ENTITLEMENTS.entitlements.find(
-      (e) => e.featureKey === feature,
+      (e) => e.featureKey === featureKey,
     );
     return entitlement?.value ?? "unlimited";
+  }
+
+  async getPrices(_appName: string): Promise<Price[]> {
+    return [];
+  }
+
+  async createCheckoutSession(_params: CheckoutParams): Promise<string> {
+    throw new Error("Billing is not available in self-hosted mode");
   }
 
   async createCheckoutWithWorkspace(
     _params: CheckoutWithWorkspaceParams,
   ): Promise<CheckoutWithWorkspaceResponse> {
     throw new Error("Billing is not available in self-hosted mode");
+  }
+
+  async getSubscription(
+    _entityType: string,
+    _entityId: string,
+    _accessToken: string,
+  ): Promise<Subscription> {
+    return SELF_HOSTED_SUBSCRIPTION;
+  }
+
+  async getBillingPortalUrl(
+    _entityType: string,
+    _entityId: string,
+    _productId: string,
+    returnUrl: string,
+    _accessToken: string,
+  ): Promise<string> {
+    return returnUrl;
+  }
+
+  async cancelSubscription(
+    _entityType: string,
+    _entityId: string,
+    _accessToken: string,
+  ): Promise<string> {
+    return "self-hosted";
+  }
+
+  async renewSubscription(
+    _entityType: string,
+    _entityId: string,
+    _accessToken: string,
+  ): Promise<void> {
+    // No-op
   }
 
   async healthCheck(): Promise<{ healthy: boolean; message?: string }> {
