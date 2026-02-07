@@ -1,6 +1,6 @@
 import { describe, expect, it } from "bun:test";
 
-import LocalAuthzProvider from "./local.provider";
+import { LocalAuthzProvider } from "@omnidotdev/providers";
 
 describe("LocalAuthzProvider", () => {
   const provider = new LocalAuthzProvider();
@@ -29,25 +29,23 @@ describe("LocalAuthzProvider", () => {
     }
   });
 
-  it("writeTuples is a no-op", async () => {
-    await expect(
-      provider.writeTuples([
-        { user: "user:123", relation: "member", object: "org:456" },
-      ]),
-    ).resolves.toBeUndefined();
+  it("writeTuples succeeds", async () => {
+    const result = await provider.writeTuples?.([
+      { user: "user:123", relation: "member", object: "org:456" },
+    ]);
+    expect(result).toEqual({ success: true });
   });
 
-  it("deleteTuples is a no-op", async () => {
-    await expect(
-      provider.deleteTuples([
-        { user: "user:123", relation: "member", object: "org:456" },
-      ]),
-    ).resolves.toBeUndefined();
+  it("deleteTuples succeeds", async () => {
+    const result = await provider.deleteTuples?.([
+      { user: "user:123", relation: "member", object: "org:456" },
+    ]);
+    expect(result).toEqual({ success: true });
   });
 
   it("healthCheck returns healthy", async () => {
-    const result = await provider.healthCheck();
-    expect(result.healthy).toBe(true);
-    expect(result.message).toBe("Local provider always healthy");
+    const result = await provider.healthCheck?.();
+    expect(result?.healthy).toBe(true);
+    expect(result?.message).toBe("Local provider always healthy");
   });
 });

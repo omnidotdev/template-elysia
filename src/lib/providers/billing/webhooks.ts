@@ -3,7 +3,7 @@ import { createHmac, timingSafeEqual } from "node:crypto";
 import { Elysia, t } from "elysia";
 
 import { BILLING_WEBHOOK_SECRET } from "lib/config/env.config";
-import { invalidateBillingCache } from "./index";
+import { billing } from "lib/providers";
 
 interface BillingWebhookPayload {
   eventType: string;
@@ -90,7 +90,7 @@ const billingWebhook = new Elysia().post(
         case "entitlement.updated":
         case "entitlement.deleted":
           // Invalidate all cached entitlements for this entity
-          invalidateBillingCache(body.entityType, body.entityId);
+          billing.invalidateCache?.(body.entityType, body.entityId);
           break;
         default:
           break;

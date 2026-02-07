@@ -1,6 +1,6 @@
 import { describe, expect, it } from "bun:test";
 
-import LocalBillingProvider from "./local.provider";
+import { LocalBillingProvider } from "@omnidotdev/providers";
 
 describe("LocalBillingProvider", () => {
   const provider = new LocalBillingProvider();
@@ -63,9 +63,9 @@ describe("LocalBillingProvider", () => {
   });
 
   it("healthCheck returns healthy", async () => {
-    const result = await provider.healthCheck();
-    expect(result.healthy).toBe(true);
-    expect(result.message).toBe("Local provider always healthy");
+    const result = await provider.healthCheck?.();
+    expect(result?.healthy).toBe(true);
+    expect(result?.message).toBe("Local provider always healthy");
   });
 
   it("getPrices returns empty array", async () => {
