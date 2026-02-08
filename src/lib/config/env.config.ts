@@ -22,13 +22,8 @@ export const {
   AUTHZ_ENABLED,
   /** Protect GraphQL routes (require authentication) */
   PROTECT_ROUTES,
-  /** Self-hosted mode flag */
-  SELF_HOSTED,
-  /** Default organization ID for self-hosted mode */
-  DEFAULT_ORG_ID = "default-org",
 } = process.env;
 
 export const isDevEnv = NODE_ENV === "development",
   isProdEnv = NODE_ENV === "production",
-  isSelfHosted = SELF_HOSTED === "true",
   protectRoutes = PROTECT_ROUTES === "true";

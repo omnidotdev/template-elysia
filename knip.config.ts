@@ -21,7 +21,6 @@ const knipConfig: KnipConfig = {
     "src/lib/db/scoped.ts",
     "src/lib/db/createDbClient.ts",
     "src/lib/db/dbClient.ts",
-    "src/lib/db/getDefaultOrgContext.ts",
     "src/lib/db/pgClient.ts",
     "src/lib/idp/**",
     "src/lib/logging/**",

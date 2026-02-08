@@ -18,17 +18,13 @@ services:
   api:
     build: .
     environment:
-      SELF_HOSTED: "true"
       DATABASE_URL: postgres://${DB_USER:-postgres}:${DB_PASSWORD}@db:5432/${DB_NAME:-app}
       AUTH_SECRET: ${AUTH_SECRET:?AUTH_SECRET is required}
       PORT: "4000"
       HOST: "0.0.0.0"
       NODE_ENV: ${NODE_ENV:-production}
       CORS_ALLOWED_ORIGINS: ${CORS_ALLOWED_ORIGINS:-http://localhost:3000}
-      # Provider overrides (optional)
-      BILLING_PROVIDER: ${BILLING_PROVIDER:-}
-      AUTHZ_PROVIDER: ${AUTHZ_PROVIDER:-}
-      # External provider URLs (if using non-local providers)
+      # External provider URLs
       BILLING_BASE_URL: ${BILLING_BASE_URL:-}
       AUTHZ_API_URL: ${AUTHZ_API_URL:-}
       AUTHZ_ENABLED: ${AUTHZ_ENABLED:-}

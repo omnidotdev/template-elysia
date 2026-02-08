@@ -6,7 +6,7 @@
  *
  * Usage:
  *   const key = cacheKeys.organization.posts(orgId);
- *   await redis.set(key, JSON.stringify(posts));
+ *   await cacheClient.set(key, JSON.stringify(posts));
  */
 
 /**
