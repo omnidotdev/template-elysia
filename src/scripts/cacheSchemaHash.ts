@@ -41,5 +41,4 @@ if (!existsSync(CACHE_DIR)) mkdirSync(CACHE_DIR, { recursive: true });
 const schemaHash = computeSchemaHash();
 writeFileSync(HASH_FILE, schemaHash);
 
-// biome-ignore lint/suspicious/noConsole: build script
-console.log(`[cacheSchemaHash] Wrote schema hash: ${schemaHash.slice(0, 12)}…`);
+console.info(`[cacheSchemaHash] Cached schema hash: ${schemaHash}`);
