@@ -8,9 +8,15 @@
 import {
   createAuthzProvider,
   createBillingProvider,
+  createEventsProvider,
 } from "@omnidotdev/providers";
 
-import { AUTHZ_API_URL, BILLING_BASE_URL } from "lib/config/env.config";
+import {
+  AUTHZ_API_URL,
+  BILLING_BASE_URL,
+  VORTEX_API_KEY,
+  VORTEX_API_URL,
+} from "lib/config/env.config";
 
 export const authz = createAuthzProvider({
   apiUrl: AUTHZ_API_URL,
@@ -20,3 +26,14 @@ export const billing = createBillingProvider({
   baseUrl: BILLING_BASE_URL,
   appId: "platform",
 });
+
+export const events = createEventsProvider(
+  VORTEX_API_URL
+    ? {
+        provider: "http",
+        baseUrl: VORTEX_API_URL,
+        apiKey: VORTEX_API_KEY,
+        source: "platform",
+      }
+    : {},
+);
