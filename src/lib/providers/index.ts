@@ -6,12 +6,14 @@
  */
 
 import {
+  createApiKeyProvider,
   createAuthzProvider,
   createBillingProvider,
   createEventsProvider,
 } from "@omnidotdev/providers";
 
 import {
+  AUTH_BASE_URL,
   AUTHZ_API_URL,
   BILLING_BASE_URL,
   VORTEX_API_KEY,
@@ -34,6 +36,15 @@ export const events = createEventsProvider(
         baseUrl: VORTEX_API_URL,
         apiKey: VORTEX_API_KEY,
         source: "platform",
+      }
+    : {},
+);
+
+export const apiKeys = createApiKeyProvider(
+  AUTH_BASE_URL
+    ? {
+        provider: "gatekeeper",
+        authBaseUrl: AUTH_BASE_URL,
       }
     : {},
 );

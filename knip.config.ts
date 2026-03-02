@@ -17,7 +17,9 @@ const knipConfig: KnipConfig = {
     "src/test/**",
     "src/__tests__/**",
     // Reference patterns - unused in template but available for adoption
+    "src/lib/auth/**",
     "src/lib/cache/**",
+    "src/lib/crypto/**",
     "src/lib/db/scoped.ts",
     "src/lib/db/createDbClient.ts",
     "src/lib/db/dbClient.ts",

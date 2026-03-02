@@ -26,6 +26,10 @@ export const {
   VORTEX_API_URL,
   /** Vortex event streaming API key */
   VORTEX_API_KEY,
+  /** Shared secret for service-to-service auth */
+  INTERNAL_SERVICE_KEY,
+  /** Organization ID for service-key authenticated requests */
+  SERVICE_ORGANIZATION_ID,
 } = process.env;
 
 export const isDevEnv = NODE_ENV === "development",
