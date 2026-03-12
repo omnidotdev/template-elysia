@@ -1,7 +1,7 @@
 {
   "name": "@omnidotdev/template-elysia",
   "private": true,
-  "license": "MIT",
+  "license": "Apache-2.0",
   "main": "build/server.js",
   "module": "build/server.js",
   "type": "module",
