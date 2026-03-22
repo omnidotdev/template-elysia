@@ -13,8 +13,8 @@ import {
 } from "@omnidotdev/providers";
 
 import {
-  AUTH_BASE_URL,
   AUTHZ_API_URL,
+  AUTH_BASE_URL,
   BILLING_BASE_URL,
   VORTEX_API_KEY,
   VORTEX_API_URL,
