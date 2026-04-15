@@ -2,7 +2,7 @@
  * Application configuration.
  */
 const app = {
-  name: "Say Less API",
+  name: "Template",
 };
 
 export default app;

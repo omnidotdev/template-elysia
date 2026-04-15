@@ -3,7 +3,7 @@ load("ext://dotenv", "dotenv")
 
 dotenv(fn=".env.local")
 
-project_name = "say-less-api"
+project_name = "template-elysia-api"
 
 local_resource(
     "install-deps-%s" % project_name,

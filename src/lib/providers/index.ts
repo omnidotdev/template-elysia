@@ -24,15 +24,10 @@ export const authz = createAuthzProvider({
   apiUrl: AUTHZ_API_URL,
 });
 
-export const billing = createBillingProvider(
-  BILLING_BASE_URL
-    ? {
-        provider: "aether",
-        baseUrl: BILLING_BASE_URL,
-        appId: "say-less",
-      }
-    : {},
-);
+export const billing = createBillingProvider({
+  baseUrl: BILLING_BASE_URL,
+  appId: "platform",
+});
 
 export const events = createEventsProvider(
   VORTEX_API_URL && VORTEX_API_KEY

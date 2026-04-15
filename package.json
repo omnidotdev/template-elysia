@@ -1,5 +1,5 @@
 {
-  "name": "@omnidotdev/say-less-api",
+  "name": "@omnidotdev/template-elysia",
   "private": true,
   "license": "Apache-2.0",
   "main": "build/server.js",
