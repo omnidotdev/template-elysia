@@ -1,3 +1,4 @@
+import { readFileSync } from "node:fs";
 import { cors } from "@elysiajs/cors";
 import { yoga } from "@elysiajs/graphql-yoga";
 import { useOpenTelemetry } from "@envelop/opentelemetry";
@@ -22,6 +23,14 @@ import { dbPool, pgPool } from "lib/db";
 import ensureDatabase from "lib/db/ensureDatabase";
 import createGraphqlContext from "lib/graphql/createGraphqlContext";
 import { armorPlugin, createAuthenticationPlugin } from "lib/graphql/plugins";
+
+const commit = (() => {
+  try {
+    return readFileSync("/app/.git-sha", "utf-8").trim();
+  } catch {
+    return "unknown";
+  }
+})();
 
 // ensure database exists before starting
 await ensureDatabase();
@@ -67,6 +76,7 @@ const app = new Elysia({
     status: "ok",
     timestamp: Date.now(),
     service: appConfig.name,
+    commit,
   }))
   // readiness endpoint
   .get("/ready", async ({ set }) => {

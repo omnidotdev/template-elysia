@@ -8,6 +8,8 @@ FROM base AS builder
 COPY package.json bun.lock ./
 RUN bun install --frozen-lockfile
 COPY . .
+ARG GIT_SHA
+RUN echo "$GIT_SHA" > /app/.git-sha
 RUN bun run build
 RUN bun run src/scripts/cacheSchemaHash.ts
 
@@ -15,6 +17,7 @@ RUN bun run src/scripts/cacheSchemaHash.ts
 FROM base AS runner
 ENV NODE_ENV=production
 
+COPY --from=builder /app/.git-sha ./.git-sha
 COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/build ./build
 COPY --from=builder /app/package.json ./
