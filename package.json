@@ -73,6 +73,6 @@
     "pg": "^8.17.2",
     "postgraphile": "^5.0.0-rc.3",
     "postgraphile-plugin-connection-filter": "^3.0.0-rc.1",
-    "@omnidotdev/providers": "github:omnidotdev/providers#8fec17c"
+    "@omnidotdev/providers": "github:omnidotdev/providers#8c5fa8a"
   }
 }
