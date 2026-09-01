@@ -71,7 +71,7 @@ const organizationMiddleware = new Elysia({
     session.user.id,
     "organization",
     orgClaim.id,
-    "viewer",
+    "member",
   );
 
   if (!canAccess) {
