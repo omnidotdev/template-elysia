@@ -65,14 +65,17 @@
     "drizzle-orm": "^0.45.1",
     "elysia": "^1.4.22",
     "elysia-rate-limit": "^4.4.2",
-    "grafast": "^1.0.0-rc.4",
-    "graphile-export": "^1.0.0-rc.3",
+    "grafast": "^1.0.0-rc.3",
+    "graphile-export": "^1.0.0-rc.2",
     "graphql": "^16.12.0",
     "graphql-yoga": "^5.18.0",
     "jose": "^6.1.3",
     "pg": "^8.17.2",
     "postgraphile": "^5.0.0-rc.3",
     "postgraphile-plugin-connection-filter": "^3.0.0-rc.1",
-    "@omnidotdev/providers": "github:omnidotdev/providers#49f2fc4"
+    "@omnidotdev/providers": "github:omnidotdev/providers#5909b95"
+  },
+  "overrides": {
+    "grafast": "1.0.0-rc.3"
   }
 }

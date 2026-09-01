@@ -1,4 +1,5 @@
 import { readFileSync } from "node:fs";
+
 import { cors } from "@elysiajs/cors";
 import { yoga } from "@elysiajs/graphql-yoga";
 import { useOpenTelemetry } from "@envelop/opentelemetry";
