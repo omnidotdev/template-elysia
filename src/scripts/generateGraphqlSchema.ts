@@ -76,7 +76,7 @@ const generateGraphqlSchema = async () => {
 
   await replaceInFile({
     files: schemaFilePath,
-    from: /\/\* eslint-disable graphile-export\/export-instances, graphile-export\/export-methods, graphile-export\/exhaustive-deps \*\//g,
+    from: /\/\* eslint-disable graphile-export\/[^*]*\*\//g,
     to: "// @ts-nocheck",
   });
 
