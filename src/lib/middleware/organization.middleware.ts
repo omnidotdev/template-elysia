@@ -3,19 +3,41 @@
  *
  * Elysia middleware that:
  * 1. Extracts organization from JWT claims
- * 2. Verifies user has access via authz provider
+ * 2. Verifies the user is a member of that organization (coarse entry gate)
  * 3. Injects organization context for downstream handlers
  *
- * Usage:
+ * IMPORTANT: this is only a coarse "is the user in this org" gate. Passing it
+ * does NOT authorize any specific action. Handlers must still check the
+ * relevant relation ("viewer" | "editor" | "admin") on the specific resource:
+ *
  *   app.use(organizationMiddleware)
- *      .get("/posts", async ({ organization }) => {
- *        // organization context is now available
+ *      .get("/posts/:id", async ({ organization, params, store }) => {
+ *        const userId = store.session.user.id;
+ *        const canView = await authz.checkPermission(
+ *          userId,
+ *          "post",
+ *          params.id,
+ *          "viewer",
+ *        );
+ *        if (!canView) throw new Error("Forbidden");
+ *        // organization context is available; the action is now authorized
  *      });
  */
 
 import { Elysia } from "elysia";
 
 import { authz } from "lib/providers";
+
+/**
+ * Relation a user must hold on an organization to pass the coarse entry gate.
+ *
+ * "member" is intentionally the broadest, most conservative admission check: it
+ * proves the user belongs to the org, nothing more. Keep it fail-closed here
+ * and authorize specific actions per-resource downstream. Widen this only if a
+ * service deliberately admits weaker relations (e.g. read-only "viewer") to its
+ * org-scoped routes.
+ */
+const ORGANIZATION_ACCESS_RELATION = "member";
 
 interface OrganizationContext {
   id: string;
@@ -66,12 +88,14 @@ const organizationMiddleware = new Elysia({
     throw new Error("Not a member of this organization");
   }
 
-  // Check organization-level authorization via authz provider
+  // Coarse org-entry gate: confirm membership via the authz provider as
+  // defense-in-depth against a stale JWT claim. Per-action checks belong in
+  // the route handlers (see the doc comment above)
   const canAccess = await authz.checkPermission(
     session.user.id,
     "organization",
     orgClaim.id,
-    "member",
+    ORGANIZATION_ACCESS_RELATION,
   );
 
   if (!canAccess) {
