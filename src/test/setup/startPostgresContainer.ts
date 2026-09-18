@@ -3,12 +3,17 @@
 // The issue is marked resolved but still hangs with Bun as of testcontainers v11.11.0
 
 const CONTAINER_LABEL = "template-elysia-test";
-const CONTAINER_NAME = "template-elysia-test-postgres";
 const POSTGRES_IMAGE = "postgres:16-alpine";
 const POSTGRES_USER = "test";
 const POSTGRES_PASSWORD = "test";
 const POSTGRES_DB = "template_elysia_test";
-const POSTGRES_PORT = "54320"; // Use non-standard port to avoid conflicts
+// Per-run container name and port so concurrent test runs (this repo and other
+// services on the same machine) never collide on a fixed name or on port 54320.
+// With `--network host` the container binds the port directly on the host, so a
+// unique high port per run is what keeps parallel runs isolated.
+const RUN_ID = `${process.pid}-${Math.floor(Math.random() * 1e6)}`;
+const CONTAINER_NAME = `template-elysia-test-postgres-${RUN_ID}`;
+const POSTGRES_PORT = String(20000 + Math.floor(Math.random() * 40000));
 
 interface PostgresContainer {
   getConnectionUri: () => string;
