@@ -85,7 +85,7 @@ const organizationMiddleware = new Elysia({
   const orgClaim = session.organizations?.find((o) => o.slug === orgSlug);
   if (!orgClaim) {
     set.status = 403;
-    throw new Error("Not a member of this organization");
+    throw new Error("Not a member of this workspace");
   }
 
   // Coarse org-entry gate: confirm membership via the authz provider as
@@ -100,7 +100,7 @@ const organizationMiddleware = new Elysia({
 
   if (!canAccess) {
     set.status = 403;
-    throw new Error("Access denied to organization");
+    throw new Error("Access denied to workspace");
   }
 
   // Return context for downstream handlers
