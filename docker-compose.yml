@@ -1,6 +1,6 @@
 services:
   db:
-    image: postgres:16-alpine
+    image: postgres:18-alpine@sha256:898c60cb390d1085bc97bdd6a1ae968757421df394b071848b52b1c09c89d6a5
     environment:
       POSTGRES_DB: ${DB_NAME:-app}
       POSTGRES_USER: ${DB_USER:-postgres}
