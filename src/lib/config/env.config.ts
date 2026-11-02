@@ -22,6 +22,22 @@ export const DATABASE_URL = env.DATABASE_URL;
 export const AUTH_BASE_URL = env.AUTH_BASE_URL ?? "https://localhost:8000";
 export const GRAPHQL_MAX_COMPLEXITY_COST = env.GRAPHQL_MAX_COMPLEXITY_COST;
 export const CORS_ALLOWED_ORIGINS = env.CORS_ALLOWED_ORIGINS;
+/**
+ * Browser origins allowed by CORS. Optional: when unset the API still boots
+ * (degrades gracefully per the startup-warnings convention) and defaults to the
+ * local app origin, logging a warning. Set it explicitly in production.
+ */
+export const corsAllowedOrigins = ((): string[] => {
+  if (!CORS_ALLOWED_ORIGINS) {
+    console.warn(
+      "CORS_ALLOWED_ORIGINS not set, defaulting to https://localhost:3000",
+    );
+    return ["https://localhost:3000"];
+  }
+  return CORS_ALLOWED_ORIGINS.split(",")
+    .map((origin) => origin.trim())
+    .filter(Boolean);
+})();
 /** Secret for verifying auth webhook signatures */
 export const AUTH_WEBHOOK_SECRET = env.AUTH_WEBHOOK_SECRET;
 /** Secret for verifying billing webhook signatures */
