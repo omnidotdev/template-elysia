@@ -15,8 +15,8 @@ import webhooks from "webhooks";
 
 import appConfig from "lib/config/app.config";
 import {
-  CORS_ALLOWED_ORIGINS,
   PORT,
+  corsAllowedOrigins,
   isDevEnv,
   isProdEnv,
 } from "lib/config/env.config";
@@ -61,7 +61,7 @@ const app = new Elysia({
   })
   .use(
     cors({
-      origin: CORS_ALLOWED_ORIGINS!.split(","),
+      origin: corsAllowedOrigins,
       methods: ["GET", "POST"],
     }),
   )
