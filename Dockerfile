@@ -10,7 +10,9 @@ RUN bun install --frozen-lockfile
 COPY . .
 ARG GIT_SHA
 RUN echo "$GIT_SHA" > /app/.git-sha
-RUN bun run build
+# Bundle with NODE_ENV=production: the bundler inlines NODE_ENV at build time,
+# so without it libraries that read it (e.g. Grafast) run in development mode
+RUN NODE_ENV=production bun run build
 RUN bun run src/scripts/cacheSchemaHash.ts
 
 # Run
